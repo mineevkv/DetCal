@@ -35,8 +35,11 @@ class InitializationSheet(Sheet):
         self.progress_bar.setRange(0, 0)
         self.progress_bar.setFixedWidth(size)
 
-        self.textBrowser = QTextBrowser(parent=self.box)
-        self.textBrowser.setGeometry(QtCore.QRect(margin, 140, size, 540))
+        self.text_browser = QTextBrowser(parent=self.box)
+        self.text_browser.setGeometry(QtCore.QRect(margin, 140, size, 540))
 
     def __del__(self):
+        self.box.deleteLater()
         logger.debug("Initialization complete, init_sheet was deleted")
+
+

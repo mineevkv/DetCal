@@ -33,29 +33,35 @@ class MainWindow(QWidget):
     def init_sheets(self):
         self.sheet_param = {
             'left_width': 391,
-            'right_width': 871,
+            'right_width': 861,
         }
+    
+        self.meas = MeasurementSheet(self)
+        self.plot = PlotSheet(self)
+        self.init = InitializationSheet(self)
+        self.gen = GeneratorSheet(self)
+        self.sa = SpectrumAnalyzerSheet(self)
+        self.osc = OscilloscopeSheet(self)
 
-        self.sheet = {
-            'meas': MeasurementSheet(self),
-            'plot': PlotSheet(self),
-            'init': InitializationSheet(self),
-            'gen': GeneratorSheet(self),
-            'sa': SpectrumAnalyzerSheet(self),
-            'osc': OscilloscopeSheet(self)
-        }
 
     def create_fields(self):
         # Left fields
-        self.main_layout.addWidget(self.sheet['init'].get_widget(), 0, 0, 3, 1)
-        self.main_layout.addWidget(self.sheet['gen'].get_widget(), 0, 0)
-        self.main_layout.addWidget(self.sheet['sa'].get_widget(), 1, 0)
-        self.main_layout.addWidget(self.sheet['osc'].get_widget(), 2, 0)
-
+        self.main_layout.addWidget(self.init.get_widget(), 0, 0, 3, 1)
         # Right fields
-        self.main_layout.addWidget(self.sheet['meas'].get_widget(), 0, 1, 2, 1)
-        self.sheet['meas'].get_widget().setFixedWidth(self.sheet_param['right_width'])
-        self.main_layout.addWidget(self.sheet['plot'].get_widget(), 2, 1)
+        self.main_layout.addWidget(self.meas.get_widget(), 0, 1, 2, 1)
+        self.meas.get_widget().setFixedWidth(self.sheet_param['right_width'])
+        self.main_layout.addWidget(self.plot.get_widget(), 2, 1)
+
+    def instr_sheet_hide(self):
+        sheets = ['gen', 'sa', 'osc']
+        for sh in sheets:
+            getattr(self, sh).hide()
+
+    def instr_sheet_show(self):
+        # Left fields
+        self.main_layout.addWidget(self.gen.get_widget(), 0, 0)
+        self.main_layout.addWidget(self.sa.get_widget(), 1, 0)
+        self.main_layout.addWidget(self.osc.get_widget(), 2, 0)
 
     def init_fonts(self):
         default_font = 'Sergo UI'

@@ -29,3 +29,6 @@ class Sheet:
     def get_widget(self):
         """Return the main widget of the sheet"""
         return self.box
+    
+    def hide(self):
+        self.box.hide()
