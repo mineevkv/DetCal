@@ -1,0 +1,8 @@
+{
+    "ip_DSG830": "192.168.127.78",
+    "visa_string_usb_DSG830": "USB0::0x1AB1::0x099C::DSG8E263200078::INSTR",
+    "ip_RSA5065N": "192.168.127.64",
+    "visa_string_usb_RSA5065N": "USB0::0x1AB1::0x0968::RSA5F251600073::INSTR",
+    "ip_MDO34": "192.168.127.100",
+    "visa_string_usb_MDO34": ""
+}

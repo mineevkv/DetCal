@@ -1,0 +1,185 @@
+/*  palette.css (var does not work in PyQt6)
+    DARK =      "#14212A"
+    BLUE =      "#45adff"
+    SURFGREEN = "#50e3c2"
+    RED =       "#ff5436"
+    VIOLET =    "#bb86fc"
+    YELLOW =    "#f1c40f"
+    GREEN =     "#a5c53c"
+    WHITE =     "#ffffff"
+*/
+
+
+QWidget {
+        background-color: #14212A;
+        color: #ffffff;
+        /* font-family: "Times New Roman", sans-serif; */
+    }
+
+QGroupBox {
+    font-size: 16px;
+    font-weight: bold;
+    border: 1px solid #45adff;
+    border-radius: 5px;
+    margin: 3px;
+}
+
+QGroupBox::title {
+    background-color: transparent;
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 10px 5px 3px 8px; /* top, right, bottom, left */
+}
+
+QGridLayout {
+    background-color: none;
+    margin: 0px;
+}
+
+QLabel {
+    background-color: none;
+    margin: 0px;
+    font-size: 14px;
+    font-weight: regular;
+}
+
+.meas_label_gen {
+    color: #f1c40f;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.meas_label_sa {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.meas_progress_label {
+    color: #50e3c2;
+    font-size: 16px;
+}
+
+QLabel:disabled{
+    color: #aeaeae;
+}
+
+QLineEdit{
+    border: 1px solid #45adff;
+    font-size: 12px;
+}
+
+QLineEdit:focus {
+    border: 1px solid #bb86fc;
+}
+
+QLineEdit:disabled{
+    border: 1px solid #90969b;
+    color: #aeaeae;
+}
+
+.ip_line:disabled {
+    border: none;
+    color: #a5c53c;
+}
+
+QTextBrowser{
+    border: none;
+    border-radius: none;
+    margin: 0;
+    font-size: 14px;
+    font-weight: regular;
+}
+
+QProgressBar {
+    border: 1px solid #45adff;
+    border-radius: 5px;
+    text-align: center;
+    color: transparent;
+}
+
+QProgressBar::chunk {
+    background-color: #f1c40f;
+    width: 100px;
+    margin: 5px 0px;
+}
+
+QPushButton {
+    border: 1px solid #45adff;
+    margin: 0px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+QPushButton:hover {
+    background-color: #bb86fc;
+}
+
+QPushButton:pressed {
+    background-color: #50e3c2;
+}
+
+QPushButton:disabled {
+    background-color: rgba(84, 83, 83, 0.5);
+    color: #aeaeae;
+    border: 1px solid #90969b;
+}
+
+.btn_start, .btn_save_result {
+    color: #f1c40f;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.btn_stop {
+    color: #ff5436;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.btn_apply {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.btn_default {
+    color: #50e3c2
+}
+
+
+QCheckBox {
+    font-size: 16px;
+    color: #aeaeae;
+    font-weight: regular;
+}
+
+QCheckBox:checked  {
+    color: #45adff;
+}
+
+QCheckBox:hover {
+    color: #82c9ff;
+}
+
+QCheckBox::indicator {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #90969b;
+    background: #2a2a2a;
+    border-radius: 5px;
+}
+QCheckBox::indicator:checked {
+    background: #50e3c2;
+    border: 1px solid #45adff;
+
+}
+
+QCheckBox::indicator:checked:hover {
+    border: 1px solid #bb86fc;
+    background: #bb86fc;
+}
+
+
+QCheckBox::indicator:hover {
+    border: 1px solid #bb86fc;
+}
