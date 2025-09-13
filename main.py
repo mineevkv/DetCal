@@ -1,9 +1,10 @@
 import os
 import sys
 from PyQt6.QtWidgets import QApplication
-from System.logger import get_logger
+
 from Measurement.meas_controller import MeasurementController
 
+from System.logger import get_logger
 logger = get_logger(__name__)
 
 def main():
