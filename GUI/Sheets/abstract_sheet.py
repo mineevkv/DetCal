@@ -1,4 +1,8 @@
-from PyQt6.QtWidgets import  QApplication,  QGroupBox
+from PyQt6.QtWidgets import (
+    QWidget, QPushButton, QApplication, QCheckBox, QProgressBar,
+    QGridLayout, QLabel, QLineEdit, QGroupBox)
+
+from PyQt6 import QtCore
 
 from GUI.palette import *
 from GUI.QtCustomWidgets.custom_widgets import *
@@ -69,6 +73,43 @@ class Sheet:
     
     def hide(self):
         self.box.hide()
+
+    def add_label(self, key, col, row, text, width=85):
+        label = self.elem[f'{key}_label'] = QLabel(f"{text}",parent=self.box)
+        label.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, self.elem_hight))
+        return label
+
+    def add_line_edit(self, key, col, row, value, width=63):
+        line_edit = self.elem[f'{key}_line'] = QLineEdit(f"{value}", parent=self.box)
+        line_edit.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, self.elem_hight))
+        line_edit.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
+        return line_edit
+
+    def add_clickable_line_edit(self, key, col, row, value, width=63):
+        line_edit = self.elem[f'{key}_clickline'] = ClickableLineEdit(f"{value}", parent=self.box)
+        line_edit.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, self.elem_hight))
+        line_edit.setProperty('class', 'ip_line')
+        line_edit.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
+        return line_edit
+        
+    def add_btn(self, key, col, row, text, width=60):
+        btn = self.elem[f'btn_{key}'] = QPushButton(f"{text}", parent=self.box)
+        btn.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, self.elem_hight))
+        return btn
+
+    def add_check_box(self, key, col, row, text):
+        check_box = self.elem[key] = QCheckBox(parent=self.box, text=text)
+        check_box.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], 200, 20))
+        return check_box
+    
+    def add_progress_bar(self, key, col, row, width, hight):
+        progress_bar = self.elem[key] = QProgressBar(parent=self.box)
+        progress_bar.setGeometry(QtCore.QRect(self.x_col[col] , self.y_row[row], width, hight))
+        progress_bar.setRange(0, 100)
+        return progress_bar
+    
+    def shift_position(self, elem, shift_x=0, shift_y=0):
+        elem.move(elem.x() + shift_x, elem.y() + shift_y)
     
     def cleanup(self):
         """Safe cleanup method to be called explicitly"""

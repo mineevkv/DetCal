@@ -1,6 +1,8 @@
 from .abstract_sheet import Sheet
 
-from PyQt6.QtWidgets import  QGroupBox
+from PyQt6.QtWidgets import  QGroupBox, QCheckBox
+from PyQt6 import QtCore
+from PyQt6.QtCore import Qt
 
 from GUI.palette import *
 from GUI.QtCustomWidgets.custom_widgets import *
@@ -12,9 +14,107 @@ class MeasurementSheet(Sheet):
 
     def __init__(self, main_layout):
         super().__init__(main_layout)
-        
-        self.box = QGroupBox("Measurement parameters")
+        self.box.setTitle("Measurement parameters")
 
-        # self.create_elements()
-        # self.update_settings_elem()
-        # self.set_line_edit_unchanged()
+        # File operation fields
+        default_col = 19 
+        load_col = default_col + 7
+        save_col = load_col + 7
+
+        self.add_custom_btn('meas_save_settings', save_col, self.zero_row, 'Save', 60, self.elem_hight)
+        self.add_custom_btn('meas_load_settings',  load_col, self.zero_row, 'Load', 60, self.elem_hight)
+        self.add_custom_btn('meas_set_default',  default_col, self.zero_row, 'Default', 60, self.elem_hight, 'btn_default')
+
+        # Generator and measurement fields
+        edit_line_width = 63
+
+        freq_row = self.zero_row + 2
+        level_row = freq_row + 1
+
+        self.add_gen_elem('freq', self.zero_col, freq_row, edit_line_width, 'Frequency, MHz:', 'START:', '0', 'STOP:', '0')
+        self.add_gen_elem('level', self.zero_col, level_row, edit_line_width, 'Output level, dBm:', 'MIN:', '-150', 'MAX:', '-150')
+
+        start_col = 52
+        self.add_check_box('unlock_stop', start_col, self.zero_row, 'Unlock STOP')
+        self.add_custom_btn('meas_start', start_col, freq_row, 'START', 120, 45, 'btn_start')
+        self.add_custom_btn('meas_stop',  start_col, freq_row, 'STOP', 120, 45, 'btn_stop').hide()
+
+        progress_col = 52
+        self.add_progress_bar('meas_progress', progress_col, self.zero_row+1, 320, self.elem_hight).hide()
+        self.add_progress_label('meas_progress', progress_col+13, self.zero_row+2, "Waiting...", 68)
+        self.add_custom_btn('meas_save_result',  72, freq_row, 'SAVE', 120, 45, 'btn_save_result').setEnabled(False)
+
+        # Spectrum analyzer and apply fields
+        points_row = level_row + 2
+        span_row = points_row + 1
+        rbw_row = span_row + 1
+        vbw_row = rbw_row + 1
+        ref_level_row = vbw_row + 1
+        self.add_sa_elem('sweep_points', self.zero_col, points_row, edit_line_width, 'Sweep points:', '0')
+        self.add_sa_elem('span', self.zero_col, span_row, edit_line_width, 'SPAN, MHz:', '0')
+        self.add_sa_elem('rbw', self.zero_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')
+        self.add_sa_elem('vbw', self.zero_col, vbw_row, edit_line_width, 'VBW, kHz:', '0')
+        self.add_sa_elem('ref_level', self.zero_col, ref_level_row, edit_line_width, 'Ref level, dB:', '0')
+
+        precise_col = self.zero_col + 20
+        self.add_check_box('precise_enabled', precise_col, points_row, 'Precise measurement')
+        self.add_sa_elem('span_precise', precise_col, span_row, edit_line_width, 'SPAN, MHz:', '0')
+        self.add_sa_elem('rbw_precise', precise_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')
+        self.add_sa_elem('vbw_precise', precise_col, vbw_row, edit_line_width, 'VBW, kHz:', '0')
+
+        self.add_custom_btn('meas_apply', 40, span_row, 'APPLY', 60, 69, 'btn_apply')
+
+        # Oscilloscope fields
+  
+
+
+    def add_gen_elem(self, key, col, row, width, text, text_min, value_min, text_max, value_max):
+        align_rvc = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        align_lvc = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter 
+
+        self.add_label(key, col, row, text, 130).setProperty('class', 'meas_label_gen')
+
+        self.add_label(f"{key}_min", col+14, row, text_min, 45).setAlignment(align_rvc)
+        self.add_line_edit(f"{key}_min", col+19, row, value_min, width).setAlignment(align_rvc)
+
+        self.add_label(f"{key}_max", col+26, row, text_max, 45).setAlignment(align_rvc)
+        self.add_line_edit(f"{key}_max", col+31, row, value_max, width).setAlignment(align_rvc)
+
+        self.add_label(f"{key}_points", col+38, row, 'POINTS:', 50).setAlignment(align_lvc)
+        self.add_line_edit(f"{key}_points", col+44, row, '0', width).setAlignment(align_rvc)
+
+    def add_sa_elem(self, key, col, row, width,  text, value):
+        self.add_label(key, col, row, text, 100).setProperty('class', 'meas_label_sa')
+        self.add_line_edit(f"{key}", col+10, row, value, width).setAlignment(Qt.AlignmentFlag.AlignRight)
+
+    def enable_precise(self, state):
+        for key in ['span_precise_label', 'span_precise_line',
+                    'rbw_precise_label', 'rbw_precise_line',
+                    'vbw_precise_label', 'vbw_precise_line']:
+            self.elem[key].setEnabled(state)
+
+    def add_custom_btn(self, key,  col, row, text, width, hight, elem_class = None):
+        btn = self.add_btn(key, col, row, text, width)
+        btn.setFixedHeight(hight)
+        if elem_class is not None: 
+            btn.setProperty('class', elem_class)
+        return btn
+    
+    def add_progress_label(self, key, col, row, text, width):
+        label = self.add_label(key, col, row, text, width)
+        label.setProperty('class', 'meas_progress_label')
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter)
+        self.shift_position(label, shift_x=-4, shift_y=13)
+        return label
+    
+    #Line edit handlers
+    def line_edit_changed(self, line_edit):
+        line_edit.setStyleSheet(f"color: {SURFGREEN};")
+
+    def set_line_edit_unchanged(self):
+        for line_edit in self.elem.values():
+            if isinstance(line_edit, QLineEdit):
+                line_edit.setStyleSheet(f"")
+    
+
+
