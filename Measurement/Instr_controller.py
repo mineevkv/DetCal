@@ -29,6 +29,8 @@ class InstrumentController(QObject):
             self.view.elem['ip_clickline'].setText(message['ip'])
 
 
+
+
     def is_connect(self):
         if self.instr is not None and self.instr.is_initialized():
             return True

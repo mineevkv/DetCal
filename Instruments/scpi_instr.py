@@ -29,7 +29,19 @@ class Instrument(VisaCom, QObject):
 
     def is_initialized(self):
         return self.initialized and self.instr is not None
-
+    
+    # decorator
+    @staticmethod
+    def device_checking(func):
+        """
+        Decorator to check if device is connected and initialized
+        """
+        def wrapper(self, *args, **kwargs):
+            if self.is_initialized():
+                return func(self, *args, **kwargs)
+            logger.error("Device is not initialized")
+        return wrapper
+    
     def get_idn(self):
         return self.send("*IDN?")
     

@@ -1,5 +1,8 @@
 from .instr_controller import InstrumentController
 
+from System.logger import get_logger
+logger = get_logger(__name__)
+
 class GenController(InstrumentController):
     def __init__(self, instr, instr_sheet):
         super().__init__(instr, instr_sheet)
@@ -20,8 +23,9 @@ class GenController(InstrumentController):
 
     def btn_rf_on_click(self):
         if not self.instr.is_initialized():
-            self.btn_rf_on.setDown(False)
-            self.btn_rf_on.setText("ERROR")
+            btn = self.view.elem['btn_rf_on']
+            btn.setDown(False)
+            btn.setText("ERROR")
             return
         
         button_state = self.btn_rf_on.isDown()

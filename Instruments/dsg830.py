@@ -35,19 +35,17 @@ class DSG830(Instrument):
         time.sleep(0.1)
 
     # Frequency control (FREQ)  
-
+    @Instrument.device_checking
     def set_frequency(self, frequency):
-        if self.is_initialized():
-             self.send(f":FREQuency {frequency}")
-             self.state_changed.emit({'frequency': frequency})
+        self.send(f":FREQuency {frequency}")
+        self.state_changed.emit({'frequency': frequency})
         
-
+    @Instrument.device_checking
     def get_frequency(self):
-        if self.is_initialized():
-            return float(self.send(":FREQuency?"))
+        return float(self.send(":FREQuency?"))
     
     # Level of output signal power (LEVEL)
-
+    @Instrument.device_checking
     def set_level(self, level):
         """
         Set the output level in dBm
@@ -61,25 +59,25 @@ class DSG830(Instrument):
         else:
             logger.warning("Output level out of range")
 
+    @Instrument.device_checking
     def get_level(self):
-        if self.is_initialized():
-            return float(self.send(":LEV?"))
+        return float(self.send(":LEV?"))
 
     # Turn ON/OFF the output signal (RF/on)
-
+    @Instrument.device_checking
     def get_output_state(self):
         """
         Query the on/off state of the RF output
         """
         if self.is_initialized():      
             return int(self.send(":OUTPut?"))
-    
-    def rf_on(self):
-        if self.is_initialized():
-            self.send(":OUTPut ON")
-            self.state_changed.emit({'rf': True})
 
+    @Instrument.device_checking
+    def rf_on(self):
+        self.send(":OUTPut ON")
+        self.state_changed.emit({'rf': True})
+
+    @Instrument.device_checking
     def rf_off(self):
-        if self.is_initialized():
-            self.send(":OUTPut OFF")
-            self.state_changed.emit({'rf': False})
+        self.send(":OUTPut OFF")
+        self.state_changed.emit({'rf': False})
