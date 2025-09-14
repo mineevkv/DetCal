@@ -51,20 +51,25 @@ class MeasurementController(QObject):
             self.view.init.status_label.setText("No instruments")
             self.view.init.progress_bar.setRange(0, 100)
             self.view.init.progress_bar.setValue(100)            
-            self.init_timer.setInterval(3000) # 3 seconds
+            self.init_timer.setInterval(100) # 0.1 seconds
             self.init_timer.start()
             return
         
         message = 'Initialization complete'
         self.append_init_text(message)
         logger.info(message)
-        self.init_timer.setInterval(1000) # 1 second
+        self.init_timer.setInterval(500) # 0.5 second
         self.init_timer.start()
 
     def close_init_window(self):
         self.init_timer.stop()
         self.view.instr_sheet_show()
-        self.view.init.__del__()
+        self.view.init.cleanup()
+
+        self.set_instrum_sheets_controllers()
+    
+    def set_instrum_sheets_controllers(self):
+        pass
 
 
     def append_init_text(self, text, status="INFO"):

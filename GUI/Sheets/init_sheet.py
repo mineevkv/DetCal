@@ -20,7 +20,6 @@ class InitializationSheet(Sheet):
         super().__init__(main_window)
 
         self.box = QGroupBox("")
-        # self.box.setFixedWidth(self.box_width)
         self.layout.addWidget(self.box)
 
         margin = 20
@@ -38,8 +37,8 @@ class InitializationSheet(Sheet):
         self.text_browser = QTextBrowser(parent=self.box)
         self.text_browser.setGeometry(QtCore.QRect(margin, 140, size, 540))
 
-    def __del__(self):
-        self.box.deleteLater()
-        logger.debug("Initialization complete, init_sheet was deleted")
+    def cleanup(self):
+        super().cleanup()  
+        logger.debug("InitializationSheet was cleaned up")
 
 

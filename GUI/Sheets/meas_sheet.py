@@ -12,4 +12,9 @@ class MeasurementSheet(Sheet):
 
     def __init__(self, main_layout):
         super().__init__(main_layout)
-        pass
+        
+        self.box = QGroupBox("Measurement parameters")
+
+        # self.create_elements()
+        # self.update_settings_elem()
+        # self.set_line_edit_unchanged()
