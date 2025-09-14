@@ -1,5 +1,4 @@
-from Instruments.visacom import get_visa_resource, send_scpi_command, get_visa_string_ip
-from Instruments.scpiinstr import Instrument
+from Instruments.scpi_instr import Instrument
 import numpy as np
 import logging
 import time
@@ -60,61 +59,61 @@ class RSA5065N(Instrument):
 
     # Frequency (FREQ)
     def set_center_freq(self, freq):
-        send_scpi_command(self.instr, f":SENSE:FREQUENCY:CENTER {freq}")
+        self.send(f":SENSE:FREQUENCY:CENTER {freq}")
         
 
     def get_start_freq(self):
-        return float(send_scpi_command(self.instr, f":FREQuency:STARt?"))
+        return float(self.send(f":FREQuency:STARt?"))
 
     def get_stop_freq(self):
-        return float(send_scpi_command(self.instr, f":FREQuency:STOP?"))
+        return float(self.send(f":FREQuency:STOP?"))
         
 
     # Span (SPAN)
 
     def set_span(self, span):
-        send_scpi_command(self.instr, f":SENSE:FREQUENCY:SPAN {span}")
+        self.send(f":SENSE:FREQUENCY:SPAN {span}")
 
     # Amplitude (AMPT)
 
     def set_ref_level(self, ref_level=0):
-        send_scpi_command(self.instr, f":DISPLAY:TRACE:Y:SCALE:RLEVEL {ref_level}")
+        self.send(f":DISPLAY:TRACE:Y:SCALE:RLEVEL {ref_level}")
 
     # Bandwidth (BW)
 
     def set_rbw(self, rbw):
-        send_scpi_command(self.instr, f":SENSE:BANDWIDTH:RESOLUTION {rbw}")
+        self.send(f":SENSE:BANDWIDTH:RESOLUTION {rbw}")
 
     def set_vbw(self, vbw):
-        send_scpi_command(self.instr, f":SENSE:BANDWIDTH:VIDEO {vbw}")
+        self.send(f":SENSE:BANDWIDTH:VIDEO {vbw}")
 
     # Trace (Trace)
 
     def set_trace_format(self, trace_format):
-        send_scpi_command(self.instr, f":FORMat:TRACe:DATA {trace_format}")
+        self.send(f":FORMat:TRACe:DATA {trace_format}")
 
     def trace_clear_all(self):
-        send_scpi_command(self.instr, f":TRACe:CLEar:ALL")
+        self.send(f":TRACe:CLEar:ALL")
 
     # Sweep (Sweep)
 
     def set_sweep_time(self, sweep_time):
-        send_scpi_command(self.instr, f":SENSE:SWEEP:TIME {sweep_time}")
+        self.send(f":SENSE:SWEEP:TIME {sweep_time}")
 
     def get_sweep_time(self):
-        return float(send_scpi_command(self.instr, f":SENSe:SWEep:TIME?"))
+        return float(self.send(f":SENSe:SWEep:TIME?"))
 
     def set_sweep_points(self, sweep_points):
-        send_scpi_command(self.instr, f":SENSE:SWEEP:POINTS {sweep_points}")
+        self.send(f":SENSE:SWEEP:POINTS {sweep_points}")
 
     def get_sweep_points(self):
-        return int(send_scpi_command(self.instr, f":SENSe:SWEep:POINts?"))
+        return int(self.send(f":SENSe:SWEep:POINts?"))
 
     def set_single_sweep(self):
-        send_scpi_command(self.instr, ":INITiate:CONTinuous OFF")
+        self.send(":INITiate:CONTinuous OFF")
 
     def set_continuous_sweep(self):
-        send_scpi_command(self.instr, ":INITiate:CONTinuous ON")
+        self.send(":INITiate:CONTinuous ON")
 
     # Single measurement (Single)
     
@@ -123,18 +122,18 @@ class RSA5065N(Instrument):
         Emulations pressing the front panel 'Single' button
         """
         self.set_single_sweep()
-        send_scpi_command(self.instr, ":TRIGger:SEQuence:SOURce IMMediate")
-        send_scpi_command(self.instr, ":INITiate:IMMediate")
+        self.send(":TRIGger:SEQuence:SOURce IMMediate")
+        self.send(":INITiate:IMMediate")
 
     # Peak processing (Peak)
     def find_peak_max(self, marker_number=1):
-        send_scpi_command(self.instr, f":CALCulate:MARKer{marker_number}:MAXimum:MAX")
+        self.send(f":CALCulate:MARKer{marker_number}:MAXimum:MAX")
 
     def get_peak_freq(self, marker_number=1):
-        return float(send_scpi_command(self.instr, f":CALCulate:MARKer{marker_number}:X?"))
+        return float(self.send(f":CALCulate:MARKer{marker_number}:X?"))
 
     def get_peak_level(self, marker_number=1):
-        return float(send_scpi_command(self.instr, f":CALCulate:MARKer{marker_number}:Y?"))
+        return float(self.send(f":CALCulate:MARKer{marker_number}:Y?"))
 
     # Format
 
@@ -143,8 +142,8 @@ class RSA5065N(Instrument):
         Set trace format data output to binary (REAL 32,  byte order: normal)
         """
 
-        send_scpi_command(self.instr, ":FORMat:TRACe:DATA REAL,32")
-        send_scpi_command(self.instr, ":FORMat:BORDer NORMal")
+        self.send(":FORMat:TRACe:DATA REAL,32")
+        self.send(":FORMat:BORDer NORMal")
 
     # Configure
 
@@ -152,14 +151,14 @@ class RSA5065N(Instrument):
         """
         Returns the current measurement function
         """
-        return send_scpi_command(self.instr, ":CONFigure?")
+        return self.send(":CONFigure?")
     
     def set_swept_sa(self):
         """
         Switches the analyzer to the swept SA mode
         """
         if 'SAN' not in self.get_configure():
-            send_scpi_command(self.instr, ":CONFigure:SANalyzer") 
+            self.send(":CONFigure:SANalyzer") 
 
 
 

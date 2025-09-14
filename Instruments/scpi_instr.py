@@ -1,16 +1,20 @@
-from Instruments.visacom import get_visa_resource, send_scpi_command, get_visa_string_ip
+from Instruments.visacom import VisaCom
 import numpy as np
 import pyvisa
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from System.logger import get_logger
 logger = get_logger(__name__)
 import time
 
-class Instrument:
-    """
-    Abstract class for SCPI Instrument
-    """
-    def __init__(self,  ip=0, visa_usb=0):
+class Instrument(VisaCom, QObject):
+    """Abstract class for SCPI Instrument"""
+    state_changed = pyqtSignal(dict)  # Signal to notify settings changes
+
+    def __init__(self, ip=0, visa_usb=0):
+        VisaCom.__init__(self)
+        QObject.__init__(self) 
+        
         self.set_ip(ip)
         self.initialized = False
         self.model = 'None'
@@ -27,10 +31,10 @@ class Instrument:
         return self.initialized and self.instr is not None
 
     def get_idn(self):
-        return send_scpi_command(self.instr, "*IDN?")
+        return self.send("*IDN?")
     
     def reset(self):
-        send_scpi_command(self.instr, "*RST")
+        self.send("*RST")
         time.sleep(2)
     
     def get_model(self):
@@ -39,11 +43,18 @@ class Instrument:
 
     def set_ip(self, ip):
         self.ip = ip
+        self.state_changed.emit({'ip': self.ip})
+
+    def get_ip(self):
+        if self.is_initialized():
+            return self.ip
+        else:
+            return None
 
     def connect(self):
         if not self.is_initialized():
             try:
-                self.instr = get_visa_resource(get_visa_string_ip(self.ip))
+                self.instr = VisaCom.get_visa_resource(VisaCom.get_visa_string_ip(self.ip))
                 self.initialized = True
                 self.get_model()
                 logger.info(f"Connected to instrument at {self.ip}")

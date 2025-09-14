@@ -1,6 +1,9 @@
 from PyQt6.QtCore import QObject, QTimer
 from .meas_model import MeasurementModel
 from GUI.main_window import MainWindow
+from .gen_controller import GenController
+from .sa_controller import SAController
+from .osc_controller import OscController
 
 from GUI.palette import *
 
@@ -15,7 +18,7 @@ class MeasurementController(QObject):
         self.view = MainWindow()
 
         self.connect_signals() # Must be before initialization
-        self.model.offline_mode(True) # Set to True for offline testing without instruments
+        self.model.offline_mode(False) # Set to True for offline testing without instruments
         self.model.start_initialization()
 
 
@@ -27,6 +30,7 @@ class MeasurementController(QObject):
     def connect_signals(self):
         self.initializer_signals()
         self.init_timer_signals()
+        # self.instruments_signals()
 
     def initializer_signals(self):
         self.model.initializer.progress.connect(self.update_init_progress)
@@ -35,6 +39,7 @@ class MeasurementController(QObject):
     def init_timer_signals(self):
         self.init_timer = QTimer()
         self.init_timer.timeout.connect(self.close_init_window)
+
 
     def update_init_progress(self, message):
         """Update progress message"""
@@ -66,10 +71,18 @@ class MeasurementController(QObject):
         self.view.instr_sheet_show()
         self.view.init.cleanup()
 
-        self.set_instrum_sheets_controllers()
+        self.set_instr_controllers()
     
-    def set_instrum_sheets_controllers(self):
-        pass
+    def set_instr_controllers(self):
+        try:
+            if hasattr(self.model, 'gen') and self.model.gen:
+                self.gen_controller = GenController(self.model.gen, self.view.gen)
+            if hasattr(self.model, 'sa') and self.model.sa:
+                self.sa_controller = SAController(self.model.sa, self.view.sa)
+            if hasattr(self.model, 'osc') and self.model.osc:
+                self.osc_controller = OscController(self.model.osc, self.view.osc)
+        except AttributeError as e:
+            logger.error(f"Failed to set instrument controllers: {e}")
 
 
     def append_init_text(self, text, status="INFO"):

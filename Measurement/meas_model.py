@@ -5,10 +5,14 @@ from System.logger import get_logger
 logger = get_logger(__name__)
 
 class MeasurementModel(QObject):
-    data_changed = pyqtSignal(list)  # Сигнал при изменении данных
+    data_changed = pyqtSignal(list)  # Signal to notify data changes
     
     def __init__(self):
         super().__init__()
+
+        self.gen = None
+        self.sa = None
+        self.osc = None
 
         self.initializer = InstrumentInitializer()
 

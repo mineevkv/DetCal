@@ -7,41 +7,84 @@ from System.logger import get_logger
 logger = get_logger(__name__)
 
 class InstrumentController(QObject):
-    def __init__(self):
+    def __init__(self, instr, instr_sheet):
         super().__init__()
-        pass
-
+        self.instr = instr
+        self.view = instr_sheet
+        
+        self.set_connection_field()
+        self.connect_signals()
         # self.ip_btn_connect.clicked.connect(self.ip_btn_connect_click)
 
         # self.check_connection()
 
             #Controller
 
+    def connect_signals(self):
+        self.view.elem['btn_ip'].clicked.connect(self.btn_connect_click)
+        self.instr.state_changed.connect(self.signal_handler)
 
-    def check_connection(self):
-        if self.instr.is_initialized():
-            self.ip_status_label.setText("Connected")
-            self.ip_status_label.setStyleSheet(f"color: {GREEN}")
-            self.ip_line.setEnabled(False)
+    def signal_handler(self, message):
+        if 'ip' in message:
+            self.view.elem['ip_clickline'].setText(message['ip'])
+
+
+    def is_connect(self):
+        if self.instr is not None and self.instr.is_initialized():
             return True
         else:
-            self.ip_status_label.setText("No connection")
-            self.ip_status_label.setStyleSheet(f"color: {RED}")
-            self.ip_line.setEnabled(True)
             return False
+
+    def set_connection_field(self):
+        label = self.view.elem['ip_status_label']
+        line_edit = self.view.elem['ip_clickline']
         
+        if self.is_connect():           
+            label.setText("Connected")
+            label.setStyleSheet(f"color: {GREEN}")
+            line_edit.setEnabled(False)
+        else:
+            label.setStyleSheet(f"color: {RED}")
+            label.setText("No connection")
+            line_edit.setEnabled(True)
 
-    def update_ip(self):
-           pass
-        #    self.ip = self.instr.ip
+    def btn_connect_click(self):
+        new_ip = self.view.elem['ip_clickline'].text()
+        new_ip = new_ip.strip()
 
-    def ip_btn_connect_click(self):
-        if not self.check_connection():
-            self.ip = self.ip_line.text()
-            self.instr.set_ip(self.ip)
+        if not self.is_valid_ip(new_ip):
+            logger.warning(f"Invalid IP address: {new_ip}")
+            return
+
+        if self.is_connect():
+            current_ip = self.instr.get_ip()
+            if current_ip == new_ip:
+                logger.info(f"Already connected to {new_ip}")
+                return
+                        
+        if self.instr is not None:
+            self.instr.set_ip(new_ip)
             self.instr.connect()
-        if not self.check_connection():
-            self.ip_status_label.setText("Connection error")
+            
+
+
+        # if not self.is_connect():
+        #     label = self.view.elem['ip_status_label']
+        #     label.setText("Connection error")
+
+    def is_valid_ip(self, ip):
+        """
+        Check if given IP address is valid
+        """
+        parts = ip.split(".")
+        if len(parts) != 4:
+            return False
+        for part in parts:
+            if not part.isdigit():
+                return False
+            if int(part) < 0 or int(part) > 255:
+                return False
+        return True
 
     def check_initialization(self):
         if self.instr.is_initialized():

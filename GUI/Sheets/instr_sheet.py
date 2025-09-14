@@ -32,7 +32,7 @@ class InstrumentSheet(Sheet):
         self.add_label(key , self.zero_col, self.ip_row, "IP:", 50)
         self.add_clickable_line_edit(key, 3, self.ip_row, f"{self.ip}", 93)
         self.add_btn(key, 13, self.ip_row, "Connect")
-        self.add_label(key, 20, self.ip_row, "", 100)
+        self.add_label(f'{key}_status', 20, self.ip_row, "", 100)
 
     def add_control_elem(self, key, col, row, text, value, label_width=85, line_width=63, btn_width=60):
         col_label = col

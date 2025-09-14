@@ -1,5 +1,4 @@
-from Instruments.visacom import send_scpi_command as send
-from Instruments.scpiinstr import Instrument
+from Instruments.scpi_instr import Instrument
 import numpy as np
 import logging
 import time
@@ -127,7 +126,7 @@ class MDO34(Instrument):
         send(self.instr, 'TRIGger FORCe')
 
     def is_acquiring(self):
-        response = bool(int(send(self.instr, 'ACQUIRE:STATE?')))
+        response = bool(int(send_scpi_command(self.instr, 'ACQUIRE:STATE?')))
         return response
     
     def set_data_source(self,source=None):

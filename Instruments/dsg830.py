@@ -1,5 +1,4 @@
-from Instruments.visacom import get_visa_resource, send_scpi_command, get_visa_string_ip
-from Instruments.scpiinstr import Instrument
+from Instruments.scpi_instr import Instrument
 
 import time
 import numpy as np
@@ -25,7 +24,7 @@ class DSG830(Instrument):
         
         self.type = 'Microwave Generator'
 
-        self.default_setup()
+        # self.default_setup()
 
     def default_setup(self):
         if not self.is_initialized():
@@ -39,11 +38,13 @@ class DSG830(Instrument):
 
     def set_frequency(self, frequency):
         if self.is_initialized():
-            send_scpi_command(self.instr, f":FREQuency {frequency}")
+             self.send(f":FREQuency {frequency}")
+             self.state_changed.emit({'frequency': frequency})
+        
 
     def get_frequency(self):
         if self.is_initialized():
-            return float(send_scpi_command(self.instr, ":FREQuency?"))
+            return float(self.send(":FREQuency?"))
     
     # Level of output signal power (LEVEL)
 
@@ -55,13 +56,14 @@ class DSG830(Instrument):
             return
 
         if level <=self.max_level and level >= self.min_level:
-            send_scpi_command(self.instr, f":LEV {level}dBm")
+            self.send(f":LEV {level}dBm")
+            self.state_changed.emit({'level': level})
         else:
             logger.warning("Output level out of range")
 
     def get_level(self):
         if self.is_initialized():
-            return float(send_scpi_command(self.instr, ":LEV?"))
+            return float(self.send(":LEV?"))
 
     # Turn ON/OFF the output signal (RF/on)
 
@@ -70,12 +72,14 @@ class DSG830(Instrument):
         Query the on/off state of the RF output
         """
         if self.is_initialized():      
-            return int(send_scpi_command(self.instr, ":OUTPut?"))
+            return int(self.send(":OUTPut?"))
     
     def rf_on(self):
         if self.is_initialized():
-            send_scpi_command(self.instr, ":OUTPut ON")
+            self.send(":OUTPut ON")
+            self.state_changed.emit({'rf': True})
 
     def rf_off(self):
         if self.is_initialized():
-            send_scpi_command(self.instr, ":OUTPut OFF")
+            self.send(":OUTPut OFF")
+            self.state_changed.emit({'rf': False})
