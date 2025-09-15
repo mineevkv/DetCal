@@ -10,6 +10,31 @@ from System.logger import get_logger
 logger = get_logger(__name__)
 import time
 
+
+class ConnectThread(QThread):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+
+    def run(self):
+        try:
+            self.parent.instr = VisaCom.get_visa_resource(VisaCom.get_visa_string_ip(self.parent.ip))
+            self.parent.initialized = True
+            self.parent.get_model()
+            logger.info(f"Connected to instrument at {self.parent.ip}")
+            
+        except pyvisa.errors.VisaIOError:
+            logger.error(f"Error connecting to instrument at {self.parent.ip}")
+            self.parent.instr = None
+            self.parent.initialized = False
+            self.parent.model = 'None'
+
+        self.parent.state_changed.emit({
+            'ip': self.parent.ip,
+            'connected': self.parent.initialized,
+            'model': self.parent.model
+        })
+
 class Instrument(VisaCom, QObject):
     """Abstract class for SCPI Instrument"""
     state_changed = pyqtSignal(dict)  # Signal to notify settings changes
@@ -24,7 +49,7 @@ class Instrument(VisaCom, QObject):
         self.type = 'No Instrument'
 
         
-        self.connect_thread = None # Create thread but don't start it yet
+        self.connect_thread = ConnectThread(self) # Create thread but don't start it yet
 
         self.connect()
 
@@ -71,6 +96,7 @@ class Instrument(VisaCom, QObject):
         
     def connect(self):
         logger.debug(f"{self.__class__.__name__}: connect()")
+        self.connect_thread.start()
         
         
     
