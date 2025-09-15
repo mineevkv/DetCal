@@ -2,6 +2,7 @@ from Instruments.visacom import VisaCom
 import numpy as np
 import pyvisa
 from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QThread
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -19,6 +20,9 @@ class Instrument(VisaCom, QObject):
         self.initialized = False
         self.model = 'None'
         self.type = 'No Instrument'
+
+        
+        self.connect_thread = None # Create thread but don't start it yet
 
         self.connect()
 
@@ -64,18 +68,44 @@ class Instrument(VisaCom, QObject):
             return None
 
     def connect(self):
-        if not self.is_initialized():
-            try:
-                self.instr = VisaCom.get_visa_resource(VisaCom.get_visa_string_ip(self.ip))
-                self.initialized = True
-                self.get_model()
-                logger.info(f"Connected to instrument at {self.ip}")
-            except pyvisa.errors.VisaIOError:
-                logger.error(f"Error connecting to instrument at {self.ip}")
-                self.instr = None
-                self.initialized = False 
-        else:
-            logger.info(f"Instrument at {self.ip} is already connected")
+
+        # Clean up any existing thread
+        if self.connect_thread and self.connect_thread.isRunning():
+            self.connect_thread.quit()
+            self.connect_thread.wait()
+            self.connect_thread.start()
+
+        # Create new thread
+        self.connect_thread = ConnectThread(self)
+        self.connect_thread.finished.connect(self.connect_finished)
+        self.connect_thread.start()
+
+    def connect_finished(self):
+        logger.debug("Connect thread finished")
+
+class ConnectThread(QThread):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+
+    def run(self):
+        try:
+            self.parent.instr = VisaCom.get_visa_resource(VisaCom.get_visa_string_ip(self.parent.ip))
+            self.parent.initialized = True
+            self.parent.get_model()
+            logger.info(f"Connected to instrument at {self.parent.ip}")
+            
+        except pyvisa.errors.VisaIOError:
+            logger.error(f"Error connecting to instrument at {self.parent.ip}")
+            self.parent.instr = None
+            self.parent.initialized = False
+            self.parent.model = 'None'
+
+        self.parent.state_changed.emit({
+            'ip': self.parent.ip,
+            'connected': self.parent.initialized,
+            'model': self.parent.model
+        })
 
     
 

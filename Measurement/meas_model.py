@@ -5,7 +5,7 @@ from System.logger import get_logger
 logger = get_logger(__name__)
 
 class MeasurementModel(QObject):
-    data_changed = pyqtSignal(list)  # Signal to notify data changes
+    data_changed = pyqtSignal(dict)  # Signal to notify data changes
     
     def __init__(self):
         super().__init__()
@@ -30,9 +30,16 @@ class MeasurementModel(QObject):
             logger.debug('MeasModel_init_complete with error:', error)
             return
         
-        self.gen = gen
-        self.sa = sa
-        self.osc = osc
+        if gen is not None:
+            self.gen = gen
+            self.data_changed.emit({'Gen': gen})
+        if sa is not None:
+            self.sa = sa
+            self.data_changed.emit({'SA': sa})
+        if osc is not None:
+            self.osc = osc
+            self.data_changed.emit({'Osc': osc})
+
 
         # TODO: emit the data_changed signal with the initialized instruments
         

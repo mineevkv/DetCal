@@ -30,6 +30,7 @@ class MeasurementController(QObject):
     def connect_signals(self):
         self.initializer_signals()
         self.init_timer_signals()
+        self.init_model_signals()
         # self.instruments_signals()
 
     def initializer_signals(self):
@@ -39,6 +40,12 @@ class MeasurementController(QObject):
     def init_timer_signals(self):
         self.init_timer = QTimer()
         self.init_timer.timeout.connect(self.close_init_window)
+
+    def init_model_signals(self):
+        self.model.data_changed.connect(self.data_changed_handler)
+
+    def data_changed_handler(self, message):
+        pass
 
 
     def update_init_progress(self, message):

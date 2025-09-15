@@ -12,8 +12,9 @@ class InstrumentController(QObject):
         self.instr = instr
         self.view = instr_sheet
         
-        self.set_connection_field()
         self.connect_signals()
+        self.set_connection_field()
+        
         # self.ip_btn_connect.clicked.connect(self.ip_btn_connect_click)
 
         # self.check_connection()
@@ -27,7 +28,9 @@ class InstrumentController(QObject):
     def signal_handler(self, message):
         if 'ip' in message:
             self.view.elem['ip_clickline'].setText(message['ip'])
-
+            self.set_connection_field()
+        if 'model' in message:
+            self.view.elem['model_label'].setText(message['model'])
 
 
 
