@@ -17,7 +17,7 @@ class InstrumentController(QObject):
         
         # self.ip_btn_connect.clicked.connect(self.ip_btn_connect_click)
 
-        # self.check_connection()
+        self.instr.connect()
 
             #Controller
 
@@ -31,7 +31,11 @@ class InstrumentController(QObject):
             self.set_connection_field()
         if 'model' in message:
             self.view.elem['model_label'].setText(message['model'])
-
+        if 'type' in message:
+            self.view.box.setTitle(message['type'])
+        if 'thread' in message:
+            self.instr.connect_thread = None
+            
 
 
     def is_connect(self):

@@ -22,13 +22,10 @@ class RSA5065N(Instrument):
 
     def __init__(self, ip=0, visa_usb=0):
         super().__init__(ip, visa_usb)
-
-        if not self.is_initialized():
-            return 
-
+        
         self.type = 'Spectrum Analyzer'
 
-        self.default_setup()
+        # self.default_setup()
 
     def default_setup(self):  
         self.set_swept_sa()

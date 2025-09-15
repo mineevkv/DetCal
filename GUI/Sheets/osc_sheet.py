@@ -12,4 +12,4 @@ class OscilloscopeSheet(InstrumentSheet):
 
     def __init__(self, main_layout):
         super().__init__(main_layout)
-        self.box.setTitle("Oscilloscope")
+        # self.box.setTitle("Oscilloscope")

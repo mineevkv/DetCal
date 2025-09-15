@@ -1,4 +1,5 @@
 from PyQt6.QtCore import QObject, pyqtSignal
+
 from Instruments.Initializer import InstrumentInitializer
 
 from System.logger import get_logger
@@ -15,7 +16,6 @@ class MeasurementModel(QObject):
         self.osc = None
 
         self.initializer = InstrumentInitializer()
-
         self.initializer.instr_list.connect(self.init_instruments)
 
     def start_initialization(self):
@@ -25,7 +25,6 @@ class MeasurementModel(QObject):
 
     def init_instruments(self, gen, sa, osc, error):
         """Handle completion of instrument initialization"""
-        
         if error:
             logger.debug('MeasModel_init_complete with error:', error)
             return

@@ -17,7 +17,7 @@ class SpectrumAnalyzerSheet(InstrumentSheet):
 
     def __init__(self, main_layout):
         super().__init__(main_layout)
-        self.box.setTitle("Spectrum Analyzer")
+        # self.box.setTitle("Spectrum Analyzer")
         
         center_freq_row = self.ip_row + 2
         span_row = center_freq_row + 1

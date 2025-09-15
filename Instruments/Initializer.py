@@ -79,18 +79,22 @@ class InstrumentInitializer(QThread):
             )
             mdo_thread.start()
             
+
+            # First join ALL threads (wait for all to complete)
             rsa_thread.join()
+            dsg_thread.join()
+            mdo_thread.join()
+            
+            # Then get ALL results from queues
             sa = rsa_queue.get()
+            gen = dsg_queue.get()
+            osc = mdo_queue.get()
+            
+            # Then check for errors
             if isinstance(sa, Exception):
                 raise sa
-            
-            dsg_thread.join()
-            gen = dsg_queue.get()
             if isinstance(gen, Exception):
                 raise gen
-            
-            mdo_thread.join()
-            osc = mdo_queue.get()
             if isinstance(osc, Exception):
                 raise osc
 
@@ -108,6 +112,8 @@ class InstrumentInitializer(QThread):
     def init_instrument(self, instrument_class, ip, visa_usb, q):
         try:
             result = instrument_class(ip, visa_usb)
-            q.put(result)
+            q.put(result, timeout=10)
+            logger.debug(f"{instrument_class.__name__} thread completed successfully")
         except Exception as e:
-            q.put(e)
+            logger.error(f"{instrument_class.__name__} thread failed: {e}")
+            q.put(e, timeout=5)

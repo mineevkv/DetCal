@@ -5,6 +5,7 @@ import pyvisa
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import QThread
 from PyQt6.QtCore import pyqtSignal, QObject, Qt
+from PyQt6.QtCore import QMutex
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -16,9 +17,14 @@ class ConnectThread(QThread):
         super().__init__()
         self.parent = parent
 
+    def __del__(self):
+        logger.debug(f"{self.__class__.__name__}: thread deleted")
+        
     def run(self):
         try:
             self.parent.instr = VisaCom.get_visa_resource(VisaCom.get_visa_string_ip(self.parent.ip))
+            if self.parent.instr is None:
+                return
             self.parent.initialized = True
             self.parent.get_model()
             logger.info(f"Connected to instrument at {self.parent.ip}")
@@ -28,30 +34,30 @@ class ConnectThread(QThread):
             self.parent.instr = None
             self.parent.initialized = False
             self.parent.model = 'None'
-
-        self.parent.state_changed.emit({
-            'ip': self.parent.ip,
-            'connected': self.parent.initialized,
-            'model': self.parent.model
+        finally:
+            self.parent.state_changed.emit({
+                'ip': self.parent.ip,
+                'connected': self.parent.initialized,
+                'model': self.parent.model,
+                'type': self.parent.get_type(),
+                'thread': self.parent.connect_thread
         })
 
 class Instrument(VisaCom, QObject):
     """Abstract class for SCPI Instrument"""
     state_changed = pyqtSignal(dict)  # Signal to notify settings changes
 
-    def __init__(self, ip=0, visa_usb=0):
+    def __init__(self, ip, visa_usb):
         VisaCom.__init__(self)
         QObject.__init__(self) 
-        
-        self.set_ip(ip)
         self.initialized = False
+        self.connect_thread = None
+        self.ip = None
         self.model = 'None'
         self.type = 'No Instrument'
 
-        
-        self.connect_thread = ConnectThread(self) # Create thread but don't start it yet
-
-        self.connect()
+        self.set_ip(ip)
+        # TODO: block access to instrument sheet if instrument is not from mylist
 
     def __del__(self):
         if self.instr is not None:
@@ -83,10 +89,14 @@ class Instrument(VisaCom, QObject):
     def get_model(self):
         idn = self.get_idn()
         _, self.model, _, _ = idn.split(',')
+    
+    def get_type(self):
+        return self.type
 
     def set_ip(self, ip):
-        self.ip = ip
-        self.state_changed.emit({'ip': self.ip})
+        if ip is not None:
+            self.ip = ip
+            self.state_changed.emit({'ip': self.ip})
 
     def get_ip(self):
         if self.is_initialized():
@@ -94,8 +104,37 @@ class Instrument(VisaCom, QObject):
         else:
             return None
         
+    # def direct_connect(self):
+    #     try:
+    #         self.instr = VisaCom.get_visa_resource(VisaCom.get_visa_string_ip(self.ip))
+    #         if self.instr is None:
+    #             return
+    #         self.initialized = True
+    #         self.get_model()
+    #         logger.info(f"Connected to instrument at {self.ip}")
+            
+    #     except pyvisa.errors.VisaIOError:
+    #         logger.error(f"Error connecting to instrument at {self.ip}")
+    #         self.instr = None
+    #         self.initialized = False
+    #         self.model = 'None'
+    #         self.type = 'No Instrument'
+    #     finally:
+    #         self.state_changed.emit({
+    #             'ip': self.ip,
+    #             'connected': self.initialized,
+    #             'model': self.model,
+    #             'type': self.type,
+    #             'thread': self.connect_thread
+    #         })
+
     def connect(self):
-        logger.debug(f"{self.__class__.__name__}: connect()")
+        if self.connect_thread is not None:
+            logger.debug(f"{self.__class__.__name__}: connect already running")
+            return
+
+        self.connect_thread = ConnectThread(self)
+        logger.debug(f"{self.__class__.__name__}: connect thread created")
         self.connect_thread.start()
         
         

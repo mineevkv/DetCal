@@ -21,16 +21,13 @@ SWEEP_POINTS = 1001        # Number of trace points
 
 class MDO34(Instrument):
 
-    def __init__(self, ip=0, visa_usb=0):
+    def __init__(self, ip, visa_usb):
         super().__init__(ip, visa_usb)
 
         self._selected_channel = 1
 
-        if not self.is_initialized():
-            return # Skip initialization
-
         self.type = 'Oscilloscope'
-        self.default_setup()
+        # self.default_setup()
 
     def default_setup(self): 
         pass
