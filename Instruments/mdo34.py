@@ -37,9 +37,12 @@ class MDO34(Instrument):
         # self.default_setup()
 
         
-
     def default_setup(self): 
         pass
+
+    @property
+    def selected_channel(self):
+        return self._selected_channel
 
     @Instrument.device_checking 
     def channel_on(self, channel=None):
@@ -55,9 +58,7 @@ class MDO34(Instrument):
 
         self.send(f'SELECT:CH{channel} OFF')
 
-    @property
-    def selected_channel(self):
-        return self._selected_channel
+ 
 
     @Instrument.device_checking 
     def select_channel(self, channel=None):
@@ -73,8 +74,27 @@ class MDO34(Instrument):
 
         self.send(f'SELECT:CH{self._selected_channel}')
 
+    @Instrument.device_checking 
     def is_channel_on(self, channel):
         return self.send(f'SELECT:{channel}?')
+    
+    @Instrument.device_checking 
+    def get_selected_channel(self): #response: CH1
+        response = self.send(f':SELECT:VCH?')
+        print(response)
+        return 3 #for debugging
+        # return int(response[2:]) : :SELECT:VCH? → Likely returns an error or nothing if no channels are active.
+        # return self.send(f':SELECT:VCH?')
+    
+    @Instrument.device_checking
+    def get_active_channels(self) -> dict:
+        response = self.send(':SELECT?')  # response: CH1,1;CH2,1;CH3,0;CH4,0
+        channel_state = dict()
+        for channel in response.split(';'):
+            channel_name, channel_state_str = channel.split(',')
+            channel_state[channel_name] = bool(int(channel_state_str))
+        return channel_state
+        
 
     @Instrument.device_checking    
     def set_coupling(self, coupling='DC'):
@@ -204,7 +224,7 @@ class MDO34(Instrument):
 
         # Создаем словарь с параметрами
 
-
+    @Instrument.device_checking
     def get_waveform_parameters(self):
         """
         Get waveform parameters
@@ -249,6 +269,10 @@ class MDO34(Instrument):
     @Instrument.device_checking
     def set_high_res_mode(self):
         self.send('ACQuire:MODe HIRes')
+
+    @Instrument.device_checking
+    def get_aquire_mode(self):
+        return self.send('ACQuire:MODe?')
     
     @Instrument.device_checking
     def set_sample_mode(self):
@@ -261,17 +285,21 @@ class MDO34(Instrument):
             'vert_pos': self.get_vertical_position(),
             'hor_scale': self.get_horizontal_scale(),
             'hor_pos': self.get_horizontal_position(),
+            'acquire_mode': self.get_aquire_mode(),
             }
         
-        message = {**message, **self.check_channels()}
+        message = {**message, **self.get_active_channels()} #TODO: add selected channel
 
         self.state_changed.emit(message)
                
-    def check_channels(self) -> dict:
+    def check_channels(self) -> dict: # TODO: delete this function after debug
         channel_state = dict()
         for channel in self.channel_map.values():
             channel_state[channel] = bool(int(self.is_channel_on(channel)))
-        return channel_state 
+        return channel_state
+    
+
+    
 
 
 

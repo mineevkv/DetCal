@@ -28,17 +28,6 @@ class OscilloscopeSheet(InstrumentSheet):
         ch_btn_width = 34
         dx = 5
 
-
-          # Frame for Selected Channel
-
-        self.frame_ch = QWidget(self.box)
-        self.frame_ch.setProperty('class', 'ch1_frame')
-        self.frame_ch.setGeometry(self.x_col[self.zero_col] - 4, self.y_row[ch_row] - 4, 42, 29)
-        self.frame_ch.setAutoFillBackground(True)
-
-
-
-
         args = scale_label_width, scale_edit_line_width
         self.add_control_elem('vert_scale', self.zero_col, scale_row, 'Scale, mV:', '20', *args)
         self.add_control_elem('vert_pos', self.zero_col, pos_row , 'Offset, mV:', '0', *args)
@@ -50,15 +39,22 @@ class OscilloscopeSheet(InstrumentSheet):
         self.add_label('vert',  7, self.ip_row + 1, 'VERTICAL').setProperty('class', 'osc_label')
         self.add_label('hor', hor_col + 7, self.ip_row + 1, 'HORISONTAL').setProperty('class', 'osc_label')
 
-      
+        self.add_frame('ch1', self.zero_col, ch_row, 4, 4, 42, 29, 'ch1_frame')      
         self.add_btn('ch1', self.zero_col, ch_row, "CH1", ch_btn_width).setProperty('class', 'btn_ch1')
         self.elem['btn_ch1'].setCheckable(True)
+
+        self.add_frame('ch2', self.zero_col + dx, ch_row, 4, 4, 42, 29, 'ch2_frame')
         self.add_btn('ch2', self.zero_col + dx, ch_row, "CH2", ch_btn_width).setProperty('class', 'btn_ch2')
         self.elem['btn_ch2'].setCheckable(True)
+
+        self.add_frame('ch3', self.zero_col + 2*dx, ch_row, 4, 4, 42, 29, 'ch3_frame')
         self.add_btn('ch3', self.zero_col + 2*dx, ch_row, "CH3", ch_btn_width).setProperty('class', 'btn_ch3')
         self.elem['btn_ch3'].setCheckable(True)
+        
+        self.add_frame('ch4', self.zero_col + 3*dx, ch_row, 4, 4, 42, 29, 'ch4_frame')
         self.add_btn('ch4', self.zero_col + 3*dx, ch_row, "CH4", ch_btn_width).setProperty('class', 'btn_ch4')
         self.elem['btn_ch4'].setCheckable(True)
+        
         self.add_btn('hi_res', self.zero_col + 4*dx, ch_row, "HiRes", 50).setCheckable(True)
 
         param = ch_row - 1, 'MEG', ch_btn_width

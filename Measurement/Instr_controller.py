@@ -122,3 +122,5 @@ class InstrumentController(QObject):
 
     def read_line(self, line_edit):
         return self.view.elem[f'{line_edit}_line'].text()
+    
+    

@@ -110,6 +110,12 @@ class Sheet:
     
     def shift_position(self, elem, shift_x=0, shift_y=0):
         elem.move(elem.x() + shift_x, elem.y() + shift_y)
+
+    def add_frame(self, key, col, row, dx, dy, width, hight, classname):
+        frame = self.elem[f'{key}_frame'] = self.frame_ch = QWidget(self.box)
+        frame.setProperty('class', f'{classname}')
+        frame.setGeometry(self.x_col[col] - dx, self.y_row[row] - dy, width, hight)
+        frame.setAutoFillBackground(True)
     
     def cleanup(self):
         """Safe cleanup method to be called explicitly"""

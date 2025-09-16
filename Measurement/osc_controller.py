@@ -5,6 +5,7 @@ class OscController(InstrumentController):
         super().__init__(instr, instr_sheet)
 
         self.instr.connect()
+        self.hide_channel_frames()
 
     def connect_signals(self): 
         super().connect_signals()
@@ -47,9 +48,24 @@ class OscController(InstrumentController):
         if not btn.isChecked():
             self.instr.channel_off()
             btn.setChecked(False)
-            return
-        self.instr.channel_on()
-        btn.setChecked(True)
+        else:
+            self.instr.channel_on()
+            btn.setChecked(True)
+        self.show_selected_channel() 
+
+    def show_selected_channel(self):
+        channel = self.instr.get_selected_channel()
+        channel = 2 # TODO: for debug
+        if channel is not None:
+            self.selected_channel = channel
+            self.hide_channel_frames()
+            if channel:
+                self.view.elem[f'ch{channel}_frame'].show()
+
+    def hide_channel_frames(self):
+        for channel in [1, 2, 3, 4]:
+            self.view.elem[f'ch{channel}_frame'].hide()
+  
 
     def btn_ch1_click(self):
         self.bth_ch_handler('CH1')
@@ -78,19 +94,58 @@ class OscController(InstrumentController):
     def signal_handler(self, message):
         super().signal_handler(message)
         elem = self.view.elem
-        if 'vert_scale' in message:
-            elem['vert_scale_line'].setText(str(message['vert_scale']*1e3))
-        if 'vert_pos' in message:
-            elem['vert_pos_line'].setText(str(message['vert_pos']*1e3))
-        if 'hor_scale' in message:
-            elem['hor_scale_line'].setText(str(message['hor_scale']*1e3))
-        if 'hor_pos' in message:
-            elem['hor_pos_line'].setText(str(message['hor_pos']))
-        if 'CH1' in message:
-            elem['btn_ch1'].setChecked(message['CH1'])
-        if 'CH2' in message:
-            elem['btn_ch2'].setChecked(message['CH2'])
-        if 'CH3' in message:
-            elem['btn_ch3'].setChecked(message['CH3'])
-        if 'CH4' in message:
-            elem['btn_ch4'].setChecked(message['CH4'])
+
+        # Updating current measurement parameters
+        lines = {
+        'vert_scale': ('vert_scale_line', lambda v: str(v * 1e3)),
+        'vert_pos':   ('vert_pos_line',   lambda v: str(v * 1e3)),
+        'hor_scale':  ('hor_scale_line',  lambda v: str(v * 1e3)),
+        'hor_pos':    ('hor_pos_line',    str)
+        }
+
+        for key, (line, conv) in lines.items():
+            if key in message:
+                elem[line].setText(conv(message[key]))
+      
+        # Updating active channels
+        for channel in [1, 2, 3, 4]:
+            key = f'CH{channel}'
+            if key in message:
+                elem[f'btn_ch{channel}'].setChecked(message[key])
+        
+        
+
+        # Updating Hight Resolution mode
+        if 'acquire_mode' in message:
+            elem['btn_hi_res'].setChecked(message['acquire_mode'] == 'HIRes')
+
+        if 'select_ch' in message:
+            channel = message['select_ch']
+            if channel is not None:
+                self.hide_channel_frames()
+                self.view.elem[f'{channel.lower()}_frame'].show()
+            
+
+        # if 'vert_scale' in message: TODO: for debug
+        #     elem['vert_scale_line'].setText(str(message['vert_scale']*1e3))
+        # if 'vert_pos' in message:
+        #     elem['vert_pos_line'].setText(str(message['vert_pos']*1e3))
+        # if 'hor_scale' in message:
+        #     elem['hor_scale_line'].setText(str(message['hor_scale']*1e3))
+        # if 'hor_pos' in message:
+        #     elem['hor_pos_line'].setText(str(message['hor_pos']))
+        # if 'CH1' in message:
+        #     elem['btn_ch1'].setChecked(message['CH1'])
+        # if 'CH2' in message:
+        #     elem['btn_ch2'].setChecked(message['CH2'])
+        # if 'CH3' in message:
+        #     elem['btn_ch3'].setChecked(message['CH3'])
+        # if 'CH4' in message:
+        #     elem['btn_ch4'].setChecked(message['CH4'])
+                
+        # if 'acquire_mode' in message:
+        #     if message['acquire_mode' ] == 'HIRes':
+        #         elem['btn_hi_res'].setChecked(True)
+        #     else:
+        #         elem['btn_hi_res'].setChecked(False)
+
