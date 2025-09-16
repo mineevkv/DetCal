@@ -49,3 +49,9 @@ class InstrumentSheet(Sheet):
         btn .setStyleSheet(f"font-weight: bold")
         btn .setFixedHeight(45)
 
+    def add_frame()
+        self.frame_ch = QWidget(self.box)
+        self.frame_ch.setProperty('class', 'ch1_frame')
+        self.frame_ch.setGeometry(self.x_col[self.zero_col] - 4, self.y_row[ch_row] - 4, 42, 29)
+        self.frame_ch.setAutoFillBackground(True)
+

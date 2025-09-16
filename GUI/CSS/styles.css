@@ -26,7 +26,6 @@ QWidget {
 .ch2_frame,
 .ch3_frame,
 .ch4_frame {
-    background-color: transparent;
     border: 2px solid;
     border-radius: 5px;
 }
