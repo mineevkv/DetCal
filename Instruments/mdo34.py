@@ -29,6 +29,8 @@ class MDO34(Instrument):
         self.type = 'Oscilloscope'
         # self.default_setup()
 
+        
+
     def default_setup(self): 
         pass
 

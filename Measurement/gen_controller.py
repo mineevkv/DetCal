@@ -7,6 +7,8 @@ class GenController(InstrumentController):
     def __init__(self, instr, instr_sheet):
         super().__init__(instr, instr_sheet)
 
+        self.instr.connect()
+        
     def connect_signals(self): 
         super().connect_signals()
         self.view.elem['btn_rf_on'].clicked.connect(self.btn_rf_on_click)
@@ -39,5 +41,8 @@ class GenController(InstrumentController):
             self.view.elem['level_line'].setText(str(message['level']))
         if 'frequency' in message:
             self.view.elem['freq_line'].setText(str(message['frequency']/1e6))
-        if 'rf' in message:
-            self.btn_rf_on.setDown(message['rf'])
+        if 'rf_state' in message:
+            self.view.elem['btn_rf_on'].setDown(message['rf_state'])
+        if 'modulation' in message:
+            self.view.elem['btn_mod_on'].setDown(message['mod_state'])
+        

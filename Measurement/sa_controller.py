@@ -4,9 +4,10 @@ from System.logger import get_logger
 logger = get_logger(__name__)
 
 class SAController(InstrumentController):
-    def __init__(self, instr, widget):
-        super().__init__(instr, widget)
+    def __init__(self, instr, instr_sheet):
+        super().__init__(instr,instr_sheet)
 
+        self.instr.connect()
 
     def connect_signals(self): 
         super().connect_signals()

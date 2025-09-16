@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QObject, QTimer
-
+from abc import ABC, abstractmethod
 
 from GUI.palette import *
 
@@ -17,14 +17,14 @@ class InstrumentController(QObject):
         
         # self.ip_btn_connect.clicked.connect(self.ip_btn_connect_click)
 
-        self.instr.connect()
-
-            #Controller
-
+        
+    #Controller
+    @abstractmethod
     def connect_signals(self):
         self.view.elem['btn_ip'].clicked.connect(self.btn_connect_click)
         self.instr.state_changed.connect(self.signal_handler)
 
+    @abstractmethod
     def signal_handler(self, message):
         if 'ip' in message:
             self.view.elem['ip_clickline'].setText(message['ip'])

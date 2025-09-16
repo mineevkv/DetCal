@@ -6,6 +6,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import QThread
 from PyQt6.QtCore import pyqtSignal, QObject, Qt
 from PyQt6.QtCore import QMutex
+from abc import ABC, abstractmethod
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -41,7 +42,8 @@ class ConnectThread(QThread):
                 'model': self.parent.model,
                 'type': self.parent.get_type(),
                 'thread': self.parent.connect_thread
-        })
+            })
+            self.parent.get_settings_from_device()
 
 class Instrument(VisaCom, QObject):
     """Abstract class for SCPI Instrument"""
@@ -79,6 +81,10 @@ class Instrument(VisaCom, QObject):
             logger.error("Device is not initialized")
         return wrapper
     
+    @abstractmethod
+    def get_settings_from_device(self):
+        pass
+    
     def get_idn(self):
         return self.send("*IDN?")
     
@@ -104,29 +110,6 @@ class Instrument(VisaCom, QObject):
         else:
             return None
         
-    # def direct_connect(self):
-    #     try:
-    #         self.instr = VisaCom.get_visa_resource(VisaCom.get_visa_string_ip(self.ip))
-    #         if self.instr is None:
-    #             return
-    #         self.initialized = True
-    #         self.get_model()
-    #         logger.info(f"Connected to instrument at {self.ip}")
-            
-    #     except pyvisa.errors.VisaIOError:
-    #         logger.error(f"Error connecting to instrument at {self.ip}")
-    #         self.instr = None
-    #         self.initialized = False
-    #         self.model = 'None'
-    #         self.type = 'No Instrument'
-    #     finally:
-    #         self.state_changed.emit({
-    #             'ip': self.ip,
-    #             'connected': self.initialized,
-    #             'model': self.model,
-    #             'type': self.type,
-    #             'thread': self.connect_thread
-    #         })
 
     def connect(self):
         if self.connect_thread is not None:
