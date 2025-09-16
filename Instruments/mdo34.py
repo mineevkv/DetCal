@@ -65,45 +65,45 @@ class MDO34(Instrument):
             raise ValueError(f"Unknown channel: {channel}")
         
     def set_coupling(self, coupling='DC'):
-        send(self.instr, f'CH{self._selected_channel}:COUP {coupling}')
+        self.send(f'CH{self._selected_channel}:COUP {coupling}')
 
     def set_y_scale(self, scale=1):
         """Vertical scale in voltages"""
-        send(self.instr, f'CH{self._selected_channel}:SCALE {scale}')
+        self.send(f'CH{self._selected_channel}:SCALE {scale}')
 
     def set_y_offset(self, offset=0):
         """Vertical offset in voltages"""
-        send(self.instr, f'CH{self._selected_channel}:OFFSET {offset}')
+        self.send(f'CH{self._selected_channel}:OFFSET {offset}')
 
     def set_bandwidth(self, bandwidth='FULL'):
         """Low-pass bandwidth limit filter for channel"""
-        send(self.instr, f'CH{self._selected_channel}:BANDWIDTH {bandwidth}')
+        self.send(f'CH{self._selected_channel}:BANDWIDTH {bandwidth}')
 
     def set_horizontal_scale(self, scale='1V'):
         """Horizontal scale in seconds"""
-        send(self.instr, f'HORIZONTAL:SCALE {scale}')
+        self.send(f'HORIZONTAL:SCALE {scale}')
 
     def set_horizontal_position(self, position=0):
-        send(self.instr, f'HORIZONTAL:POSITION {position}')
+        self.send(f'HORIZONTAL:POSITION {position}')
 
     def set_measurement_source(self, source):
         if source is None:
             source=self._selected_channel
-        send(self.instr, f'MEASUREMENT:IMMED:SOURCE CH{self._selected_channel}')
+        self.send(f'MEASUREMENT:IMMED:SOURCE CH{self._selected_channel}')
 
     def set_measurement_type(self, type='AMPLITUDE'):
-        send(self.instr, f'MEASUREMENT:IMMED:TYPE {type}')
+        self.send(f'MEASUREMENT:IMMED:TYPE {type}')
 
     def set_trigger_type(self, type='EDGE'):
-        send(self.instr, f'TRIGGER:A:TYPE {type}')
+        self.send(f'TRIGGER:A:TYPE {type}')
 
     def set_trigger_source(self, source=None):
         if source is None:
             source=self._selected_channel
-        send(self.instr, f'TRIGGER:A:EDGE:SOURCE {source}')
+        self.send(f'TRIGGER:A:EDGE:SOURCE {source}')
 
     def set_trigger_level(self, level=0):
-        send(self.instr, f'TRIGGER:A:LEVEL {level}')
+        self.send(f'TRIGGER:A:LEVEL {level}')
 
     def set_50Ohm_termination(self):
         self.set_termination('FIFty')
@@ -113,33 +113,33 @@ class MDO34(Instrument):
 
     def set_termination(self, termination):
         """FIFty|MEG"""
-        send(self.instr, f'CH{self._selected_channel}:TERMINATION {termination}')
+        self.send(f'CH{self._selected_channel}:TERMINATION {termination}')
 
     def stop_after_sequence(self):
-        send(self.instr, 'ACQUIRE:STOPAFTER SEQUENCE')
+        self.send('ACQUIRE:STOPAFTER SEQUENCE')
 
     def ready_for_acquisition(self):
-        send(self.instr, 'ACQUIRE:STATE ON')
+        self.send('ACQUIRE:STATE ON')
 
     def trigger_force(self):
-        send(self.instr, 'TRIGger FORCe')
+        self.send('TRIGger FORCe')
 
     def is_acquiring(self):
-        response = bool(int(send_scpi_command(self.instr, 'ACQUIRE:STATE?')))
+        response = bool(int(self.send('ACQUIRE:STATE?')))
         return response
     
     def set_data_source(self,source=None):
         if source is None:
             source=self._selected_channel
-        send(self.instr, f'DATA:SOURCE CH{source}')
+        self.send(f'DATA:SOURCE CH{source}')
 
     def set_data_points(self,points=1000):
-        send(self.instr, 'DATA:START 1')
-        send(self.instr, f'DATA:STOP {points}')
+        self.send('DATA:START 1')
+        self.send(f'DATA:STOP {points}')
 
     def set_binary_data_format(self):
-        send(self.instr, 'DATA:WIDTH 2') # 2 bytes per point
-        send(self.instr, 'DATA:ENCDG RPBinary') # Signed integer binary
+        self.send('DATA:WIDTH 2') # 2 bytes per point
+        self.send('DATA:ENCDG RPBinary') # Signed integer binary
 
     def parse_wfmoutpre_response(self, response):
         """
@@ -189,11 +189,11 @@ class MDO34(Instrument):
             xzero (float): the time coordinate of the first data point
         """
 
-        ymult = float(send(self.instr,'WFMOUTPRE:YMULT?'))
-        yzero = float(send(self.instr,'WFMOUTPRE:YZERO?'))
-        yoff = float(send(self.instr,'WFMOUTPRE:YOFF?'))
-        xincr = float(send(self.instr,'WFMOUTPRE:XINCR?'))
-        xzero = float(send(self.instr,'WFMOUTPRE:XZERO?'))
+        ymult = float(self.send('WFMOUTPRE:YMULT?'))
+        yzero = float(self.send('WFMOUTPRE:YZERO?'))
+        yoff = float(self.send('WFMOUTPRE:YOFF?'))
+        xincr = float(self.send('WFMOUTPRE:XINCR?'))
+        xzero = float(self.send('WFMOUTPRE:XZERO?'))
 
         return ymult, yzero, yoff, xincr, xzero
     
@@ -218,10 +218,10 @@ class MDO34(Instrument):
         return time_data, voltage_data
     
     def set_high_res_mode(self):
-        send(self.instr, 'ACQuire:MODe HIRes')
+        self.send('ACQuire:MODe HIRes')
     
     def set_sample_mode(self):
-        send(self.instr, 'ACQuire:MODe SAMple')
+        self.send('ACQuire:MODe SAMple')
     
 
 

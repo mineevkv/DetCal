@@ -59,6 +59,21 @@ QLabel {
     font-size: 16px;
 }
 
+.osc_imp_label {
+    color: #90969b;
+    font-size: 12px;
+    font-weight: bold;
+    qproperty-alignment: 'AlignCenter| AlignBottom';
+}
+
+.osc_label {
+    color: #90969b;
+    font-size: 12px;
+    font-weight: bold;
+    qproperty-alignment: 'AlignBottom';
+    
+}
+
 QLabel:disabled{
     color: #aeaeae;
 }

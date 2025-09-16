@@ -116,3 +116,6 @@ class InstrumentController(QObject):
     def enable_control_elem(self):
         for key in self.elem:
             self.elem[key].setEnabled(True)
+
+    def btn_clicked(self,btn_name, btn_handler):
+        self.view.elem[f'btn_{btn_name}'].clicked.connect(btn_handler)
