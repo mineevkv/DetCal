@@ -16,6 +16,38 @@ QWidget {
         /* font-family: "Times New Roman", sans-serif; */
     }
 
+.ch_frame {
+    background-color: transparent;
+    border: none;
+    border-radius: 5px;
+}
+
+.ch1_frame,
+.ch2_frame,
+.ch3_frame,
+.ch4_frame {
+    background-color: transparent;
+    border: 2px solid;
+    border-radius: 5px;
+}
+
+.ch1_frame {
+    border-color: #f1c40f;
+}
+
+.ch2_frame {
+    border-color: #82c9ff;
+}
+
+.ch3_frame {
+    border-color: #ff5436;
+}
+
+.ch4_frame {
+    border-color: #a5c53c;
+}
+
+
 QGroupBox {
     font-size: 16px;
     font-weight: bold;
@@ -134,6 +166,10 @@ QPushButton:pressed {
     background-color: #50e3c2;
 }
 
+QPushButton:checked {
+    background-color: #50e3c2;
+}
+
 QPushButton:disabled {
     background-color: rgba(84, 83, 83, 0.5);
     color: #aeaeae;
@@ -161,6 +197,21 @@ QPushButton:disabled {
     color: #50e3c2
 }
 
+.btn_ch1:checked {
+    background-color: #f1c40f;
+}
+
+.btn_ch2:checked {
+    background-color: #82c9ff;
+}
+
+.btn_ch3:checked {
+    background-color: #ff5436;
+}
+
+.btn_ch4:checked {
+    background-color: #a5c53c;
+}
 
 QCheckBox {
     font-size: 16px;

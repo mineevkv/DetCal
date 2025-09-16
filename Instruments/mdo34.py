@@ -21,6 +21,13 @@ SWEEP_POINTS = 1001        # Number of trace points
 
 class MDO34(Instrument):
 
+    channel_map = {
+            1: 'CH1',
+            2: 'CH2', 
+            3: 'CH3', 
+            4: 'CH4'
+        }
+    
     def __init__(self, ip, visa_usb):
         super().__init__(ip, visa_usb)
 
@@ -34,109 +41,155 @@ class MDO34(Instrument):
     def default_setup(self): 
         pass
 
+    @Instrument.device_checking 
     def channel_on(self, channel=None):
         if channel is None:
             channel=self._selected_channel
 
-        send(self.instr, f'SELECT:CH{channel} ON')
+        self.send(f'SELECT:CH{channel} ON')
 
+    @Instrument.device_checking 
     def channel_off(self, channel=None):
         if channel is None:
             channel=self._selected_channel
 
-        send(self.instr, f'SELECT:CH{channel} OFF')
+        self.send(f'SELECT:CH{channel} OFF')
 
+    @property
+    def selected_channel(self):
+        return self._selected_channel
+
+    @Instrument.device_checking 
     def select_channel(self, channel=None):
-        channel_map = {
-            1: 'CH1',
-            2: 'CH2', 
-            3: 'CH3', 
-            4: 'CH4'
-        }
+        reverse_map = {v: k for k, v in self.channel_map.items()}
         
-        reverse_map = {v: k for k, v in channel_map.items()}
-        
-        if channel in channel_map:
+        if channel in self.channel_map:
             self._selected_channel = channel
         elif channel in reverse_map:
             self._selected_channel = reverse_map[channel]
         else:
             logger.error(f"Unknown channel: {channel}")
             raise ValueError(f"Unknown channel: {channel}")
-        
+
+        self.send(f'SELECT:CH{self._selected_channel}')
+
+    def is_channel_on(self, channel):
+        return self.send(f'SELECT:{channel}?')
+
+    @Instrument.device_checking    
     def set_coupling(self, coupling='DC'):
         self.send(f'CH{self._selected_channel}:COUP {coupling}')
 
-    def set_y_scale(self, scale=1):
+    @Instrument.device_checking
+    def set_vertical_scale(self, scale=1):
         """Vertical scale in voltages"""
         self.send(f'CH{self._selected_channel}:SCALE {scale}')
 
-    def set_y_offset(self, offset=0):
+    @Instrument.device_checking
+    def get_channel_parameters(self):
+         """Returns the vertical parameters for channel"""
+         return self.send(f'CH{self._selected_channel}?')
+
+    @Instrument.device_checking
+    def get_vertical_scale(self):
+        return float(self.send(f'CH{self._selected_channel}:SCALE?'))
+
+    @Instrument.device_checking
+    def set_vertical_position(self, offset=0):
         """Vertical offset in voltages"""
         self.send(f'CH{self._selected_channel}:OFFSET {offset}')
 
+    @Instrument.device_checking
+    def get_vertical_position(self):
+        return float(self.send(f'CH{self._selected_channel}:OFFSET?'))
+
+    @Instrument.device_checking
     def set_bandwidth(self, bandwidth='FULL'):
         """Low-pass bandwidth limit filter for channel"""
         self.send(f'CH{self._selected_channel}:BANDWIDTH {bandwidth}')
 
-    def set_horizontal_scale(self, scale='1V'):
+    @Instrument.device_checking
+    def set_horizontal_scale(self, scale='1s'):
         """Horizontal scale in seconds"""
         self.send(f'HORIZONTAL:SCALE {scale}')
 
+    @Instrument.device_checking
+    def get_horizontal_scale(self):
+        return float(self.send(f'HORIZONTAL:SCALE?'))
+
+    @Instrument.device_checking
     def set_horizontal_position(self, position=0):
         self.send(f'HORIZONTAL:POSITION {position}')
 
+    @Instrument.device_checking
+    def get_horizontal_position(self):
+        return float(self.send(f'HORIZONTAL:POSITION?'))
+
+    @Instrument.device_checking
     def set_measurement_source(self, source):
         if source is None:
             source=self._selected_channel
         self.send(f'MEASUREMENT:IMMED:SOURCE CH{self._selected_channel}')
 
+    @Instrument.device_checking
     def set_measurement_type(self, type='AMPLITUDE'):
         self.send(f'MEASUREMENT:IMMED:TYPE {type}')
 
+    @Instrument.device_checking
     def set_trigger_type(self, type='EDGE'):
         self.send(f'TRIGGER:A:TYPE {type}')
 
+    @Instrument.device_checking
     def set_trigger_source(self, source=None):
         if source is None:
             source=self._selected_channel
         self.send(f'TRIGGER:A:EDGE:SOURCE {source}')
 
+    @Instrument.device_checking
     def set_trigger_level(self, level=0):
         self.send(f'TRIGGER:A:LEVEL {level}')
 
+    @Instrument.device_checking
     def set_50Ohm_termination(self):
         self.set_termination('FIFty')
 
+    @Instrument.device_checking
     def set_1MOhm_termination(self):
         self.set_termination('MEG')
 
+    @Instrument.device_checking
     def set_termination(self, termination):
         """FIFty|MEG"""
         self.send(f'CH{self._selected_channel}:TERMINATION {termination}')
 
+    @Instrument.device_checking
     def stop_after_sequence(self):
         self.send('ACQUIRE:STOPAFTER SEQUENCE')
 
+    @Instrument.device_checking
     def ready_for_acquisition(self):
         self.send('ACQUIRE:STATE ON')
 
+    @Instrument.device_checking
     def trigger_force(self):
         self.send('TRIGger FORCe')
 
-    def is_acquiring(self):
-        response = bool(int(self.send('ACQUIRE:STATE?')))
-        return response
+    @Instrument.device_checking
+    def is_acquiring(self): 
+        return bool(int(self.send('ACQUIRE:STATE?')))
     
+    @Instrument.device_checking
     def set_data_source(self,source=None):
         if source is None:
             source=self._selected_channel
         self.send(f'DATA:SOURCE CH{source}')
 
+    @Instrument.device_checking
     def set_data_points(self,points=1000):
         self.send('DATA:START 1')
         self.send(f'DATA:STOP {points}')
 
+    @Instrument.device_checking
     def set_binary_data_format(self):
         self.send('DATA:WIDTH 2') # 2 bytes per point
         self.send('DATA:ENCDG RPBinary') # Signed integer binary
@@ -150,32 +203,7 @@ class MDO34(Instrument):
         #TODO fix this code
 
         # Создаем словарь с параметрами
-        params = {
-            'BYT_NR': int(parts[0]),          # 2 - количество байт на точку
-            'BIT_NR': int(parts[1]),          # 16 - количество бит на точку
-            'ENCODING': parts[2],             # BINARY - кодирование
-            'BN_FMT': parts[3],               # RP - формат данных
-            'BYT_OR': parts[4],               # MSB - порядок байт
-            'DESC': parts[5].strip('"'),      # "Ch4, DC coupling..." - описание
-            'NR_PT': int(parts[6]),           # 10000 - количество точек
-            'WFMTYPE': parts[7],              # Y - тип волны
-            'X_DISPLAY_FORMAT': parts[8],     # LINEAR - формат отображения X
-            'XUNIT': parts[9].strip('"'),     # "s" - единицы измерения X
-            'XINCR': float(parts[10]),        # 1.0000E-6 - шаг по X (1 мкс)
-            'XZERO': float(parts[11]),        # 0.0E+0 - начальное значение X
-            'PT_OFF': int(parts[12]),         # 0 - смещение точек
-            'YUNIT': parts[13].strip('"'),    # "V" - единицы измерения Y
-            'YMULT': float(parts[14]),        # 15.6250E-6 - множитель Y (15.625 мкВ)
-            'YZERO': float(parts[15]),        # 32.7680E+3 - нулевое значение Y (32.768 В)
-            'YOFF': float(parts[16]),         # 0.0E+0 - смещение Y
-            'HORIZ_UNIT': parts[17],          # TIME - единицы горизонтальной оси
-            'VERT_UNIT': parts[18],           # ANALOG - единицы вертикальной оси
-            'PROBECAL': float(parts[19]),     # 0.0E+0 - калибровка пробника
-            'PROBEDEF': float(parts[20]),     # 0.0E+0 - дефолтное значение пробника
-            'PROBESN': float(parts[21])       # 0.0E+0 - серийный номер пробника
-        }
-    
-        return params
+
 
     def get_waveform_parameters(self):
         """
@@ -197,6 +225,7 @@ class MDO34(Instrument):
 
         return ymult, yzero, yoff, xincr, xzero
     
+    @Instrument.device_checking
     def get_waveform_data(self):
         """
         Returns: waveform data as numpy ndarray: time_data, voltage_data
@@ -217,12 +246,34 @@ class MDO34(Instrument):
 
         return time_data, voltage_data
     
+    @Instrument.device_checking
     def set_high_res_mode(self):
         self.send('ACQuire:MODe HIRes')
     
+    @Instrument.device_checking
     def set_sample_mode(self):
         self.send('ACQuire:MODe SAMple')
     
+    @Instrument.device_checking
+    def get_settings_from_device(self):
+        message = {
+            'vert_scale': self.get_vertical_scale(),
+            'vert_pos': self.get_vertical_position(),
+            'hor_scale': self.get_horizontal_scale(),
+            'hor_pos': self.get_horizontal_position(),
+            }
+        
+        message = {**message, **self.check_channels()}
+
+        self.state_changed.emit(message)
+               
+    def check_channels(self) -> dict:
+        channel_state = dict()
+        for channel in self.channel_map.values():
+            channel_state[channel] = bool(int(self.is_channel_on(channel)))
+        return channel_state 
+
+
 
 
 

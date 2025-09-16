@@ -18,7 +18,7 @@ class MeasurementController(QObject):
         self.view = MainWindow()
 
         self.connect_signals() # Must be before initialization
-        self.model.offline_mode(True) # Set to True for offline testing without instruments
+        self.model.offline_mode(1) # Set to True for offline testing without instruments
         self.model.start_initialization()
 
         # self.connect_signals()

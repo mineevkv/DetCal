@@ -119,3 +119,6 @@ class InstrumentController(QObject):
 
     def btn_clicked(self,btn_name, btn_handler):
         self.view.elem[f'btn_{btn_name}'].clicked.connect(btn_handler)
+
+    def read_line(self, line_edit):
+        return self.view.elem[f'{line_edit}_line'].text()
