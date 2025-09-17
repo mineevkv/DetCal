@@ -13,6 +13,7 @@ class MeasurementModel(QObject):
     settings_changed = pyqtSignal(dict)
     settings_filename = 'meas_settings'
     settings_folder = 'Settings'
+    settings = dict()
     
     def __init__(self):
         super().__init__()
@@ -56,14 +57,31 @@ class MeasurementModel(QObject):
 
     def load_settings_from_file(self):
         logger.debug('MeasModel: load settings from file')
-        settings = self.load_settings_file()
+        settings = self.open_settings_file()
         if not settings == {}:
             self.settings = settings
-            logger.info(f"Load settings")
             self.settings_changed.emit(self.settings)
-        # self.update_settings_elem()
 
-    def load_settings_file(self):
+    def load_settings(self, default=False):
+        type = 'default ' if default else ''
+        logger.debug(f"MeasModel: load {type}settings")
+        settings =  dict()
+        path = f"{self.settings_folder}/{self.settings_filename}{'_default' if default else ''}.json"
+        try:
+            with open(path, 'r') as f:
+                settings = json.load(f)
+        except Exception as e:
+            logger.warning(f"Failed to load {type}settings from {path}: {e}")
+
+        if not settings == {}:
+            self.settings = settings
+            self.settings_changed.emit(self.settings) 
+
+    def load_default_settings(self):
+        self.load_settings(default=True)
+ 
+
+    def open_settings_file(self):
         filename, _ = QFileDialog.getOpenFileName(
             caption="Load settings file",
             directory=self.settings_folder,
@@ -80,3 +98,8 @@ class MeasurementModel(QObject):
             logger.warning(f"No file selected")
         
         return settings
+    
+    def save_settings(self):
+        with open(f"{self.settings_folder}/{self.settings_filename}.json", 'w') as f:
+            json.dump(self.settings, f, indent=4)
+            self.settings_changed.emit(self.settings)

@@ -17,5 +17,6 @@
     "VBW_narrow": 1000.0,
     "REF_level": 0,
     "SWEEP_points": 1001,
-    "SWEEP_time": "AUTO ON"
+    "SWEEP_time": "AUTO ON",
+    "Precise": "False"
 }

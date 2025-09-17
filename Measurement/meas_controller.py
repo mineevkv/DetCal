@@ -16,10 +16,28 @@ logger = get_logger(__name__)
 class MeasurementController(QObject):
 
     units = {'Hz' : 1, 'kHz': 1e3, 'MHz': 1e6, 'GHz': 1e9,
-            'dBm': 1,
+            'dBm': 1, 'dB': 1,
             'point': 1
             }
+    
+    # Key from json settings file : (name of lineEdit element, unit)
+    gen_keys = { 
+            'RF_frequencies' : ('freq', 'MHz'),
+            'RF_levels' : ('level', 'dBm')
+        }
 
+    sa_keys = {
+            'SPAN' : ('span', 'MHz'),
+            'RBW_wide' : ('rbw', 'kHz'),
+            'VBW_wide' : ('vbw', 'kHz'),
+            'REF_level' : ('ref_level', 'dB'),
+            'SWEEP_points' : ('sweep_points', 'point'),
+            'SPAN_narrow' : ('span_precise', 'MHz'),
+            'RBW_narrow' : ('rbw_precise', 'kHz'),
+            'VBW_narrow' : ('vbw_precise', 'kHz')
+        }
+    
+    osc_keys = {}
 
     def __init__(self):
         super().__init__()
@@ -30,6 +48,7 @@ class MeasurementController(QObject):
         self.connect_signals() # Must be before initialization
         self.model.offline_mode(1) # Set to True for offline testing without instruments
         self.model.start_initialization()
+        self.model.load_settings()
 
         # self.connect_signals()
         # self.update_view()
@@ -67,18 +86,54 @@ class MeasurementController(QObject):
         for key in keys:
                 self.btn_clicked_connect(key, getattr(self, f'btn_{key}_click', None))
 
+        self.view.meas.elem['precise_enabled'].stateChanged.connect(self.change_state_precise)
+
     def btn_clicked_connect(self,btn_name, btn_handler):
         if btn_handler is not None:
             self.view.meas.elem[f'btn_{btn_name}'].clicked.connect(btn_handler)
 
+
     def btn_save_settings_click(self):
-            pass
+        self.write_settings_to_model()
+        self.model.save_settings()
+
+    def write_settings_to_model(self):
+
+        settings = self.model.settings
+        elem = self.view.meas.elem
+
+        for key, param in self.gen_keys.items():
+            settings[key] = self.write_gen_settings_to_model(param)
+
+        for key, param in self.sa_keys.items():
+            settings[key] = self.write_sa_settings_to_model(param)
+
+        settings['Precise'] = elem['precise_enabled'].isChecked()
+
+    def write_gen_settings_to_model(self, param):
+        elem_key, unit = param
+        if unit in self.units:
+             multiplier = self.units[unit]
+
+        elem = self.view.meas.elem
+        value_min = float(elem[f'{elem_key}_min_line'].text()) * multiplier
+        value_max = float(elem[f'{elem_key}_max_line'].text()) * multiplier
+        points = int(elem[f'{elem_key}_points_line'].text())
+
+        return value_min, value_max, points
+
+    def write_sa_settings_to_model(self, param):
+        elem_key, unit = param
+        if unit in self.units:
+             multiplier = self.units[unit]
+        return float(self.view.meas.elem[f'{elem_key}_line'].text()) * multiplier
+
 
     def btn_load_settings_click(self):
         self.model.load_settings_from_file()
 
     def btn_set_default_click(self):
-            pass
+        self.model.load_default_settings()
     
     def btn_start_click(self):
             pass
@@ -94,33 +149,31 @@ class MeasurementController(QObject):
     
 
     def settings_changed_handler(self, message):
-        # elem = self.view.elem
-        # Updating current measurement parameters
-        gen_keys = {
-            'RF_frequencies' : ('freq', 'MHz'),
-            'RF_levels' : ('level', 'dBm')
-        }
-
-        for key, param in gen_keys.items():
+        # Gen settings
+        for key, param in self.gen_keys.items():
             if key in message:
                 self.update_gen_elem(message, key, param)
 
-        sa_keys = {
-            'SPAN' : ('span', 'MHz'),
-            'RBW_wide' : ('rbw', 'kHz'),
-            'VBW_wide' : ('vbw', 'kHz'),
-            'REF_level' : ('ref_level', 'dBm'),
-            'SWEEP_points' : ('sweep_points', 'point'),
-            'SPAN_narrow' : ('span_precise', 'MHz'),
-            'RBW_narrow' : ('rbw_precise', 'kHz'),
-            'VBW_narrow' : ('vbw_precise', 'kHz')
-        }
-
-        for key, param in sa_keys.items():
+        # SA settings
+        for key, param in self.sa_keys.items():
             if key in message:
                 self.update_sa_elem(message[key], param)
-       
 
+        if 'Precise' in message:
+            self.enable_precise(self.str_to_bool(message['Precise']))
+
+        # Osc settings
+
+
+    def str_to_bool(self, value):
+        """Convert string to bool """
+        if isinstance(value, str):
+            value = value.lower()
+            if value == 'true':
+                return True
+            elif value == 'false':
+                return False
+        return bool(value)
 
     def data_changed_handler(self, message):
         pass
@@ -136,7 +189,6 @@ class MeasurementController(QObject):
         elem[f'{elem_key}_min_line'].setText(self.remove_zeros(value_min/dev))
         elem[f'{elem_key}_max_line'].setText(self.remove_zeros(value_max/dev))
         elem[f'{elem_key}_points_line'].setText(self.remove_zeros(points))
-        print(points)
 
     def update_sa_elem(self, value, param):
         elem_key, unit = param
@@ -158,6 +210,22 @@ class MeasurementController(QObject):
             input_string = '.'.join(input_list)
             
         return input_string
+    
+    def change_state_precise(self):
+        """Precise checkbox handler"""
+        if self.view.meas.elem['precise_enabled'].isChecked():
+            self.enable_precise(True)
+        else:
+            self.enable_precise(False)
+
+    def enable_precise(self, state):
+        self.view.meas.elem['precise_enabled'].setChecked(state)
+        keys = ('span_precise_label', 'span_precise_line',
+                'rbw_precise_label', 'rbw_precise_line',
+                'vbw_precise_label', 'vbw_precise_line')
+
+        for key in keys:
+            self.view.meas.elem[key].setEnabled(state)
 
     def update_init_progress(self, message):
         """Update progress message"""
