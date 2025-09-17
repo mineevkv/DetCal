@@ -80,19 +80,18 @@ class MDO34(Instrument):
     
     @Instrument.device_checking 
     def get_selected_channel(self): #response: CH1
-        response = self.send(f':SELECT:VCH?')
-        print(response)
-        return 3 #for debugging
+        response = self.send(f'SELect:CONTROl?')
+        if response is not None and response.startswith('CH'):
+            return int(response[2:])
+        return 0 #for debugging
         # return int(response[2:]) : :SELECT:VCH? → Likely returns an error or nothing if no channels are active.
         # return self.send(f':SELECT:VCH?')
     
     @Instrument.device_checking
-    def get_active_channels(self) -> dict:
-        response = self.send(':SELECT?')  # response: CH1,1;CH2,1;CH3,0;CH4,0
+    def get_active_channels(self) -> dict: # TODO: delete this function after debug
         channel_state = dict()
-        for channel in response.split(';'):
-            channel_name, channel_state_str = channel.split(',')
-            channel_state[channel_name] = bool(int(channel_state_str))
+        for channel in self.channel_map.values():
+            channel_state[channel] = bool(int(self.is_channel_on(channel)))
         return channel_state
         
 
@@ -292,11 +291,7 @@ class MDO34(Instrument):
 
         self.state_changed.emit(message)
                
-    def check_channels(self) -> dict: # TODO: delete this function after debug
-        channel_state = dict()
-        for channel in self.channel_map.values():
-            channel_state[channel] = bool(int(self.is_channel_on(channel)))
-        return channel_state
+
     
 
     

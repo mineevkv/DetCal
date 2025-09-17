@@ -55,12 +55,10 @@ class OscController(InstrumentController):
 
     def show_selected_channel(self):
         channel = self.instr.get_selected_channel()
-        channel = 2 # TODO: for debug
-        if channel is not None:
-            self.selected_channel = channel
-            self.hide_channel_frames()
-            if channel:
-                self.view.elem[f'ch{channel}_frame'].show()
+        self.selected_channel = channel
+        self.hide_channel_frames()
+        if channel:
+            self.view.elem[f'ch{channel}_frame'].show()
 
     def hide_channel_frames(self):
         for channel in [1, 2, 3, 4]:
