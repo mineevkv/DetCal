@@ -21,9 +21,9 @@ class MeasurementSheet(Sheet):
         load_col = default_col + 7
         save_col = load_col + 7
 
-        self.add_custom_btn('meas_save_settings', save_col, self.zero_row, 'Save', 60, self.elem_hight)
-        self.add_custom_btn('meas_load_settings',  load_col, self.zero_row, 'Load', 60, self.elem_hight)
-        self.add_custom_btn('meas_set_default',  default_col, self.zero_row, 'Default', 60, self.elem_hight, 'btn_default')
+        self.add_custom_btn('save_settings', save_col, self.zero_row, 'Save', 60, self.elem_hight)
+        self.add_custom_btn('load_settings',  load_col, self.zero_row, 'Load', 60, self.elem_hight)
+        self.add_custom_btn('set_default',  default_col, self.zero_row, 'Default', 60, self.elem_hight, 'btn_default')
 
         # Generator and measurement fields
         edit_line_width = 63
@@ -36,13 +36,13 @@ class MeasurementSheet(Sheet):
 
         start_col = 52
         self.add_check_box('unlock_stop', start_col, self.zero_row, 'Unlock STOP')
-        self.add_custom_btn('meas_start', start_col, freq_row, 'START', 120, 45, 'btn_start')
-        self.add_custom_btn('meas_stop',  start_col, freq_row, 'STOP', 120, 45, 'btn_stop').hide()
+        self.add_custom_btn('start', start_col, freq_row, 'START', 120, 45, 'btn_start')
+        self.add_custom_btn('stop',  start_col, freq_row, 'STOP', 120, 45, 'btn_stop').hide()
 
         progress_col = 52
-        self.add_progress_bar('meas_progress', progress_col, self.zero_row+1, 320, self.elem_hight).hide()
-        self.add_progress_label('meas_progress', progress_col+13, self.zero_row+2, "Waiting...", 68)
-        self.add_custom_btn('meas_save_result',  72, freq_row, 'SAVE', 120, 45, 'btn_save_result').setEnabled(False)
+        self.add_progress_bar('progress', progress_col, self.zero_row+1, 320, self.elem_hight).hide()
+        self.add_progress_label('progress', progress_col+13, self.zero_row+2, "Waiting...", 68)
+        self.add_custom_btn('save_result',  72, freq_row, 'SAVE', 120, 45, 'btn_save_result').setEnabled(False)
 
         # Spectrum analyzer and apply fields
         points_row = level_row + 2
@@ -62,7 +62,7 @@ class MeasurementSheet(Sheet):
         self.add_sa_elem('rbw_precise', precise_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')
         self.add_sa_elem('vbw_precise', precise_col, vbw_row, edit_line_width, 'VBW, kHz:', '0')
 
-        self.add_custom_btn('meas_apply', 40, span_row, 'APPLY', 60, 69, 'btn_apply')
+        self.add_custom_btn('apply', 40, span_row, 'APPLY', 60, 69, 'btn_apply')
 
         # Oscilloscope fields
   

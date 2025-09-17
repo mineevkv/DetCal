@@ -1,0 +1,21 @@
+{
+    "RF_frequencies": [
+        1000000000.0,
+        2000000000.0,
+        3
+    ],
+    "RF_levels": [
+        -50,
+        -20,
+        3
+    ],
+    "SPAN": 2000000.0,
+    "SPAN_narrow": 100000.0,
+    "RBW_wide": 10000.0,
+    "RBW_narrow": 1000.0,
+    "VBW_wide": 10000.0,
+    "VBW_narrow": 1000.0,
+    "REF_level": 0,
+    "SWEEP_points": 1001,
+    "SWEEP_time": "AUTO ON"
+}

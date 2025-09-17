@@ -19,7 +19,6 @@ QWidget {
 .ch_frame {
     background-color: transparent;
     border: none;
-    border-radius: 5px;
 }
 
 .ch1_frame,
@@ -27,7 +26,7 @@ QWidget {
 .ch3_frame,
 .ch4_frame {
     border: 2px solid;
-    border-radius: 5px;
+    border-radius: 10px;
 }
 
 .ch1_frame {
