@@ -88,7 +88,13 @@ class OscController(InstrumentController):
         pass
 
     def btn_hi_res_click(self):
-        pass
+        btn = self.view.elem[f'btn_hi_res']
+        if not btn.isChecked():
+            self.instr.set_sample_mode()
+            btn.setChecked(False)
+        else:
+            self.instr.set_high_res_mode()
+            btn.setChecked(True)
 
     def signal_handler(self, message):
         super().signal_handler(message)
@@ -115,7 +121,8 @@ class OscController(InstrumentController):
 
         # Updating Hight Resolution mode
         if 'acquire_mode' in message:
-            elem['btn_hi_res'].setChecked(message['acquire_mode'] == 'HIRes')
+            print(message['acquire_mode'])
+            elem['btn_hi_res'].setChecked(message['acquire_mode'] == 'HIRES')
 
         if 'select_ch' in message:
             channel = message['select_ch']

@@ -82,14 +82,10 @@ class DSG830(Instrument):
     
     @Instrument.device_checking
     def get_settings_from_device(self):
-        frequency = self.get_frequency()
-        level = self.get_level()
-        rf_state = self.get_output_state()
-        mod_state = self.get_modulation_state()
 
         self.state_changed.emit({
-            'frequency': frequency,
-            'level': level,
-            'rf_state': rf_state,
-            'mod_state': mod_state
+            'frequency': self.get_frequency(),
+            'level': self.get_level(),
+            'rf_state': self.get_output_state(),
+            'mod_state': self.get_modulation_state()
             })

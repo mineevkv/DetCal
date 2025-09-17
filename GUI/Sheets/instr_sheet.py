@@ -46,8 +46,9 @@ class InstrumentSheet(Sheet):
 
     def add_big_btn(self, key, col, row, text, width=60):
         btn = self.add_btn(key, col, row, text, width)
-        btn .setStyleSheet(f"font-weight: bold")
+        # btn .setStyleSheet(f"font-weight: bold")
         btn .setFixedHeight(45)
+        return btn
 
 
 
