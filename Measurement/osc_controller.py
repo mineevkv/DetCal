@@ -42,8 +42,8 @@ class OscController(InstrumentController):
         value = float(self.read_line('hor_pos'))
         self.instr.set_horizontal_position(value)
 
-    def bth_ch_handler(self, channel):
-        self.instr.select_channel(channel)
+    def bth_ch_handler(self, channel): # TODO: fix switching
+        self.instr.selected_channel = channel
         btn = self.view.elem[f'btn_{channel.lower()}']
         if not btn.isChecked():
             self.instr.channel_off()
@@ -51,6 +51,7 @@ class OscController(InstrumentController):
         else:
             self.instr.channel_on()
             btn.setChecked(True)
+        
         self.show_selected_channel() 
 
     def show_selected_channel(self):
@@ -111,7 +112,6 @@ class OscController(InstrumentController):
             if key in message:
                 elem[f'btn_ch{channel}'].setChecked(message[key])
         
-        
 
         # Updating Hight Resolution mode
         if 'acquire_mode' in message:
@@ -121,7 +121,7 @@ class OscController(InstrumentController):
             channel = message['select_ch']
             if channel is not None:
                 self.hide_channel_frames()
-                self.view.elem[f'{channel.lower()}_frame'].show()
+                self.view.elem[f'ch{channel}_frame'].show()
             
 
         # if 'vert_scale' in message: TODO: for debug

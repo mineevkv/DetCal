@@ -43,6 +43,17 @@ class MDO34(Instrument):
     @property
     def selected_channel(self):
         return self._selected_channel
+    
+    @selected_channel.setter
+    def selected_channel(self, channel):
+        reverse_map = {v: k for k, v in self.channel_map.items()}
+        
+        if channel in self.channel_map:
+            self._selected_channel = channel
+        elif channel in reverse_map:
+            self._selected_channel = reverse_map[channel]
+    
+
 
     @Instrument.device_checking 
     def channel_on(self, channel=None):
@@ -80,18 +91,28 @@ class MDO34(Instrument):
     
     @Instrument.device_checking 
     def get_selected_channel(self): #response: CH1
-        response = self.send(f'SELect:CONTROl?')
+        response = self.send(f'SELECT:CONTROl?')
         if response is not None and response.startswith('CH'):
             return int(response[2:])
-        return 0 #for debugging
-        # return int(response[2:]) : :SELECT:VCH? → Likely returns an error or nothing if no channels are active.
-        # return self.send(f':SELECT:VCH?')
+        return 0
+    
+    # @Instrument.device_checking
+    # def get_active_channels(self) -> dict: # TODO: delete this function after debug
+    #     channel_state = dict()
+    #     for channel in self.channel_map.values():
+    #         channel_state[channel] = bool(int(self.is_channel_on(channel)))
+
+        
+    #     return channel_state
     
     @Instrument.device_checking
     def get_active_channels(self) -> dict: # TODO: delete this function after debug
         channel_state = dict()
-        for channel in self.channel_map.values():
-            channel_state[channel] = bool(int(self.is_channel_on(channel)))
+        response = self.send(f'SELECT?').split(';') # response: 1;0;0;0;...;CH2
+
+        for i, channel in enumerate(self.channel_map.values()):
+            channel_state[channel] = bool(int(response[i]))
+    
         return channel_state
         
 
@@ -285,6 +306,7 @@ class MDO34(Instrument):
             'hor_scale': self.get_horizontal_scale(),
             'hor_pos': self.get_horizontal_position(),
             'acquire_mode': self.get_aquire_mode(),
+            'select_ch': self.get_selected_channel(),
             }
         
         message = {**message, **self.get_active_channels()} #TODO: add selected channel
