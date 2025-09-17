@@ -119,8 +119,7 @@ class MeasurementController(QObject):
         for key, param in sa_keys.items():
             if key in message:
                 self.update_sa_elem(message[key], param)
-        # self.update_sa_elem('span', message['SPAN'])
-        
+       
 
 
     def data_changed_handler(self, message):
@@ -133,15 +132,32 @@ class MeasurementController(QObject):
              dev = self.units[unit]
 
         value_min, value_max, points = message.get(f'{mes_key}', (None, None, None))
-        self.view.meas.elem[f'{elem_key}_min_line'.format(elem_key)].setText(str(value_min/dev))
-        self.view.meas.elem[f'{elem_key}_max_line'.format(elem_key)].setText(str(value_max/dev))
-        self.view.meas.elem[f'{elem_key}_points_line'.format(elem_key)].setText(str(points))
+        elem = self.view.meas.elem
+        elem[f'{elem_key}_min_line'].setText(self.remove_zeros(value_min/dev))
+        elem[f'{elem_key}_max_line'].setText(self.remove_zeros(value_max/dev))
+        elem[f'{elem_key}_points_line'].setText(self.remove_zeros(points))
+        print(points)
 
     def update_sa_elem(self, value, param):
         elem_key, unit = param
         if unit in self.units:
              dev = self.units[unit]
-        self.view.meas.elem[f'{elem_key}_line'].setText(str(value/dev))
+        self.view.meas.elem[f'{elem_key}_line'].setText(self.remove_zeros(value/dev))
+
+    def remove_zeros(self, input_string):
+        """Remove trailing zeros from a string containing a decimal point"""
+        if input_string is None:
+            return
+        
+        input_string = str(input_string)
+        if '.' in input_string:
+            input_list = input_string.split('.')
+            input_list[1] = input_list[1].rstrip('0')
+            if input_list[1] == '':
+                return input_list[0]
+            input_string = '.'.join(input_list)
+            
+        return input_string
 
     def update_init_progress(self, message):
         """Update progress message"""
