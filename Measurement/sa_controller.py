@@ -19,8 +19,9 @@ class SAController(InstrumentController):
 
     def signal_handler(self, message):
         super().signal_handler(message)
-        if 'cetner frequency' in message:
-            self.view.elem['center_freq_line'].setText(str(message['center frequency']/1e6))
+
+        if 'center_freq' in message:
+            self.view.elem['center_freq_line'].setText(str(message['center_freq']/1e6))
         if 'span' in message:
             self.view.elem['span_line'].setText(str(message['span']/1e6))
         if 'rbw' in message:
@@ -30,20 +31,20 @@ class SAController(InstrumentController):
 
         if 'reference level' in message:
             pass
-        if 'sweep time' in message:
+        if 'sweep_time' in message:
             pass
-        if 'sweep points' in message:
+        if 'sweep_points' in message:
             pass
-        if 'trace format' in message:
+        if 'trace_format' in message:
             pass
-        if 'single sweep' in message:
+        if 'single_sweep' in message:
             pass
-        if 'continuous sweep' in message:
+        if 'continuous_sweep' in message:
             pass
         if 'configure' in message:
             pass
 
-    def btn_center_freq_click(self):
+    def btn_center_freq_click(self): # TODO: freq_line_edit_handler
         line_edit = self.view.elem['center_freq_line']
         try:
             freq = float(line_edit.text())*1e6

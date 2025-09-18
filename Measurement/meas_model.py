@@ -171,6 +171,7 @@ class MeasurementModel(QObject):
             if self.settings['Precise']:
                 if self.stop_requested:
                     break
+                
                 self.sa.find_peak_max()
                 self.sa.set_center_freq(self.sa.get_peak_freq())
                 self.set_narrow_band()

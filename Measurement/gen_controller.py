@@ -24,13 +24,6 @@ class GenController(InstrumentController):
         self.instr.set_level(level)
 
     def btn_rf_on_click(self):
-        # if not self.instr.is_initialized():
-        #     btn = self.view.elem['btn_rf_on']
-        #     btn.setDown(False)
-        #     btn.setText("ERROR")
-        #     return
-        
-        # button_state = self.btn_rf_on.isDown()
         btn = self.view.elem['btn_rf_on']
         state = self.instr.get_output_state()
         print(state)
@@ -41,17 +34,6 @@ class GenController(InstrumentController):
             self.instr.rf_on()
             btn.setChecked(True)
         
-        # btn = self.view.elem['btn_rf_on']
-        # if not btn.isChecked():
-        #     self.instr.set_sample_mode()
-        #     btn.setChecked(False)
-        # else:
-        #     self.instr.set_high_res_mode()
-        #     btn.setChecked(True)
-
-        
-
-
     def signal_handler(self, message):
         super().signal_handler(message)
         elem = self.view.elem

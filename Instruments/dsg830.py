@@ -25,6 +25,7 @@ class DSG830(Instrument):
     @Instrument.device_checking
     def set_frequency(self, frequency):
         self.send(f":FREQuency {frequency}")
+        self.state_changed.emit({'frequency': frequency})
         
     @Instrument.device_checking
     def get_frequency(self):
@@ -64,10 +65,12 @@ class DSG830(Instrument):
     @Instrument.device_checking
     def rf_on(self):
         self.send(":OUTPut ON")
+        self.state_changed.emit({'rf_state': True})
 
     @Instrument.device_checking
     def rf_off(self):
         self.send(":OUTPut OFF")
+        self.state_changed.emit({'rf_state': False})
 
     # Turn Modulation ON/OFF of the output signal (Mod/on)
     @Instrument.device_checking
