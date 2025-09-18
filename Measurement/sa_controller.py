@@ -58,6 +58,7 @@ class SAController(InstrumentController):
 
     def freq_line_edit_handler(self, line_edit, setter, getter, units='Hz'):
         multipliers = {
+            'Hz': 1,
             'kHz': 1e3,
             'MHz': 1e6,
             'GHz': 1e9

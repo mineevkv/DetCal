@@ -6,10 +6,6 @@ import numpy as np
 from System.logger import get_logger
 logger = get_logger(__name__)
 
-# Default setup
-
-FREQ = 1e9               # 100 МHz
-LEVEL = -50              # -100 dBm
 
 class DSG830(Instrument):
 
@@ -20,16 +16,11 @@ class DSG830(Instrument):
         super().__init__(ip, visa_usb)
         self.type = 'Microwave Generator'
 
-        # self.default_setup()
 
-    def default_setup(self):
-        if not self.is_initialized():
-            return  
-        self.set_frequency(FREQ)
-        self.set_level(LEVEL)
-
-        time.sleep(0.1)
-
+    @Instrument.device_checking
+    def factory_preset(self):
+       self.send(":SYSTem:PRESet:TYPE FACtory")
+        
     # Frequency control (FREQ)  
     @Instrument.device_checking
     def set_frequency(self, frequency):
@@ -53,6 +44,9 @@ class DSG830(Instrument):
             self.state_changed.emit({'level': level})
         else:
             logger.warning("Output level out of range")
+
+    def set_min_level(self):
+        self.set_level(self.min_level)
 
     @Instrument.device_checking
     def get_level(self):

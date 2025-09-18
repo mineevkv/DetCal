@@ -20,11 +20,14 @@ class MeasurementSheet(Sheet):
         default_col = 19 
         load_col = default_col + 7
         save_col = load_col + 7
+        set_col = save_col + 7
 
         self.add_custom_btn('save_settings', save_col, self.zero_row, 'Save', 60, self.elem_hight)
         self.add_custom_btn('load_settings',  load_col, self.zero_row, 'Load', 60, self.elem_hight)
         self.add_custom_btn('set_default',  default_col, self.zero_row, 'Default', 60, self.elem_hight, 'btn_default')
-
+        self.add_label('settings_status', set_col, self.zero_row, 'Settings saved', 100).setProperty('class', 'settings_status_label')
+        self.elem['settings_status_label'].hide()
+        
         # Generator and measurement fields
         edit_line_width = 63
 

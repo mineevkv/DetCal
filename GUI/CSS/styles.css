@@ -104,6 +104,10 @@ QLabel {
     
 }
 
+.settings_status_label {
+    color: #50e3c2;
+}
+
 QLabel:disabled{
     color: #aeaeae;
 }

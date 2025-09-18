@@ -27,7 +27,7 @@ class MeasurementController(QObject):
         }
 
     sa_keys = {
-            'SPAN' : ('span', 'MHz'),
+            'SPAN_wide' : ('span', 'MHz'),
             'RBW_wide' : ('rbw', 'kHz'),
             'VBW_wide' : ('vbw', 'kHz'),
             'REF_level' : ('ref_level', 'dB'),
@@ -46,7 +46,7 @@ class MeasurementController(QObject):
         self.view = MainWindow()
 
         self.connect_signals() # Must be before initialization
-        self.model.offline_mode(1) # Set to True for offline testing without instruments
+        self.model.offline_mode(0) # Set to True for offline testing without instruments
         self.model.start_initialization()
         self.model.load_settings()
 
@@ -57,15 +57,20 @@ class MeasurementController(QObject):
     def connect_signals(self):
         self.init_model_signals()
         self.init_view_signals()
-        self.init_timer_signals()
+        self.init_timers_signals()
         # self.instruments_signals()
 
 
 
 
-    def init_timer_signals(self):
+    def init_timers_signals(self):
         self.init_timer = QTimer()
+        self.init_timer.setInterval(500) # 0.5 second
         self.init_timer.timeout.connect(self.close_init_window)
+
+        self.settings_timer = QTimer()
+        self.settings_timer.setInterval(3000) # 3 second
+        self.settings_timer.timeout.connect(self.hide_settings_status)
 
     def init_model_signals(self):
         self.model.initializer.progress.connect(self.update_init_progress)
@@ -96,6 +101,22 @@ class MeasurementController(QObject):
     def btn_save_settings_click(self):
         self.write_settings_to_model()
         self.model.save_settings()
+        self.change_settings_status('Settings saved')
+
+    def change_settings_status(self,status):
+        elem = self.view.meas.elem['settings_status_label']
+        elem.setText(status)
+        elem.show()
+
+        self.settings_timer.start()
+
+    def hide_settings_status(self):
+        elem = self.view.meas.elem['settings_status_label']
+        elem.hide()
+
+        self.settings_timer.stop()
+        
+        
 
     def write_settings_to_model(self):
 
@@ -131,12 +152,15 @@ class MeasurementController(QObject):
 
     def btn_load_settings_click(self):
         self.model.load_settings_from_file()
+        self.change_settings_status('Settings loaded')
 
     def btn_set_default_click(self):
         self.model.load_default_settings()
+        self.change_settings_status('Default settings')
     
     def btn_start_click(self):
-            pass
+        self.model.start_measurement_process()
+        
     
     def btn_stop_click(self):
             pass
@@ -249,7 +273,7 @@ class MeasurementController(QObject):
         message = 'Initialization complete'
         self.append_init_text(message)
         logger.info(message)
-        self.init_timer.setInterval(500) # 0.5 second
+        
         self.init_timer.start()
 
     def close_init_window(self):

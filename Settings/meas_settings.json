@@ -1,15 +1,15 @@
 {
     "RF_frequencies": [
-        300000000.0,
-        2450000000.0,
-        6
+        1000000000.0,
+        2000000000.0,
+        3
     ],
     "RF_levels": [
-        -70.0,
+        -50.0,
         -20.0,
-        8
+        3
     ],
-    "SPAN": 1000000.0,
+    "SPAN_wide": 2000000.0,
     "SPAN_narrow": 100000.0,
     "RBW_wide": 10000.0,
     "RBW_narrow": 1000.0,
@@ -18,5 +18,5 @@
     "REF_level": 0.0,
     "SWEEP_points": 1001.0,
     "SWEEP_time": "AUTO ON",
-    "Precise": true
+    "Precise": false
 }
