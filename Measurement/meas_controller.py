@@ -1,4 +1,5 @@
 from PyQt6.QtCore import QObject, QTimer
+from PyQt6.QtWidgets import QLineEdit
 from .meas_model import MeasurementModel
 from GUI.main_window import MainWindow
 from .gen_controller import GenController
@@ -79,6 +80,7 @@ class MeasurementController(QObject):
         self.model.settings_changed.connect(self.settings_changed_handler)
 
     def init_view_signals(self):
+        elem =self.view.meas.elem
         keys = ('save_settings',
                 'load_settings',
                 'set_default',
@@ -91,7 +93,27 @@ class MeasurementController(QObject):
         for key in keys:
                 self.btn_clicked_connect(key, getattr(self, f'btn_{key}_click', None))
 
-        self.view.meas.elem['precise_enabled'].stateChanged.connect(self.change_state_precise)
+        elem['precise_enabled'].stateChanged.connect(self.change_state_precise)
+
+        for line_edit in elem.values():
+            if isinstance(line_edit, QLineEdit):
+                line_edit.textChanged.connect(lambda _, object=line_edit: self.line_edit_changed(object))
+
+    def refresh_view(self, object_name):
+        object_name.style().unpolish(object_name)
+        object_name.style().polish(object_name)
+
+    #Line edit handlers
+    def line_edit_changed(self, object_name):
+        object_name.setProperty('class', 'line_changed')
+        self.refresh_view(object_name)
+
+    def set_line_edit_unchanged(self):
+        elem =self.view.meas.elem
+        for line_edit in elem.values():
+            if isinstance(line_edit, QLineEdit):
+                line_edit.setProperty('class', '')
+                self.refresh_view(line_edit)
 
     def btn_clicked_connect(self,btn_name, btn_handler):
         if btn_handler is not None:
@@ -169,7 +191,8 @@ class MeasurementController(QObject):
             pass
     
     def btn_apply_click(self):
-            pass
+        self.set_line_edit_unchanged()
+        logger.debug('Apply button clicked')
     
 
     def settings_changed_handler(self, message):
@@ -185,6 +208,8 @@ class MeasurementController(QObject):
 
         if 'Precise' in message:
             self.enable_precise(self.str_to_bool(message['Precise']))
+
+        self.set_line_edit_unchanged()
 
         # Osc settings
 

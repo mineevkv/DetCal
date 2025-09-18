@@ -131,6 +131,14 @@ QLineEdit:disabled{
     color: #a5c53c;
 }
 
+.line_changed {
+    /* color: #14212A;
+    background-color: #ff5436; */
+    /* font-size: 14px; */
+    border: 1px solid #50e3c2;
+    font-weight: bold;
+}
+
 QTextBrowser{
     border: none;
     border-radius: none;
