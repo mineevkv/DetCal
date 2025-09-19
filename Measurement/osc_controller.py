@@ -121,15 +121,26 @@ class OscController(InstrumentController):
 
         # Updating Hight Resolution mode
         if 'acquire_mode' in message:
-            print(message['acquire_mode'])
             elem['btn_hi_res'].setChecked(message['acquire_mode'] == 'HIRES')
 
         if 'select_ch' in message:
             channel = message['select_ch']
             if channel is not None:
                 self.hide_channel_frames()
-                if channel in [1, 2, 3, 4]:
+                print(channel)
+                if channel:
                     self.view.elem[f'ch{channel}_frame'].show()
+
+        if 'ch_on' in message:
+            channel = message['ch_on']
+            elem['btn_hi_res'].setChecked(message['acquire_mode'] == 'HIRES')
+            
+
+        if 'coupling' in message:
+            pass
+
+        if 'reset' in message:
+            pass
             
 
         # if 'vert_scale' in message: TODO: for debug

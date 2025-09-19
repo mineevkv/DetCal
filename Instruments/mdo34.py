@@ -63,6 +63,7 @@ class MDO34(Instrument):
             channel=self._selected_channel
 
         self.send(f'SELECT:CH{channel} ON')
+        self.state_changed.emit({f'CH{channel}': True})
 
     @Instrument.device_checking 
     def channel_off(self, channel=None):
@@ -70,6 +71,7 @@ class MDO34(Instrument):
             channel=self._selected_channel
 
         self.send(f'SELECT:CH{channel} OFF')
+        self.state_changed.emit({f'CH{channel}': False})
 
  
 
@@ -86,6 +88,7 @@ class MDO34(Instrument):
             raise ValueError(f"Unknown channel: {channel}")
 
         self.send(f'SELECT:CH{self._selected_channel}')
+        self.state_changed.emit({'select_ch': self._selected_channel})
 
     @Instrument.device_checking 
     def is_channel_on(self, channel):
@@ -95,7 +98,9 @@ class MDO34(Instrument):
     def get_selected_channel(self): #response: CH1
         response = self.send(f'SELECT:CONTROl?')
         if response is not None and response.startswith('CH'):
-            return int(response[2:])
+            channel = int(response[2:])
+            self.state_changed.emit({'select_ch': channel})
+            return channel
         return 0
     
     # @Instrument.device_checking
@@ -114,18 +119,19 @@ class MDO34(Instrument):
 
         for i, channel in enumerate(self.channel_map.values()):
             channel_state[channel] = bool(int(response[i]))
-    
         return channel_state
         
 
     @Instrument.device_checking    
     def set_coupling(self, coupling='DC'):
         self.send(f'CH{self._selected_channel}:COUP {coupling}')
+        self.state_changed.emit({'coupling': coupling})
 
     @Instrument.device_checking
     def set_vertical_scale(self, scale=1):
         """Vertical scale in voltages"""
         self.send(f'CH{self._selected_channel}:SCALE {scale}')
+        self.state_changed.emit({'vert_scale' : scale})
 
     @Instrument.device_checking
     def get_channel_parameters(self):
@@ -140,6 +146,7 @@ class MDO34(Instrument):
     def set_vertical_position(self, offset=0):
         """Vertical offset in voltages"""
         self.send(f'CH{self._selected_channel}:OFFSET {offset}')
+        self.state_changed.emit({'vert_pos' : offset})
 
     @Instrument.device_checking
     def get_vertical_position(self):
@@ -154,6 +161,7 @@ class MDO34(Instrument):
     def set_horizontal_scale(self, scale='1s'):
         """Horizontal scale in seconds"""
         self.send(f'HORIZONTAL:SCALE {scale}')
+        self.state_changed.emit({'hor_scale' : scale})
 
     @Instrument.device_checking
     def get_horizontal_scale(self):
@@ -162,6 +170,7 @@ class MDO34(Instrument):
     @Instrument.device_checking
     def set_horizontal_position(self, position=0):
         self.send(f'HORIZONTAL:POSITION {position}')
+        self.state_changed.emit({'hor_pos' : position})
 
     @Instrument.device_checking
     def get_horizontal_position(self):
@@ -291,6 +300,7 @@ class MDO34(Instrument):
     @Instrument.device_checking
     def set_high_res_mode(self):
         self.send('ACQuire:MODe HIRes')
+        self.state_changed.emit({'acquire_mode' : 'HIRES'})
 
     @Instrument.device_checking
     def get_aquire_mode(self):
@@ -299,6 +309,7 @@ class MDO34(Instrument):
     @Instrument.device_checking
     def set_sample_mode(self):
         self.send('ACQuire:MODe SAMple')
+        self.state_changed.emit({'acquire_mode': 'SAMPLE'})
     
     @Instrument.device_checking
     def get_settings_from_device(self):

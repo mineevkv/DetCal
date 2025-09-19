@@ -90,7 +90,7 @@ class Instrument(VisaCom, QObject):
     
     def reset(self):
         self.send("*RST")
-        time.sleep(2)
+        self.state_changed.emit({'reset': True})
     
     def get_model(self):
         idn = self.get_idn()

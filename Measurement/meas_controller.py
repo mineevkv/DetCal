@@ -72,7 +72,7 @@ class MeasurementController(QObject):
         self.settings_timer.timeout.connect(self.hide_settings_status)
 
         self.waiting_timer = QTimer()
-        self.waiting_timer.setInterval(5000) # 3 second
+        self.waiting_timer.setInterval(5000) # 5 second
         self.waiting_timer.timeout.connect(self.hide_waiting_status)
 
     def init_model_signals(self):
@@ -150,9 +150,6 @@ class MeasurementController(QObject):
         elem = self.view.meas.elem['progress_label']
         elem.hide()
         
-        
-        
-
     def write_settings_to_model(self):
 
         settings = self.model.settings
@@ -222,6 +219,7 @@ class MeasurementController(QObject):
 
     
     def btn_apply_click(self):
+        self.write_settings_to_model()
         self.set_line_edit_unchanged()
         logger.debug('Apply button clicked')
     

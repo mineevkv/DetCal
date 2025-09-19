@@ -147,8 +147,18 @@ class MeasurementModel(QObject):
         self.meas_data = []
         self.stop_requested = False
 
-        frequencies = np.linspace(*self.settings['RF_frequencies'])
-        levels = np.linspace(*self.settings['RF_levels'])
+        freq_min, freq_max, freq_points = self.settings['RF_frequencies']
+        level_min, level_max, level_points = self.settings['RF_levels']
+        
+        if freq_max < 1e-9:
+            freq_max = freq_min
+            freq_points = 1
+        if level_max < 1e-9:
+            level_max = level_min
+            level_points = 1
+
+        frequencies = np.linspace(freq_min, freq_max, freq_points)
+        levels = np.linspace(level_min, level_max, level_points)
 
         self.setup_devices()
         
@@ -250,6 +260,9 @@ class MeasurementModel(QObject):
         self.sa.set_format_trace_bin()
 
         self.osc.reset()
+        time.sleep(2)
+        self.osc.get_settings_from_device()
+
         self.osc.channel_off(1)
         self.osc.select_channel(4)
         self.osc.set_50Ohm_termination()
@@ -260,7 +273,7 @@ class MeasurementModel(QObject):
         self.osc.set_bandwidth('FULL')
         self.osc.set_high_res_mode()
 
-        self.osc.set_horizontal_scale('1e-3')
+        self.osc.set_horizontal_scale(1e-3)
         self.osc.set_horizontal_position(0)
 
         self.osc.set_measurement_source(4)
