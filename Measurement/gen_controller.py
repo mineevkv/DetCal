@@ -26,7 +26,6 @@ class GenController(InstrumentController):
     def btn_rf_on_click(self):
         btn = self.view.elem['btn_rf_on']
         state = self.instr.get_output_state()
-        print(state)
         if state == True:
             self.instr.rf_off()
             btn.setChecked(False)

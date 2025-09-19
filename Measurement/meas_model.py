@@ -125,7 +125,7 @@ class MeasurementModel(QObject):
 
     def start_measurement_process(self):
         abort = False
-        equipment = [self.gen, self.sa]
+        equipment = [self.gen]
         for instr in equipment:
             if not instr.is_initialized():
                 logger.warning(f"Instrument {instr.__class__.__name__} not initialized")
@@ -152,7 +152,6 @@ class MeasurementModel(QObject):
 
         self.setup_devices()
         
-
         self.gen.rf_on()
 
         for frequency in frequencies:
@@ -169,7 +168,7 @@ class MeasurementModel(QObject):
             time.sleep(0.1) # wait for frequency to be set
                 
             self.sa.start_single_measurement()
-            time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done
+            # time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done
             
 
             if self.settings['Precise']:
@@ -183,26 +182,39 @@ class MeasurementModel(QObject):
                 time.sleep(0.1) # wait for frequency to be set
 
                 self.sa.start_single_measurement()
-                time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done         
+                # time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done         
 
             for level in reversed(levels): # TODO: fix reversed
                 if self.stop_requested:
                     self.meas_status.emit('Stop')
                     break
                 self.gen.set_level(level)
-                time.sleep(0.1) # wait for frequency to be set
-                
+                self.osc.ready_for_acquisition()
+                time.sleep(1)
+                self.osc.trigger_force() # Start measurement
                 self.sa.start_single_measurement()
-                time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done
+                # time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done
+
+                while self.osc.is_acquiring(): # Waiting for finish measurement
+                    time.sleep(0.1)
 
                 spectrum_data = self.sa.get_trace_data()
-                
-                max_value = max(spectrum_data)
-                mean_value = np.mean(spectrum_data)
-                limit = mean_value + 6 # +6 dBm
+                _, osc_data = self.osc.get_waveform_data()
+                mean_osc_value = np.mean(osc_data)
+
+                while self.check_osc_range(mean_osc_value):
+                    if self.stop_requested:
+                        self.meas_status.emit('Stop')
+                        break
+
+                max_value = 1
+                limit = 0
+                # max_value = max(spectrum_data)
+                # mean_value = np.mean(spectrum_data)
+                # limit = mean_value + 6 # +6 dBm
 
                 if max_value > limit:
-                    point =  [frequency, level, max_value]
+                    point =  [frequency, level, max_value, mean_osc_value]
                     self.meas_data.append(point)
                     self.data_changed.emit({'point': point})
                 else:
@@ -237,7 +249,31 @@ class MeasurementModel(QObject):
         self.sa.trace_clear_all()
         self.sa.set_format_trace_bin()
 
-        #setup osc
+        self.osc.reset()
+        self.osc.channel_off(1)
+        self.osc.select_channel(4)
+        self.osc.set_50Ohm_termination()
+        self.osc.set_coupling('DC')
+        self.osc.set_vertical_scale(1) # 1V/div
+        self.osc.set_vertical_position(0)
+        self.osc.channel_on(4)
+        self.osc.set_bandwidth('FULL')
+        self.osc.set_high_res_mode()
+
+        self.osc.set_horizontal_scale('1e-3')
+        self.osc.set_horizontal_position(0)
+
+        self.osc.set_measurement_source(4)
+        self.osc.set_measurement_type('AMPLITUDE')
+
+        self.osc.set_trigger_type('EDGE')
+        self.osc.set_trigger_source(4)
+        self.osc.set_trigger_level(0)
+
+        self.osc.stop_after_sequence()
+        self.osc.set_data_source(4)
+        self.osc.set_data_points(10000)
+        self.osc.set_binary_data_format()
 
         time.sleep(0.1)
         
@@ -252,6 +288,35 @@ class MeasurementModel(QObject):
         self.sa.set_rbw(self.settings['RBW_narrow'])
         self.sa.set_vbw(self.settings['VBW_narrow'])
 
+
+    def check_osc_range(self, value):
+        """
+        Check if oscilloscope vertical scale needs adjustment based on measured value.
+        Returns True if scale was changed, False otherwise.
+        """
+        current_scale = self.osc.get_vertical_scale()
+        vertical_map = self.osc.vertical_map
+        current_idx = vertical_map.index(current_scale)
+        
+        
+        if value > 3 * current_scale:
+            # Move to next higher scale if available
+            if  current_idx < len(vertical_map)-1:  # Not already at the highest scale
+                new_scale = vertical_map[current_idx + 1]
+                self.osc.set_vertical_scale(new_scale)
+                logger.debug(f"Scale increased: {current_scale} -> {new_scale} (value: {value:.3f}V)")
+                return True
+        elif value < 1 * current_scale:
+            # Move to next lower scale if available
+            if current_idx > 0: 
+                new_scale = vertical_map[current_idx - 1]
+                self.osc.set_vertical_scale(new_scale)
+                logger.debug(f"Scale decreased: {current_scale} -> {new_scale} (value: {value:.3f}V)")
+                return True
+        
+        return False
+
+   
 
     def meas_finish_handler(self):
         self.meas_status.emit('Finish')

@@ -271,9 +271,9 @@ class MeasurementController(QObject):
 
     def data_changed_handler(self, message):
         if 'data' in message:
-            print(f"data: {message['data']}")
+            pass
         if 'point' in message:
-            print(f"point: {message['point']}")
+            pass
 
 
     def update_gen_elem(self, message, mes_key, param):

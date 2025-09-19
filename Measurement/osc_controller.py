@@ -128,7 +128,8 @@ class OscController(InstrumentController):
             channel = message['select_ch']
             if channel is not None:
                 self.hide_channel_frames()
-                self.view.elem[f'ch{channel}_frame'].show()
+                if channel in [1, 2, 3, 4]:
+                    self.view.elem[f'ch{channel}_frame'].show()
             
 
         # if 'vert_scale' in message: TODO: for debug
