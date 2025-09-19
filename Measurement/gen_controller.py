@@ -38,9 +38,9 @@ class GenController(InstrumentController):
         super().signal_handler(message)
         elem = self.view.elem
         if 'level' in message:
-           elem['level_line'].setText(str(message['level']))
+           elem['level_line'].setText(str(self.remove_zeros(message['level'])))
         if 'frequency' in message:
-            elem['freq_line'].setText(str(message['frequency']/1e6))
+            elem['freq_line'].setText(str(self.remove_zeros(message['frequency']/1e6)))
         if 'rf_state' in message:
             elem['btn_rf_on'].setDown(message['rf_state'])
         if 'modulation' in message:

@@ -29,6 +29,7 @@ class MeasurementThread(QThread):
 class MeasurementModel(QObject):
     data_changed = pyqtSignal(dict)  # Signal to notify data changes
     settings_changed = pyqtSignal(dict)
+    meas_status = pyqtSignal(str)
     settings_filename = 'meas_settings'
     settings_folder = 'Settings'
     settings = dict()
@@ -132,14 +133,16 @@ class MeasurementModel(QObject):
 
         if abort:
             logger.warning(f"Measurement aborted")
-            return
+            return False
              
         self.meas_thread = MeasurementThread(self)
         self.meas_thread.finished_signal.connect(self.meas_finish_handler)
         self.meas_thread.start()
+        return True
 
     def start_measurement(self):
         logger.info(f"Starting measurement")
+        self.meas_status.emit('Start')
 
         self.meas_data = []
         self.stop_requested = False
@@ -154,6 +157,7 @@ class MeasurementModel(QObject):
 
         for frequency in frequencies:
             if self.stop_requested:
+                self.meas_status.emit('Stop')
                 break
 
             self.set_wide_band()
@@ -170,8 +174,9 @@ class MeasurementModel(QObject):
 
             if self.settings['Precise']:
                 if self.stop_requested:
+                    self.meas_status.emit('Stop')
                     break
-                
+
                 self.sa.find_peak_max()
                 self.sa.set_center_freq(self.sa.get_peak_freq())
                 self.set_narrow_band()
@@ -182,6 +187,7 @@ class MeasurementModel(QObject):
 
             for level in reversed(levels): # TODO: fix reversed
                 if self.stop_requested:
+                    self.meas_status.emit('Stop')
                     break
                 self.gen.set_level(level)
                 time.sleep(0.1) # wait for frequency to be set
@@ -203,6 +209,9 @@ class MeasurementModel(QObject):
 
         self.gen.rf_off()
         self.gen.set_min_level()
+
+    def stop_measurement_process(self):
+        self.stop_requested = True
 
     def setup_devices(self):
         self.gen.factory_preset()
@@ -230,6 +239,7 @@ class MeasurementModel(QObject):
 
 
     def meas_finish_handler(self):
+        self.meas_status.emit('Finish')
         logger.info(f"Measurement finished")
 
 

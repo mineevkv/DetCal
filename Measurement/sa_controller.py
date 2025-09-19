@@ -21,13 +21,13 @@ class SAController(InstrumentController):
         super().signal_handler(message)
 
         if 'center_freq' in message:
-            self.view.elem['center_freq_line'].setText(str(message['center_freq']/1e6))
+            self.view.elem['center_freq_line'].setText(str(self.remove_zeros(message['center_freq']/1e6)))
         if 'span' in message:
-            self.view.elem['span_line'].setText(str(message['span']/1e6))
+            self.view.elem['span_line'].setText(str(self.remove_zeros(message['span']/1e6)))
         if 'rbw' in message:
-            self.view.elem['rbw_line'].setText(str(message['rbw']/1e3))
+            self.view.elem['rbw_line'].setText(str(self.remove_zeros(message['rbw']/1e3)))
         if 'vbw' in message:
-            self.view.elem['vbw_line'].setText(str(message['vbw']/1e3))
+            self.view.elem['vbw_line'].setText(str(self.remove_zeros(message['vbw']/1e3)))
 
         if 'reference level' in message:
             pass

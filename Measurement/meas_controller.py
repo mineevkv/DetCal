@@ -62,8 +62,6 @@ class MeasurementController(QObject):
         # self.instruments_signals()
 
 
-
-
     def init_timers_signals(self):
         self.init_timer = QTimer()
         self.init_timer.setInterval(500) # 0.5 second
@@ -78,6 +76,7 @@ class MeasurementController(QObject):
         self.model.initializer.finished.connect(self.initialization_complete)
         self.model.data_changed.connect(self.data_changed_handler)
         self.model.settings_changed.connect(self.settings_changed_handler)
+        self.model.meas_status.connect(self.meas_signals_handler)
 
     def init_view_signals(self):
         elem =self.view.meas.elem
@@ -94,6 +93,7 @@ class MeasurementController(QObject):
                 self.btn_clicked_connect(key, getattr(self, f'btn_{key}_click', None))
 
         elem['precise_enabled'].stateChanged.connect(self.change_state_precise)
+        elem['unlock_stop'].stateChanged.connect(self.unlock_stop_btn)
 
         for line_edit in elem.values():
             if isinstance(line_edit, QLineEdit):
@@ -107,6 +107,8 @@ class MeasurementController(QObject):
     def line_edit_changed(self, object_name):
         object_name.setProperty('class', 'line_changed')
         self.refresh_view(object_name)
+        self.view.meas.elem['btn_apply'].setEnabled(True)
+        self.view.meas.elem['btn_start'].setEnabled(False)
 
     def set_line_edit_unchanged(self):
         elem =self.view.meas.elem
@@ -114,6 +116,8 @@ class MeasurementController(QObject):
             if isinstance(line_edit, QLineEdit):
                 line_edit.setProperty('class', '')
                 self.refresh_view(line_edit)
+        self.view.meas.elem['btn_apply'].setEnabled(False)
+        self.view.meas.elem['btn_start'].setEnabled(True)
 
     def btn_clicked_connect(self,btn_name, btn_handler):
         if btn_handler is not None:
@@ -181,14 +185,23 @@ class MeasurementController(QObject):
         self.change_settings_status('Default settings')
     
     def btn_start_click(self):
-        self.model.start_measurement_process()
+        elem = self.view.meas.elem
+        elem['unlock_stop'].setChecked(False)
+        if self.model.start_measurement_process():
+            elem['btn_save_result'].setEnabled(False)
+            elem['btn_start'].hide()
+            elem['btn_stop'].setEnabled(False)
+            elem['btn_stop'].show()
+
         
-    
     def btn_stop_click(self):
-            pass
+        self.view.meas.elem['btn_stop'].setEnabled(False)
+        self.view.meas.elem['unlock_stop'].setChecked(False)
+        self.model.stop_measurement_process()
     
     def btn_save_result_click(self):
-            pass
+        logger.debug('Save result')
+
     
     def btn_apply_click(self):
         self.set_line_edit_unchanged()
@@ -210,6 +223,18 @@ class MeasurementController(QObject):
             self.enable_precise(self.str_to_bool(message['Precise']))
 
         self.set_line_edit_unchanged()
+
+    def meas_signals_handler(self, message):
+        if 'Finish' in message:
+            self.view.meas.elem['btn_stop'].hide()
+            self.view.meas.elem['btn_start'].show()
+            self.view.meas.elem['btn_save_result'].setEnabled(True)
+        if 'Stop' in message:
+            self.view.meas.elem['btn_stop'].hide()
+            self.view.meas.elem['btn_start'].show()
+            self.view.meas.elem['btn_save_result'].setEnabled(True)
+
+
 
         # Osc settings
 
@@ -262,10 +287,8 @@ class MeasurementController(QObject):
     
     def change_state_precise(self):
         """Precise checkbox handler"""
-        if self.view.meas.elem['precise_enabled'].isChecked():
-            self.enable_precise(True)
-        else:
-            self.enable_precise(False)
+        is_checked = self.view.meas.elem['precise_enabled'].isChecked()
+        self.enable_precise(is_checked)
 
     def enable_precise(self, state):
         self.view.meas.elem['precise_enabled'].setChecked(state)
@@ -275,6 +298,14 @@ class MeasurementController(QObject):
 
         for key in keys:
             self.view.meas.elem[key].setEnabled(state)
+
+    def unlock_stop_btn(self):
+        elem = self.view.meas.elem
+        is_checked = elem['unlock_stop'].isChecked()
+        elem['btn_stop'].setEnabled(is_checked)
+        elem['unlock_stop'].setChecked(is_checked)
+
+        
 
     def update_init_progress(self, message):
         """Update progress message"""
