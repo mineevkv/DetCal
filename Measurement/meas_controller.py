@@ -71,6 +71,10 @@ class MeasurementController(QObject):
         self.settings_timer.setInterval(3000) # 3 second
         self.settings_timer.timeout.connect(self.hide_settings_status)
 
+        self.waiting_timer = QTimer()
+        self.waiting_timer.setInterval(5000) # 3 second
+        self.waiting_timer.timeout.connect(self.hide_waiting_status)
+
     def init_model_signals(self):
         self.model.initializer.progress.connect(self.update_init_progress)
         self.model.initializer.finished.connect(self.initialization_complete)
@@ -133,14 +137,19 @@ class MeasurementController(QObject):
         elem = self.view.meas.elem['settings_status_label']
         elem.setText(status)
         elem.show()
-
         self.settings_timer.start()
 
     def hide_settings_status(self):
+        self.settings_timer.stop()
         elem = self.view.meas.elem['settings_status_label']
         elem.hide()
+        
 
-        self.settings_timer.stop()
+    def hide_waiting_status(self):
+        self.waiting_timer.stop()
+        elem = self.view.meas.elem['progress_label']
+        elem.hide()
+        
         
         
 
@@ -192,15 +201,24 @@ class MeasurementController(QObject):
             elem['btn_start'].hide()
             elem['btn_stop'].setEnabled(False)
             elem['btn_stop'].show()
+            elem['progress_label'].setText('Waiting...')
+            elem['progress_label'].show()
 
         
     def btn_stop_click(self):
-        self.view.meas.elem['btn_stop'].setEnabled(False)
-        self.view.meas.elem['unlock_stop'].setChecked(False)
+        elem = self.view.meas.elem
+        elem['btn_stop'].setEnabled(False)
+        elem['unlock_stop'].setChecked(False)
         self.model.stop_measurement_process()
+        elem['progress_label'].setText('Stopped')
+        self.waiting_timer.start()
     
     def btn_save_result_click(self):
         logger.debug('Save result')
+        self.model.save_results()
+        self.view.meas.elem['progress_label'].setText('Saved')
+        self.view.meas.elem['progress_label'].show()
+        self.waiting_timer.start()
 
     
     def btn_apply_click(self):
@@ -229,6 +247,8 @@ class MeasurementController(QObject):
             self.view.meas.elem['btn_stop'].hide()
             self.view.meas.elem['btn_start'].show()
             self.view.meas.elem['btn_save_result'].setEnabled(True)
+            self.view.meas.elem['progress_label'].setText('Finished')
+            self.waiting_timer.start()
         if 'Stop' in message:
             self.view.meas.elem['btn_stop'].hide()
             self.view.meas.elem['btn_start'].show()
@@ -250,7 +270,10 @@ class MeasurementController(QObject):
         return bool(value)
 
     def data_changed_handler(self, message):
-        pass
+        if 'data' in message:
+            print(f"data: {message['data']}")
+        if 'point' in message:
+            print(f"point: {message['point']}")
 
 
     def update_gen_elem(self, message, mes_key, param):

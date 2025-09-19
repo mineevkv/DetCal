@@ -201,17 +201,30 @@ class MeasurementModel(QObject):
                 mean_value = np.mean(spectrum_data)
                 limit = mean_value + 6 # +6 dBm
 
-                if max_value > limit: 
-                    self.meas_data.append([frequency, level, max_value])
-                    self.data_changed.emit({'DATA': self.meas_data})
+                if max_value > limit:
+                    point =  [frequency, level, max_value]
+                    self.meas_data.append(point)
+                    self.data_changed.emit({'point': point})
                 else:
                     logger.warning(f"Measured signal at ({frequency} Hz, {level} dBm) is less than limit ({limit} dBm)")
-
+        self.data_changed.emit({'data': self.meas_data})
         self.gen.rf_off()
         self.gen.set_min_level()
 
     def stop_measurement_process(self):
         self.stop_requested = True
+
+    def save_results(self):
+        filename, _ = QFileDialog.getSaveFileName(
+            caption="Save results",
+            directory=os.path.join('results.csv'),
+            filter="CSV files (*.csv)"
+        )
+        if filename:
+            np.savetxt(filename, self.meas_data, delimiter=',') # Frequency, Level, Value
+            logger.info(f"Results saved to {filename}")
+        else:
+            logger.warning(f"No file selected")
 
     def setup_devices(self):
         self.gen.factory_preset()
@@ -223,6 +236,8 @@ class MeasurementModel(QObject):
         self.sa.set_sweep_points(self.settings['SWEEP_time'])
         self.sa.trace_clear_all()
         self.sa.set_format_trace_bin()
+
+        #setup osc
 
         time.sleep(0.1)
         
