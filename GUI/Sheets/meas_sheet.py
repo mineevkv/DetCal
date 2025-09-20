@@ -116,35 +116,12 @@ class MeasurementSheet(Sheet):
             self.channel_group.addButton(rb)
 
         # Status bar field
-        self.elem['status_bar'] = QTextBrowser(parent=self.box)
-        self.elem['status_bar'].setGeometry(QtCore.QRect(self.x_col[self.zero_col],self.y_row[ch_row+3], 800, 25))
-        self.elem['status_bar'].setReadOnly(True)
-        self.elem['status_bar'].setText('Ready')
-        self.elem['status_bar'].setProperty('class', 'status_bar')
-        
+
+        self.add_label('status_bar', self.zero_col, ch_row+3, '', 800)
 
         # self.rb_impedance.toggled.connect(self.rb_impedance_toggled)
 
-    def rb_impedance_toggled(self, checked):
-        if checked:
-            pass
-            # self.elem['hor_scale'].setReadOnly(False)
-        else:
-            # self.elem['hor_scale'].setReadOnly(True)
-            pass
 
-    def append_status_text(self, text, status="INFO"):
-
-        if status == "INFO":
-            color = SURFGREEN
-        elif status == "ERROR":
-            color = RED
-        elif status == "WARNING":
-            color = YELLOW
-        else:
-            color = VIOLET
-
-        # TODO self.view.init.text_browser.append(f"<span style='color: {color}'>{text}</span>")
 
 
     def add_gen_elem(self, key, col, row, width, text, text_min, value_min, text_max, value_max):

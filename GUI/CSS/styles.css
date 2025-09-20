@@ -132,11 +132,9 @@ QLineEdit:disabled{
 }
 
 .line_changed {
-    /* color: #14212A;
-    background-color: #ff5436; */
-    /* font-size: 14px; */
     border: 1px solid #50e3c2;
     font-weight: bold;
+    color: #50e3c2;
 }
 
 QTextBrowser{
@@ -258,7 +256,10 @@ QCheckBox::indicator:checked,
 QRadioButton::indicator:checked {
     background: #50e3c2;
     border: 1px solid #45adff;
+}
 
+QRadioButton::indicator{
+    border-radius: 7px;
 }
 
 QCheckBox::indicator:checked:hover,
@@ -271,4 +272,10 @@ QRadioButton::indicator:checked:hover {
 QCheckBox::indicator:hover, 
 QRadioButton::indicator:hover {
     border: 1px solid #bb86fc;
+}
+
+.radiocheck_changed, .radiocheck_changed:checked {
+    /* border: 1px solid #50e3c2; */
+    font-weight: bold; 
+    color: #50e3c2;
 }

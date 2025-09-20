@@ -102,7 +102,7 @@ class Sheet:
         check_box.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], 200, 20))
         return check_box
     
-    def add_radio_btn(self, key, col, row, text, width=100):
+    def add_radio_btn(self, key, col, row, text, width=90):
         radio_btn = self.elem[key] = QRadioButton(parent=self.box, text=text)
         radio_btn.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, 20))
         radio_btn.setChecked(False)

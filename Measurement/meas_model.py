@@ -58,7 +58,7 @@ class MeasurementModel(QObject):
         
         if gen is not None:
             self.gen = gen
-            logger.debug(f'init_gen:, {self.gen}')
+            logger.debug(f'MeasModel: init {self.gen}')
             self.equipment_changed.emit({'gen': gen})
         if sa is not None:
             self.sa = sa
@@ -259,7 +259,7 @@ class MeasurementModel(QObject):
         self.sa.set_swept_sa()
         self.sa.set_ref_level(self.settings['REF_level'])
         self.sa.set_sweep_time(self.settings['SWEEP_time'])
-        self.sa.set_sweep_points(self.settings['SWEEP_time'])
+        self.sa.set_sweep_points(self.settings['SWEEP_points'])
         self.sa.trace_clear_all()
         self.sa.set_format_trace_bin()
 
@@ -267,28 +267,31 @@ class MeasurementModel(QObject):
         time.sleep(2)
         self.osc.get_settings_from_device()
 
-        self.osc.channel_off(1)
-        self.osc.select_channel(4)
-        self.osc.set_50Ohm_termination()
-        self.osc.set_coupling('DC')
+        self.osc.channel_off(1) # CH1 is default channel
+        channel = self.settings['Cannel']
+        self.osc.select_channel(channel)
+        if self.settings['Impedance_50Ohm']:
+            self.osc.set_50Ohm_termination()
+        if self.settings['Coupling_DC']:
+            self.osc.set_coupling('DC')
         self.osc.set_vertical_scale(1) # 1V/div
         self.osc.set_vertical_position(0)
-        self.osc.channel_on(4)
+        self.osc.channel_on(channel)
         self.osc.set_bandwidth('FULL')
-        self.osc.set_high_res_mode()
-
-        self.osc.set_horizontal_scale(1e-3)
+        if self.settings['High_res']:
+            self.osc.set_high_res_mode()
+        self.osc.set_horizontal_scale(self.settings['HOR_scale'])
         self.osc.set_horizontal_position(0)
 
-        self.osc.set_measurement_source(4)
+        self.osc.set_measurement_source(channel)
         self.osc.set_measurement_type('AMPLITUDE')
 
         self.osc.set_trigger_type('EDGE')
-        self.osc.set_trigger_source(4)
+        self.osc.set_trigger_source(channel)
         self.osc.set_trigger_level(0)
 
         self.osc.stop_after_sequence()
-        self.osc.set_data_source(4)
+        self.osc.set_data_source(channel)
         self.osc.set_data_points(10000)
         self.osc.set_binary_data_format()
 

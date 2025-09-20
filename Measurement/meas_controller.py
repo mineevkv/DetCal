@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QObject, QTimer
-from PyQt6.QtWidgets import QLineEdit
+from PyQt6.QtWidgets import QLineEdit, QCheckBox, QRadioButton
 from .meas_model import MeasurementModel
 from GUI.main_window import MainWindow
 from .gen_controller import GenController
@@ -95,9 +95,13 @@ class MeasurementController(QObject):
         elem['precise_enabled'].stateChanged.connect(self.change_state_precise)
         elem['unlock_stop'].stateChanged.connect(self.unlock_stop_btn)
 
-        for line_edit in elem.values():
-            if isinstance(line_edit, QLineEdit):
-                line_edit.textChanged.connect(lambda _, object=line_edit: self.line_edit_changed(object))
+        for element in elem.values():
+            if isinstance(element, QLineEdit):
+                element.textChanged.connect(lambda _, object=element: self.line_edit_changed(object))
+            elif isinstance(element, QRadioButton):
+                element.toggled.connect(lambda _, object=element: self.radiocheck_changed(object))
+            elif isinstance(element, QCheckBox):
+                element.toggled.connect(lambda _, object=element: self.radiocheck_changed(object))
 
     def refresh_obj_view(self, object_name):
         object_name.style().unpolish(object_name)
@@ -107,22 +111,52 @@ class MeasurementController(QObject):
     def line_edit_changed(self, object_name):
         object_name.setProperty('class', 'line_changed')
         self.refresh_obj_view(object_name)
+        self.lock_start()
+
+
+    def lock_start(self):
+        elem = self.view.meas.elem
         self.view.meas.elem['btn_apply'].setEnabled(True)
         self.view.meas.elem['btn_start'].setEnabled(False)
+        self.set_status_bar_text('Check input parameters', 'WARNING')
 
-    def set_line_edit_unchanged(self):
+    def radiocheck_changed(self, object_name):
+        elem = self.view.meas.elem
+        if object_name is elem ['unlock_stop']:
+            return
+        object_name.setProperty('class', 'radiocheck_changed')
+        self.refresh_obj_view(object_name)
+        self.lock_start()
+        
+
+    def set_elements_unchanged(self):
         elem =self.view.meas.elem
-        for line_edit in elem.values():
-            if isinstance(line_edit, QLineEdit):
-                line_edit.setProperty('class', '')
-                self.refresh_obj_view(line_edit)
-        self.view.meas.elem['btn_apply'].setEnabled(False)
-        self.view.meas.elem['btn_start'].setEnabled(True)
+        for element in elem.values():
+            if isinstance(element, QLineEdit) or isinstance(element, QCheckBox) or isinstance(element, QRadioButton):
+                element.setProperty('class', '')
+                self.refresh_obj_view(element)
+        elem['btn_apply'].setEnabled(False)
+        elem['btn_start'].setEnabled(True)
+
+    def set_status_bar_text(self, text, status="INFO"):
+        elem = self.view.meas.elem['status_bar_label']
+        if status == "INFO":
+            color = SURFGREEN
+        elif status == "ERROR":
+            color = RED
+        elif status == "WARNING":
+            color = YELLOW
+        else:
+            color = VIOLET
+
+        elem.setText(text)
+        elem.setStyleSheet(f"color: {color}")
+        
+
 
     def btn_clicked_connect(self,btn_name, btn_handler):
         if btn_handler is not None:
             self.view.meas.elem[f'btn_{btn_name}'].clicked.connect(btn_handler)
-
 
     def btn_save_settings_click(self):
         self.write_settings_to_model()
@@ -140,14 +174,12 @@ class MeasurementController(QObject):
         elem = self.view.meas.elem['settings_status_label']
         elem.hide()
         
-
     def hide_waiting_status(self):
         self.waiting_timer.stop()
         elem = self.view.meas.elem['progress_label']
         elem.hide()
         
     def write_settings_to_model(self):
-
         settings = self.model.settings
         elem = self.view.meas.elem
 
@@ -202,7 +234,7 @@ class MeasurementController(QObject):
             elem['btn_stop'].show()
             elem['progress_label'].setText('Waiting...')
             elem['progress_label'].show()
-
+            self.set_status_bar_text('Measurement started')
         
     def btn_stop_click(self):
         elem = self.view.meas.elem
@@ -221,8 +253,9 @@ class MeasurementController(QObject):
   
     def btn_apply_click(self):
         self.write_settings_to_model()
-        self.set_line_edit_unchanged()
+        self.set_elements_unchanged()
         logger.debug('Apply button clicked')
+        self.set_status_bar_text('Ready to measurement')
 
     def str_to_bool(self, value):
         """Convert string to bool """
@@ -299,7 +332,7 @@ class MeasurementController(QObject):
 
     def equipment_signals_handler(self, message):
         """Handle completion of SCPI-instrument objects initialization"""
-        logger.debug('Meas Controller: equipment_changed_handler()')
+        logger.debug('MeasController: equipment_changed_handler()')
 
         for instr, controller in (
             ('gen', GenController),
@@ -350,7 +383,7 @@ class MeasurementController(QObject):
         if 'Channel' in message:
             elem[f'rb_ch{message["Channel"]}'].setChecked(True)
 
-        self.set_line_edit_unchanged()
+        self.set_elements_unchanged()
 
     def meas_signals_handler(self, message):
         elem = self.view.meas.elem
