@@ -12,8 +12,8 @@ class DSG830(Instrument):
     max_level = 20
     min_level = -110
      
-    def __init__(self, ip, visa_usb):
-        super().__init__(ip, visa_usb)
+    def __init__(self, ip):
+        super().__init__(ip)
         self.type = 'Microwave Generator'
 
 

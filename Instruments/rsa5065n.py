@@ -8,8 +8,8 @@ logger = get_logger(__name__)
 
 class RSA5065N(Instrument):
 
-    def __init__(self, ip, visa_usb):
-        super().__init__(ip, visa_usb)
+    def __init__(self, ip):
+        super().__init__(ip)
         self.type = 'Spectrum Analyzer'
 
 

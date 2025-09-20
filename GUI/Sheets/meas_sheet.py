@@ -133,6 +133,19 @@ class MeasurementSheet(Sheet):
             # self.elem['hor_scale'].setReadOnly(True)
             pass
 
+    def append_status_text(self, text, status="INFO"):
+
+        if status == "INFO":
+            color = SURFGREEN
+        elif status == "ERROR":
+            color = RED
+        elif status == "WARNING":
+            color = YELLOW
+        else:
+            color = VIOLET
+
+        # TODO self.view.init.text_browser.append(f"<span style='color: {color}'>{text}</span>")
+
 
     def add_gen_elem(self, key, col, row, width, text, text_min, value_min, text_max, value_max):
         align_rvc = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter

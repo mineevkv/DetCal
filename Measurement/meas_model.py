@@ -28,6 +28,7 @@ class MeasurementThread(QThread):
 
 class MeasurementModel(QObject):
     data_changed = pyqtSignal(dict)  # Signal to notify data changes
+    equipment_changed = pyqtSignal(dict)
     settings_changed = pyqtSignal(dict)
     meas_status = pyqtSignal(str)
     settings_filename = 'meas_settings'
@@ -42,7 +43,7 @@ class MeasurementModel(QObject):
         self.osc = None
 
         self.initializer = InstrumentInitializer()
-        self.initializer.instr_list.connect(self.init_instruments)
+        self.initializer.finished.connect(self.init_instruments)
 
     def start_initialization(self):
         """Start the instrument initialization process"""
@@ -57,13 +58,16 @@ class MeasurementModel(QObject):
         
         if gen is not None:
             self.gen = gen
-            self.data_changed.emit({'Gen': gen})
+            logger.debug(f'init_gen:, {self.gen}')
+            self.equipment_changed.emit({'gen': gen})
         if sa is not None:
             self.sa = sa
-            self.data_changed.emit({'SA': sa})
+            logger.debug(f'init_sa: {self.sa}')
+            self.equipment_changed.emit({'sa': sa})
         if osc is not None:
             self.osc = osc
-            self.data_changed.emit({'Osc': osc})
+            logger.debug(f'init_osc: {self.osc}')
+            self.equipment_changed.emit({'osc': osc})
 
 
         # TODO: emit the data_changed signal with the initialized instruments

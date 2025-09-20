@@ -30,8 +30,8 @@ class MDO34(Instrument):
     
     vertical_map = [1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2, 1e-1, 2e-1, 5e-1, 1]
     
-    def __init__(self, ip, visa_usb):
-        super().__init__(ip, visa_usb)
+    def __init__(self, ip):
+        super().__init__(ip)
 
         self._selected_channel = 1
 

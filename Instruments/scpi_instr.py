@@ -49,7 +49,7 @@ class Instrument(VisaCom, QObject):
     """Abstract class for SCPI Instrument"""
     state_changed = pyqtSignal(dict)  # Signal to notify settings changes
 
-    def __init__(self, ip, visa_usb):
+    def __init__(self, ip):
         VisaCom.__init__(self)
         QObject.__init__(self) 
         self.initialized = False

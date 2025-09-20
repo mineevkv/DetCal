@@ -12,8 +12,6 @@ from System.logger import get_logger
 logger = get_logger(__name__)
 
 
-
-
 class MeasurementController(QObject):
 
     units = {'Hz' : 1, 'kHz': 1e3, 'MHz': 1e6, 'GHz': 1e9,
@@ -63,10 +61,6 @@ class MeasurementController(QObject):
 
 
     def init_timers_signals(self):
-        self.init_timer = QTimer()
-        self.init_timer.setInterval(500) # 0.5 second
-        self.init_timer.timeout.connect(self.close_init_window)
-
         self.settings_timer = QTimer()
         self.settings_timer.setInterval(3000) # 3 second
         self.settings_timer.timeout.connect(self.hide_settings_status)
@@ -76,9 +70,8 @@ class MeasurementController(QObject):
         self.waiting_timer.timeout.connect(self.hide_waiting_status)
 
     def init_model_signals(self):
-        self.model.initializer.progress.connect(self.update_init_progress)
-        self.model.initializer.finished.connect(self.initialization_complete)
         self.model.data_changed.connect(self.data_changed_handler)
+        self.model.equipment_changed.connect(self.equipment_changed_handler)
         self.model.settings_changed.connect(self.settings_changed_handler)
         self.model.meas_status.connect(self.meas_signals_handler)
 
@@ -253,10 +246,6 @@ class MeasurementController(QObject):
             self.view.meas.elem['btn_save_result'].setEnabled(True)
 
 
-
-        # Osc settings
-
-
     def str_to_bool(self, value):
         """Convert string to bool """
         if isinstance(value, str):
@@ -326,64 +315,24 @@ class MeasurementController(QObject):
         elem['btn_stop'].setEnabled(is_checked)
         elem['unlock_stop'].setChecked(is_checked)
 
-        
 
-    def update_init_progress(self, message):
-        """Update progress message"""
-        self.append_init_text(f"progress: {message}")
-        logger.info(message)
-
-    def initialization_complete(self, error):
+    def equipment_changed_handler(self, message):
         """Handle completion of instrument initialization"""
+        logger.debug('Meas Controller: equipment_changed_handler()')
 
-        if error:
-            message = f"Instrument initialization failed: {str(error)}"
-            logger.error(message)
-            self.append_init_text(message, status="ERROR")
-            self.view.init.status_label.setText("No instruments")
-            self.view.init.progress_bar.setRange(0, 100)
-            self.view.init.progress_bar.setValue(100)            
-            self.init_timer.setInterval(100) # 0.1 seconds
-            self.init_timer.start()
-            return
-        
-        message = 'Initialization complete'
-        self.append_init_text(message)
-        logger.info(message)
-        
-        self.init_timer.start()
-
-    def close_init_window(self):
-        self.init_timer.stop()
-        self.view.instr_sheet_show()
-        self.view.init.cleanup()
-
-        self.set_instr_controllers()
-    
-    def set_instr_controllers(self):
-        try:
-            if hasattr(self.model, 'gen') and self.model.gen:
-                self.gen_controller = GenController(self.model.gen, self.view.gen)
-            if hasattr(self.model, 'sa') and self.model.sa:
-                self.sa_controller = SAController(self.model.sa, self.view.sa)
-            if hasattr(self.model, 'osc') and self.model.osc:
-                self.osc_controller = OscController(self.model.osc, self.view.osc)
-        except AttributeError as e:
-            logger.error(f"Failed to set instrument controllers: {e}")
-
-
-    def append_init_text(self, text, status="INFO"):
-
-        if status == "INFO":
-            color = SURFGREEN
-        elif status == "ERROR":
-            color = RED
-        elif status == "WARNING":
-            color = YELLOW
-        else:
-            color = VIOLET
-
-        self.view.init.text_browser.append(f"<span style='color: {color}'>{text}</span>")
+        for instr, controller in (
+            ('gen', GenController),
+            ('sa', SAController),
+            ('osc', OscController)
+        ):
+            if instr in message:
+                try:
+                    if hasattr(self.model, instr) and getattr(self.model, instr):
+                        logger.debug(f'Create {controller.__name__}')
+                        setattr(self, f'{instr}_controller',
+                                controller(getattr(self.model, instr), getattr(self.view, instr)))
+                except AttributeError as e:
+                    logger.error(f"Failed to set instrument controllers: {e}")
 
     def run(self):
         logger.debug('GUI running')

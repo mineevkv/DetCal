@@ -20,6 +20,7 @@ class MainWindow(QWidget):
         self.init_main_window()
         self.init_sheets()
         self.create_fields()
+        
 
     def init_main_window(self):
         self.init_fonts()
@@ -38,7 +39,6 @@ class MainWindow(QWidget):
     
         self.meas = MeasurementSheet(self)
         self.plot = PlotSheet(self)
-        self.init = InitializationSheet(self)
         self.gen = GeneratorSheet(self)
         self.sa = SpectrumAnalyzerSheet(self)
         self.osc = OscilloscopeSheet(self)
@@ -46,22 +46,18 @@ class MainWindow(QWidget):
 
     def create_fields(self):
         # Left fields
-        self.main_layout.addWidget(self.init.get_widget(), 0, 0, 3, 1)
+        self.main_layout.addWidget(self.gen.get_widget(), 0, 0)
+        self.main_layout.addWidget(self.sa.get_widget(), 1, 0)
+        self.main_layout.addWidget(self.osc.get_widget(), 2, 0)
         # Right fields
         self.main_layout.addWidget(self.meas.get_widget(), 0, 1, 2, 1)
         self.meas.get_widget().setFixedWidth(self.sheet_param['right_width'])
         self.main_layout.addWidget(self.plot.get_widget(), 2, 1)
 
-    def instr_sheet_hide(self):
-        sheets = ['gen', 'sa', 'osc']
-        for sh in sheets:
-            getattr(self, sh).hide()
 
     def instr_sheet_show(self):
-        # Left fields
-        self.main_layout.addWidget(self.gen.get_widget(), 0, 0)
-        self.main_layout.addWidget(self.sa.get_widget(), 1, 0)
-        self.main_layout.addWidget(self.osc.get_widget(), 2, 0)
+        logger.debug("instr_sheet_show - delete me")
+
 
     def init_fonts(self):
         default_font = 'Sergo UI'
@@ -97,3 +93,4 @@ class MainWindow(QWidget):
 
     def get_layout(self):
         return self.main_layout
+    
