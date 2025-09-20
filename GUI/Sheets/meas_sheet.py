@@ -1,6 +1,6 @@
 from .abstract_sheet import Sheet
 
-from PyQt6.QtWidgets import  QGroupBox, QCheckBox
+from PyQt6.QtWidgets import  QGroupBox, QCheckBox, QRadioButton
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 
@@ -66,9 +66,50 @@ class MeasurementSheet(Sheet):
         self.add_sa_elem('vbw_precise', precise_col, vbw_row, edit_line_width, 'VBW, kHz:', '0')
 
         self.add_custom_btn('apply', 40, span_row, 'APPLY', 60, 69, 'btn_apply')
-
+        
         # Oscilloscope fields
-  
+
+        hor_scale_row = ref_level_row + 2
+
+        ch1_col = self.zero_col + 10
+        ch2_col = ch1_col + 6
+        ch3_col = ch2_col + (ch2_col - ch1_col)
+        ch4_col = ch3_col + (ch2_col - ch1_col)
+        hi_res_col = ch4_col
+
+        self.add_osc_elem('hor_scale', self.zero_col, hor_scale_row, edit_line_width, 'Horizontal scale, ms/div:', '0')
+        self.add_check_box('hight_res_box', hi_res_col , hor_scale_row, 'High resolution')
+
+        imp_row = hor_scale_row + 1
+
+ 
+        self.add_label('impedance', self.zero_col, imp_row, 'Impedance:', 100).setProperty('class', 'meas_label_osc')
+        self.add_radio_btn('rb_meg', ch1_col, imp_row, 'MEG')
+        self.add_radio_btn('rb_50ohm', ch2_col, imp_row, '50 Ohm')
+        
+        
+        coup_row = imp_row + 1
+        self.add_label('coupling', self.zero_col, coup_row, 'Coupling:', 100).setProperty('class', 'meas_label_osc')
+        self.add_radio_btn('rb_dc', ch1_col, coup_row, 'DC')
+        self.add_radio_btn('rb_ac', ch2_col, coup_row, 'AC')
+
+        сh_row = coup_row + 1
+     
+        self.add_label('channel', self.zero_col, сh_row, 'Сhannel:', 100).setProperty('class', 'meas_label_osc')
+        self.add_radio_btn('re_ch1', ch1_col, сh_row, 'CH1')
+        self.add_radio_btn('re_ch2', ch2_col, сh_row, 'CH2')
+        self.add_radio_btn('re_ch3', ch3_col, сh_row, 'CH3')
+        self.add_radio_btn('re_ch4', ch4_col, сh_row, 'CH4')
+
+        # self.rb_impedance.toggled.connect(self.rb_impedance_toggled)
+
+    def rb_impedance_toggled(self, checked):
+        if checked:
+            pass
+            # self.elem['hor_scale'].setReadOnly(False)
+        else:
+            # self.elem['hor_scale'].setReadOnly(True)
+            pass
 
 
     def add_gen_elem(self, key, col, row, width, text, text_min, value_min, text_max, value_max):
@@ -87,8 +128,15 @@ class MeasurementSheet(Sheet):
         self.add_line_edit(f"{key}_points", col+44, row, '0', width).setAlignment(align_rvc)
 
     def add_sa_elem(self, key, col, row, width,  text, value):
-        self.add_label(key, col, row, text, 100).setProperty('class', 'meas_label_sa')
-        self.add_line_edit(f"{key}", col+10, row, value, width).setAlignment(Qt.AlignmentFlag.AlignRight)
+        label_width = 100
+        self.add_label(key, col, row, text, label_width).setProperty('class', 'meas_label_sa')
+        self.add_line_edit(f"{key}", col + label_width//10, row, value, width).setAlignment(Qt.AlignmentFlag.AlignRight)
+
+    def add_osc_elem(self, key, col, row, width, text, value):
+        label_width = 190
+        self.add_label(key, col, row, text, label_width).setProperty('class', 'meas_label_osc')
+        self.add_line_edit(f"{key}", col + label_width//10, row, value, width).setAlignment(Qt.AlignmentFlag.AlignRight)
+        
 
     def enable_precise(self, state):
         for key in ['span_precise_label', 'span_precise_line',

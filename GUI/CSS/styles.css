@@ -79,7 +79,7 @@ QLabel {
     font-weight: bold;
 }
 
-.meas_label_sa {
+.meas_label_sa, .meas_label_osc {
     font-size: 16px;
     font-weight: bold;
 }
@@ -224,39 +224,46 @@ QPushButton:disabled {
     background-color: #a5c53c;
 }
 
-QCheckBox {
+QCheckBox,
+QRadioButton {
     font-size: 16px;
     color: #aeaeae;
     font-weight: regular;
 }
 
-QCheckBox:checked  {
+QCheckBox:checked,
+QRadioButton:checked {
     color: #45adff;
 }
 
-QCheckBox:hover {
+QCheckBox:hover,
+QRadioButton:hover {
     color: #82c9ff;
 }
 
-QCheckBox::indicator {
+QCheckBox::indicator,
+QRadioButton::indicator {
     width: 14px;
     height: 14px;
     border: 1px solid #90969b;
     background: #2a2a2a;
     border-radius: 5px;
 }
-QCheckBox::indicator:checked {
+QCheckBox::indicator:checked,
+QRadioButton::indicator:checked {
     background: #50e3c2;
     border: 1px solid #45adff;
 
 }
 
-QCheckBox::indicator:checked:hover {
+QCheckBox::indicator:checked:hover,
+QRadioButton::indicator:checked:hover {
     border: 1px solid #bb86fc;
     background: #bb86fc;
 }
 
 
-QCheckBox::indicator:hover {
+QCheckBox::indicator:hover, 
+QRadioButton::indicator:hover {
     border: 1px solid #bb86fc;
 }

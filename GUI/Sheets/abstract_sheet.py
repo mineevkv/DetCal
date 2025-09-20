@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (
-    QWidget, QPushButton, QApplication, QCheckBox, QProgressBar,
+    QWidget, QPushButton, QApplication, QCheckBox, QProgressBar, QRadioButton,
     QGridLayout, QLabel, QLineEdit, QGroupBox)
 
 from PyQt6 import QtCore
@@ -101,6 +101,12 @@ class Sheet:
         check_box = self.elem[key] = QCheckBox(parent=self.box, text=text)
         check_box.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], 200, 20))
         return check_box
+    
+    def add_radio_btn(self, key, col, row, text, width=100):
+        radio_btn = self.elem[key] = QRadioButton(parent=self.box, text=text)
+        radio_btn.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, 20))
+        radio_btn.setChecked(False)
+        return radio_btn
     
     def add_progress_bar(self, key, col, row, width, hight):
         progress_bar = self.elem[key] = QProgressBar(parent=self.box)
