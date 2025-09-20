@@ -97,18 +97,3 @@ class MainWindow(QWidget):
 
     def get_layout(self):
         return self.main_layout
-
-
-    # def apply_font_to_widgets(self, widget=None):
-    #     """Recursively apply custom font to all widgets"""
-    #     if widget is None:
-    #         widget = self
-        
-    #     # Apply font to the current widget
-    #     if hasattr(widget, 'setFont'):
-    #         widget.setFont(self.custom_font)
-        
-    #     # Apply to all child widgets
-    #     for child in widget.findChildren(QWidget):
-    #         self.apply_font_to_widgets(child)
-    #         print(f"Applied font to {child.__class__.__name__}")

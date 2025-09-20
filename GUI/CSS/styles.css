@@ -140,11 +140,16 @@ QLineEdit:disabled{
 }
 
 QTextBrowser{
+    background-color: transparent;
     border: none;
     border-radius: none;
     margin: 0;
     font-size: 14px;
     font-weight: regular;
+}
+
+.status_bar {
+
 }
 
 QProgressBar {

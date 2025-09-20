@@ -1,6 +1,6 @@
 from .abstract_sheet import Sheet
 
-from PyQt6.QtWidgets import  QGroupBox, QCheckBox, QRadioButton
+from PyQt6.QtWidgets import  QGroupBox, QCheckBox, QRadioButton, QButtonGroup, QTextBrowser
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 
@@ -84,22 +84,44 @@ class MeasurementSheet(Sheet):
 
  
         self.add_label('impedance', self.zero_col, imp_row, 'Impedance:', 100).setProperty('class', 'meas_label_osc')
-        self.add_radio_btn('rb_meg', ch1_col, imp_row, 'MEG')
+        self.impedance_group =  QButtonGroup()
+        impedance_buttons = [
+        self.add_radio_btn('rb_meg', ch1_col, imp_row, 'MEG'),
         self.add_radio_btn('rb_50ohm', ch2_col, imp_row, '50 Ohm')
+        ]
+        for rb in impedance_buttons :
+            self.impedance_group.addButton(rb)
         
         
         coup_row = imp_row + 1
         self.add_label('coupling', self.zero_col, coup_row, 'Coupling:', 100).setProperty('class', 'meas_label_osc')
-        self.add_radio_btn('rb_dc', ch1_col, coup_row, 'DC')
-        self.add_radio_btn('rb_ac', ch2_col, coup_row, 'AC')
+        self.coupling_group =  QButtonGroup(parent=self.box)
+        coupling_buttons = [
+            self.add_radio_btn('rb_dc', ch1_col, coup_row, 'DC'),
+            self.add_radio_btn('rb_ac', ch2_col, coup_row, 'AC')
+        ]
+        for rb in coupling_buttons :
+            self.coupling_group.addButton(rb)
 
-        сh_row = coup_row + 1
-     
-        self.add_label('channel', self.zero_col, сh_row, 'Сhannel:', 100).setProperty('class', 'meas_label_osc')
-        self.add_radio_btn('re_ch1', ch1_col, сh_row, 'CH1')
-        self.add_radio_btn('re_ch2', ch2_col, сh_row, 'CH2')
-        self.add_radio_btn('re_ch3', ch3_col, сh_row, 'CH3')
-        self.add_radio_btn('re_ch4', ch4_col, сh_row, 'CH4')
+        ch_row = coup_row + 1
+        self.add_label('channel', self.zero_col, ch_row, 'Сhannel:', 100).setProperty('class', 'meas_label_osc')
+        self.channel_group =  QButtonGroup(parent=self.box)
+        channel_buttons = [
+            self.add_radio_btn('re_ch1', ch1_col, ch_row, 'CH1'),
+            self.add_radio_btn('re_ch2', ch2_col, ch_row, 'CH2'),
+            self.add_radio_btn('re_ch3', ch3_col, ch_row, 'CH3'),
+            self.add_radio_btn('re_ch4', ch4_col, ch_row, 'CH4')
+        ]
+        for rb in channel_buttons:
+            self.channel_group.addButton(rb)
+
+        # Status bar field
+        self.elem['status_bar'] = QTextBrowser(parent=self.box)
+        self.elem['status_bar'].setGeometry(QtCore.QRect(self.x_col[self.zero_col],self.y_row[ch_row+3], 800, 25))
+        self.elem['status_bar'].setReadOnly(True)
+        self.elem['status_bar'].setText('Ready')
+        self.elem['status_bar'].setProperty('class', 'status_bar')
+        
 
         # self.rb_impedance.toggled.connect(self.rb_impedance_toggled)
 
