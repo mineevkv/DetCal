@@ -90,12 +90,3 @@ class SAController(InstrumentController):
 
     def btn_single_click(self):
         pass
-
-        # if 'ip' in message:
-        #     self.view.elem['ip_clickline'].setText(message['ip'])
-        # if 'level' in message:
-        #     self.view.elem['level_line'].setText(str(message['level']))
-        # if 'frequency' in message:
-        #     self.view.elem['freq_line'].setText(str(message['frequency']/1e6))
-        # if 'rf' in message:
-        #     self.btn_rf_on.setDown(message['rf'])

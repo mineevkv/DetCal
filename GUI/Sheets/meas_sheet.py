@@ -107,10 +107,10 @@ class MeasurementSheet(Sheet):
         self.add_label('channel', self.zero_col, ch_row, 'Сhannel:', 100).setProperty('class', 'meas_label_osc')
         self.channel_group =  QButtonGroup(parent=self.box)
         channel_buttons = [
-            self.add_radio_btn('re_ch1', ch1_col, ch_row, 'CH1'),
-            self.add_radio_btn('re_ch2', ch2_col, ch_row, 'CH2'),
-            self.add_radio_btn('re_ch3', ch3_col, ch_row, 'CH3'),
-            self.add_radio_btn('re_ch4', ch4_col, ch_row, 'CH4')
+            self.add_radio_btn('rb_ch1', ch1_col, ch_row, 'CH1'),
+            self.add_radio_btn('rb_ch2', ch2_col, ch_row, 'CH2'),
+            self.add_radio_btn('rb_ch3', ch3_col, ch_row, 'CH3'),
+            self.add_radio_btn('rb_ch4', ch4_col, ch_row, 'CH4')
         ]
         for rb in channel_buttons:
             self.channel_group.addButton(rb)

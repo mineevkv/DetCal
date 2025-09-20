@@ -41,10 +41,12 @@ class InstrumentInitializer(QThread):
             logger.info("Offline debug mode")
             return     
         try:
-            gen = DSG830(self.ip_DSG830)
-            sa = RSA5065N(self.ip_RSA5065N)
-            osc = MDO34(self.ip_MDO34)
-            self.finished.emit(gen, sa, osc, None)              
+            instr = {
+                'gen': DSG830(self.ip_DSG830),
+                'sa': RSA5065N(self.ip_RSA5065N),
+                'osc': MDO34(self.ip_MDO34),
+            }
+            self.finished.emit(instr['gen'], instr['sa'], instr['osc'], None)
         except Exception as e:
             self.finished.emit(None, None, None, e)
             logger.error(f"Failed to initialize instruments objects: {e}")

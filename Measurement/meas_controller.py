@@ -16,6 +16,7 @@ class MeasurementController(QObject):
 
     units = {'Hz' : 1, 'kHz': 1e3, 'MHz': 1e6, 'GHz': 1e9,
             'dBm': 1, 'dB': 1,
+            's': 1, 'ms': 1e-3, 'us': 1e-6,
             'point': 1
             }
     
@@ -36,7 +37,9 @@ class MeasurementController(QObject):
             'VBW_narrow' : ('vbw_precise', 'kHz')
         }
     
-    osc_keys = {}
+    osc_keys = {
+            'HOR_scale' : ('hor_scale', 'ms')
+        }
 
     def __init__(self):
         super().__init__()
@@ -70,9 +73,9 @@ class MeasurementController(QObject):
         self.waiting_timer.timeout.connect(self.hide_waiting_status)
 
     def init_model_signals(self):
-        self.model.data_changed.connect(self.data_changed_handler)
-        self.model.equipment_changed.connect(self.equipment_changed_handler)
-        self.model.settings_changed.connect(self.settings_changed_handler)
+        self.model.data_changed.connect(self.data_signals_handler)
+        self.model.equipment_changed.connect(self.equipment_signals_handler)
+        self.model.settings_changed.connect(self.settings_signals_handler)
         self.model.meas_status.connect(self.meas_signals_handler)
 
     def init_view_signals(self):
@@ -96,14 +99,14 @@ class MeasurementController(QObject):
             if isinstance(line_edit, QLineEdit):
                 line_edit.textChanged.connect(lambda _, object=line_edit: self.line_edit_changed(object))
 
-    def refresh_view(self, object_name):
+    def refresh_obj_view(self, object_name):
         object_name.style().unpolish(object_name)
         object_name.style().polish(object_name)
 
     #Line edit handlers
     def line_edit_changed(self, object_name):
         object_name.setProperty('class', 'line_changed')
-        self.refresh_view(object_name)
+        self.refresh_obj_view(object_name)
         self.view.meas.elem['btn_apply'].setEnabled(True)
         self.view.meas.elem['btn_start'].setEnabled(False)
 
@@ -112,7 +115,7 @@ class MeasurementController(QObject):
         for line_edit in elem.values():
             if isinstance(line_edit, QLineEdit):
                 line_edit.setProperty('class', '')
-                self.refresh_view(line_edit)
+                self.refresh_obj_view(line_edit)
         self.view.meas.elem['btn_apply'].setEnabled(False)
         self.view.meas.elem['btn_start'].setEnabled(True)
 
@@ -156,6 +159,9 @@ class MeasurementController(QObject):
 
         settings['Precise'] = elem['precise_enabled'].isChecked()
 
+        for key, param in self.osc_keys.items():
+            settings[key] = self.write_osc_settings_to_model(param)
+
     def write_gen_settings_to_model(self, param):
         elem_key, unit = param
         if unit in self.units:
@@ -173,6 +179,9 @@ class MeasurementController(QObject):
         if unit in self.units:
              multiplier = self.units[unit]
         return float(self.view.meas.elem[f'{elem_key}_line'].text()) * multiplier
+    
+    def write_osc_settings_to_model(self, param):
+        return self.write_sa_settings_to_model(param)
 
 
     def btn_load_settings_click(self):
@@ -209,42 +218,11 @@ class MeasurementController(QObject):
         self.view.meas.elem['progress_label'].setText('Saved')
         self.view.meas.elem['progress_label'].show()
         self.waiting_timer.start()
-
-    
+  
     def btn_apply_click(self):
         self.write_settings_to_model()
         self.set_line_edit_unchanged()
         logger.debug('Apply button clicked')
-    
-
-    def settings_changed_handler(self, message):
-        # Gen settings
-        for key, param in self.gen_keys.items():
-            if key in message:
-                self.update_gen_elem(message, key, param)
-
-        # SA settings
-        for key, param in self.sa_keys.items():
-            if key in message:
-                self.update_sa_elem(message[key], param)
-
-        if 'Precise' in message:
-            self.enable_precise(self.str_to_bool(message['Precise']))
-
-        self.set_line_edit_unchanged()
-
-    def meas_signals_handler(self, message):
-        if 'Finish' in message:
-            self.view.meas.elem['btn_stop'].hide()
-            self.view.meas.elem['btn_start'].show()
-            self.view.meas.elem['btn_save_result'].setEnabled(True)
-            self.view.meas.elem['progress_label'].setText('Finished')
-            self.waiting_timer.start()
-        if 'Stop' in message:
-            self.view.meas.elem['btn_stop'].hide()
-            self.view.meas.elem['btn_start'].show()
-            self.view.meas.elem['btn_save_result'].setEnabled(True)
-
 
     def str_to_bool(self, value):
         """Convert string to bool """
@@ -256,7 +234,7 @@ class MeasurementController(QObject):
                 return False
         return bool(value)
 
-    def data_changed_handler(self, message):
+    def data_signals_handler(self, message):
         if 'data' in message:
             pass
         if 'point' in message:
@@ -279,6 +257,9 @@ class MeasurementController(QObject):
         if unit in self.units:
              dev = self.units[unit]
         self.view.meas.elem[f'{elem_key}_line'].setText(self.remove_zeros(value/dev))
+
+    def update_osc_elem(self, value, param):
+        self.update_sa_elem(value, param)
 
     def remove_zeros(self, input_string):
         """Remove trailing zeros from a string containing a decimal point"""
@@ -316,8 +297,8 @@ class MeasurementController(QObject):
         elem['unlock_stop'].setChecked(is_checked)
 
 
-    def equipment_changed_handler(self, message):
-        """Handle completion of instrument initialization"""
+    def equipment_signals_handler(self, message):
+        """Handle completion of SCPI-instrument objects initialization"""
         logger.debug('Meas Controller: equipment_changed_handler()')
 
         for instr, controller in (
@@ -333,6 +314,57 @@ class MeasurementController(QObject):
                                 controller(getattr(self.model, instr), getattr(self.view, instr)))
                 except AttributeError as e:
                     logger.error(f"Failed to set instrument controllers: {e}")
+
+
+    def settings_signals_handler(self, message):
+        # Gen settings
+        for key, param in self.gen_keys.items():
+            if key in message:
+                self.update_gen_elem(message, key, param)
+
+        # SA settings
+        for key, param in self.sa_keys.items():
+            if key in message:
+                self.update_sa_elem(message[key], param)
+
+        if 'Precise' in message:
+            self.enable_precise(self.str_to_bool(message['Precise']))
+
+        # Osc settings
+        for key, param in self.osc_keys.items():
+            if key in message:
+                self.update_osc_elem(message[key], param)
+
+        elem = self.view.meas.elem
+        if "High_res" in message:
+            elem['hight_res_box'].setChecked(message["High_res"])
+        if "Impedance_50Ohm" in message:
+            status = message["Impedance_50Ohm"]
+            elem['rb_50ohm'].setChecked(status)
+            elem['rb_meg'].setChecked(not status)
+            
+        if "Coupling_DC" in message:
+            status = message["Coupling_DC"]
+            elem['rb_dc'].setChecked(status)
+            elem['rb_ac'].setChecked(not status)
+        if 'Channel' in message:
+            elem[f'rb_ch{message["Channel"]}'].setChecked(True)
+
+        self.set_line_edit_unchanged()
+
+    def meas_signals_handler(self, message):
+        elem = self.view.meas.elem
+        if 'Finish' in message:
+            elem['btn_stop'].hide()
+            elem['btn_start'].show()
+            elem['btn_save_result'].setEnabled(True)
+            elem['progress_label'].setText('Finished')
+            elem.start()
+        if 'Stop' in message:
+            elem['btn_stop'].hide()
+            elem['btn_start'].show()
+            elem['btn_save_result'].setEnabled(True)
+
 
     def run(self):
         logger.debug('GUI running')

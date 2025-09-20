@@ -4,7 +4,6 @@ from PyQt6.QtGui import QFont, QFontDatabase
 
 from GUI.Sheets.meas_sheet import MeasurementSheet
 from GUI.Sheets.plot_sheet import PlotSheet
-from GUI.Sheets.init_sheet import InitializationSheet
 from GUI.Sheets.gen_sheet import GeneratorSheet
 from GUI.Sheets.sa_sheet import SpectrumAnalyzerSheet
 from GUI.Sheets.osc_sheet import OscilloscopeSheet
@@ -19,7 +18,7 @@ class MainWindow(QWidget):
         super().__init__()
         self.init_main_window()
         self.init_sheets()
-        self.create_fields()
+        self.add_fields()
         
 
     def init_main_window(self):
@@ -44,7 +43,7 @@ class MainWindow(QWidget):
         self.osc = OscilloscopeSheet(self)
 
 
-    def create_fields(self):
+    def add_fields(self):
         # Left fields
         self.main_layout.addWidget(self.gen.get_widget(), 0, 0)
         self.main_layout.addWidget(self.sa.get_widget(), 1, 0)
@@ -53,11 +52,6 @@ class MainWindow(QWidget):
         self.main_layout.addWidget(self.meas.get_widget(), 0, 1, 2, 1)
         self.meas.get_widget().setFixedWidth(self.sheet_param['right_width'])
         self.main_layout.addWidget(self.plot.get_widget(), 2, 1)
-
-
-    def instr_sheet_show(self):
-        logger.debug("instr_sheet_show - delete me")
-
 
     def init_fonts(self):
         default_font = 'Sergo UI'
@@ -75,7 +69,7 @@ class MainWindow(QWidget):
                 font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
                 # Use the font
                 self.custom_font = QFont(font_family) 
-                logger.info(f"Successfully loaded font: {font_family}")
+                logger.debug(f"Successfully loaded font: {font_family}")
             else:
                 logger.warning("Failed to load font")
                 self.custom_font = QFont(default_font)

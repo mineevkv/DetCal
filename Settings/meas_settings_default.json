@@ -18,5 +18,10 @@
     "REF_level": 0,
     "SWEEP_points": 1001,
     "SWEEP_time": "AUTO ON",
-    "Precise": "False"
+    "Precise": false,
+    "HOR_scale": 10e-3,
+    "High_res": false,
+    "Impedance_50Ohm" : true,
+    "Coupling_DC" : true,
+    "Channel": 1
 }
