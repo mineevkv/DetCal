@@ -215,7 +215,11 @@ class MeasurementController(QObject):
         elem_key, unit = param
         if unit in self.units:
              multiplier = self.units[unit]
-        return float(self.view.meas.elem[f'{elem_key}_line'].text()) * multiplier
+             try:
+                return float(self.view.meas.elem[f'{elem_key}_line'].text())* multiplier
+             except ValueError:
+                logger.warning(f"Invalid value for {elem_key}_line")
+                raise
     
     def write_osc_settings_to_model(self, param):
         return self.write_sa_settings_to_model(param)
@@ -257,10 +261,14 @@ class MeasurementController(QObject):
         self.waiting_timer.start()
   
     def btn_apply_click(self):
-        self.write_settings_to_model()
-        self.set_elements_unchanged()
         logger.debug('Apply button clicked')
-        self.set_status_bar('Ready to measurement')
+        try:
+            self.write_settings_to_model()
+            self.set_elements_unchanged()
+            self.set_status_bar('Ready to measurement')
+        except Exception as e:
+            logger.error(f"Error applying settings: {e}")
+            self.set_status_bar(f"Error applying settings: {e}", "ERROR")
 
     def str_to_bool(self, value):
         """Convert string to bool """

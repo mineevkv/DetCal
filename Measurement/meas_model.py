@@ -247,7 +247,8 @@ class MeasurementModel(QObject):
             filter="CSV files (*.csv)"
         )
         if filename:
-            np.savetxt(filename, self.meas_data, delimiter=',') # Frequency, Level, Value
+            file_header = 'Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V)'
+            np.savetxt(filename, self.meas_data, delimiter=',', header=file_header) # Frequency, Level, Value, Mean Osc Value
             logger.info(f"Results saved to {filename}")
         else:
             logger.warning(f"No file selected")
