@@ -157,10 +157,22 @@ QProgressBar {
     color: transparent;
 }
 
+
 QProgressBar::chunk {
     background-color: #f1c40f;
     width: 100px;
     margin: 5px 0px;
+}
+
+.instr_progress_bar {
+    border: none;
+    background-color: transparent;
+}
+
+.instr_progress_bar::chunk {
+    background-color: #f1c40f;
+    width: 1px;
+    margin: 7px 0px;
 }
 
 QPushButton {

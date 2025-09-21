@@ -22,13 +22,16 @@ class ConnectThread(QThread):
         logger.debug(f"{self.__class__.__name__}: thread deleted")
         
     def run(self):
+        self.parent.progress_changed.emit(10)
         try:
             self.parent.instr = VisaCom.get_visa_resource(VisaCom.get_visa_string_ip(self.parent.ip))
+            self.parent.progress_changed.emit(50)
             if self.parent.instr is None:
                 return
             self.parent.initialized = True
             self.parent.get_model()
             logger.info(f"Connected to instrument at {self.parent.ip}")
+            self.parent.progress_changed.emit(60)
             
         except pyvisa.errors.VisaIOError:
             logger.error(f"Error connecting to instrument at {self.parent.ip}")
@@ -43,11 +46,14 @@ class ConnectThread(QThread):
                 'type': self.parent.get_type(),
                 'thread': self.parent.connect_thread
             })
+            self.parent.progress_changed.emit(80)
             self.parent.get_settings_from_device()
+            self.parent.progress_changed.emit(100)
 
 class Instrument(VisaCom, QObject):
     """Abstract class for SCPI Instrument"""
     state_changed = pyqtSignal(dict)  # Signal to notify settings changes
+    progress_changed = pyqtSignal(int) # Signal to current progress status (0-100)
 
     def __init__(self, ip):
         VisaCom.__init__(self)

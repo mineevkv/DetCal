@@ -14,6 +14,7 @@ class InstrumentController(QObject):
         
         self.connect_signals()
         self.set_connection_field()
+        self.init_progress_timer()
         
         # self.ip_btn_connect.clicked.connect(self.ip_btn_connect_click)
 
@@ -23,6 +24,7 @@ class InstrumentController(QObject):
     def connect_signals(self):
         self.view.elem['btn_ip'].clicked.connect(self.btn_connect_click)
         self.instr.state_changed.connect(self.signal_handler)
+        self.instr.progress_changed.connect(self.progress)
 
     @abstractmethod
     def signal_handler(self, message):
@@ -35,9 +37,8 @@ class InstrumentController(QObject):
             self.view.box.setTitle(message['type'])
         if 'thread' in message:
             self.instr.connect_thread = None
+
             
-
-
     def is_connect(self):
         if self.instr is not None and self.instr.is_initialized():
             return True
@@ -74,12 +75,25 @@ class InstrumentController(QObject):
         if self.instr is not None:
             self.instr.set_ip(new_ip)
             self.instr.connect()
-            
+            self.timer.start(300)
 
+    def init_progress_timer(self):
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.progress_update)
+        self.timer.start(300)
 
-        # if not self.is_connect():
-        #     label = self.view.elem['ip_status_label']
-        #     label.setText("Connection error")
+    def progress(self,value):
+        self.view.elem['progress'].setValue(value)
+        if value == 100:
+            self.timer.timeout.connect(self.progress_hide)
+
+    def progress_update(self):
+        value = self.view.elem['progress'].value()
+        self.progress(value + 1)
+
+    def progress_hide(self):
+        self.timer.stop()
+        self.progress(0)
 
     def is_valid_ip(self, ip):
         """

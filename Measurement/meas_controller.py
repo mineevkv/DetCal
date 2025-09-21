@@ -98,7 +98,7 @@ class MeasurementController(QObject):
         for element in elem.values():
             if isinstance(element, QLineEdit):
                 element.textChanged.connect(lambda _, object=element: self.line_edit_changed(object))
-            elif isinstance(element, QRadioButton):
+            elif isinstance(element, QRadioButton or QCheckBox):
                 element.toggled.connect(lambda _, object=element: self.radiocheck_changed(object))
             elif isinstance(element, QCheckBox):
                 element.toggled.connect(lambda _, object=element: self.radiocheck_changed(object))
@@ -118,7 +118,13 @@ class MeasurementController(QObject):
         elem = self.view.meas.elem
         self.view.meas.elem['btn_apply'].setEnabled(True)
         self.view.meas.elem['btn_start'].setEnabled(False)
-        self.set_status_bar_text('Check input parameters', 'WARNING')
+        self.set_status_bar('Submit input parameters', 'WARNING')
+
+    def unlock_start(self):
+        elem = self.view.meas.elem
+        elem['btn_apply'].setEnabled(False)
+        elem['btn_start'].setEnabled(True)
+        self.set_status_bar('Ready for measurement')
 
     def radiocheck_changed(self, object_name):
         elem = self.view.meas.elem
@@ -135,10 +141,9 @@ class MeasurementController(QObject):
             if isinstance(element, QLineEdit) or isinstance(element, QCheckBox) or isinstance(element, QRadioButton):
                 element.setProperty('class', '')
                 self.refresh_obj_view(element)
-        elem['btn_apply'].setEnabled(False)
-        elem['btn_start'].setEnabled(True)
+        self.unlock_start()
 
-    def set_status_bar_text(self, text, status="INFO"):
+    def set_status_bar(self, text, status="INFO"):
         elem = self.view.meas.elem['status_bar_label']
         if status == "INFO":
             color = SURFGREEN
@@ -234,7 +239,7 @@ class MeasurementController(QObject):
             elem['btn_stop'].show()
             elem['progress_label'].setText('Waiting...')
             elem['progress_label'].show()
-            self.set_status_bar_text('Measurement started')
+            self.set_status_bar('Measurement started')
         
     def btn_stop_click(self):
         elem = self.view.meas.elem
@@ -255,7 +260,7 @@ class MeasurementController(QObject):
         self.write_settings_to_model()
         self.set_elements_unchanged()
         logger.debug('Apply button clicked')
-        self.set_status_bar_text('Ready to measurement')
+        self.set_status_bar('Ready to measurement')
 
     def str_to_bool(self, value):
         """Convert string to bool """

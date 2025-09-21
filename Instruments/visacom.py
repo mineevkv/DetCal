@@ -40,12 +40,12 @@ class VisaCom():
         return f'TCPIP0::{ip}::INSTR'
 
     @staticmethod
-    def get_visa_resource(visa_string):
+    def get_visa_resource(visa_string, alternative=False):
         """
         Check connect to remote instrument
         """
         if 'TCPIP' or 'USB' in visa_string:
-            com_interface = visa_string.split('::')[0]
+            interface = visa_string.split('::')[0]
         else:
             logger.error("Invalid VISA string format")
             return
@@ -55,7 +55,7 @@ class VisaCom():
             rm = pyvisa.ResourceManager()
             
             try:
-                logger.info(f"Trying to connect to: {com_interface}")
+                logger.info(f"Trying to connect to: {interface}")
                 
                 inst = rm.open_resource(visa_string)
                 logger.info(f'{inst}')
@@ -71,32 +71,32 @@ class VisaCom():
                 return inst
                 
             except pyvisa.errors.VisaIOError as e:
-                logger.error(f"Error communicating with {com_interface}: {e}")
-                logger.info("Trying alternative termination characters...")
-                
-                # Try different termination characters
-                for read_term, write_term in [('\r\n', '\r\n'), ('\r', '\r'), ('\n', '\n')]: # \r\n - Windows standard, \r - old \n - modern instruments
-                    try:
-                        if 'inst' in locals():
-                            inst.close()
+                logger.error(f"Error communicating with {interface}: {e}")
+                if alternative:
+                    logger.info("Trying alternative termination characters...")
+                    
+                    # Try different termination characters
+                    for read_term, write_term in [('\r\n', '\r\n'), ('\r', '\r'), ('\n', '\n')]: # \r\n - Windows standard, \r - old \n - modern instruments
+                        try:
+                            if 'inst' in locals():
+                                inst.close()
+                            
+                            inst = rm.open_resource(visa_string)
+                            inst.timeout = 5000
+                            inst.read_termination = read_term
+                            inst.write_termination = write_term
+                            
+                            time.sleep(0.1)
+                            idn = inst.query('*IDN?').strip()
+                            logger.info(f"Success with termination {repr(read_term)}/{repr(write_term)}: {idn}")
+                            return inst
+                            
+                        except pyvisa.errors.VisaIOError:
+                            logger.error(f"All termination character combinations failed for {interface}")
+                            raise
                         
-                        inst = rm.open_resource(visa_string)
-                        inst.timeout = 5000
-                        inst.read_termination = read_term
-                        inst.write_termination = write_term
-                        
-                        time.sleep(0.1)
-                        idn = inst.query('*IDN?').strip()
-                        logger.info(f"Success with termination {repr(read_term)}/{repr(write_term)}: {idn}")
-                        return inst
-                        
-                    except pyvisa.errors.VisaIOError:
-                        logger.error(f"All termination character combinations failed for {com_interface}")
-                        raise
-                        
-                
             except Exception as e:
-                logger.error(f"Unexpected error with {com_interface}: {e}")
+                logger.error(f"Unexpected error with {interface}: {e}")
                 raise
         
         except Exception as e:
