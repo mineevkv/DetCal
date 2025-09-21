@@ -291,3 +291,9 @@ QRadioButton::indicator:hover {
     font-weight: bold; 
     color: #50e3c2;
 }
+
+
+.canvas {
+    background-color: transparent;
+    border: none;
+}

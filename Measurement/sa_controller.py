@@ -11,23 +11,24 @@ class SAController(InstrumentController):
 
     def connect_signals(self): 
         super().connect_signals()
-        self.view.elem['btn_center_freq'].clicked.connect(self.btn_center_freq_click)
-        self.view.elem['btn_span'].clicked.connect(self.btn_span_click)
-        self.view.elem['btn_rbw'].clicked.connect(self.btn_rbw_click)
-        self.view.elem['btn_vbw'].clicked.connect(self.btn_vbw_click)
-        self.view.elem['btn_single'].clicked.connect(self.btn_single_click)
+        elem = self.view.elem
+        elem['btn_center_freq'].clicked.connect(self.btn_center_freq_click)
+        elem['btn_span'].clicked.connect(self.btn_span_click)
+        elem['btn_rbw'].clicked.connect(self.btn_rbw_click)
+        elem['btn_vbw'].clicked.connect(self.btn_vbw_click)
+        elem['btn_single'].clicked.connect(self.btn_single_click)
 
     def signal_handler(self, message):
         super().signal_handler(message)
-
+        elem = self.view.elem
         if 'center_freq' in message:
-            self.view.elem['center_freq_line'].setText(str(self.remove_zeros(message['center_freq']/1e6)))
+            elem['center_freq_line'].setText(str(self.remove_zeros(message['center_freq']/1e6)))
         if 'span' in message:
-            self.view.elem['span_line'].setText(str(self.remove_zeros(message['span']/1e6)))
+            elem['span_line'].setText(str(self.remove_zeros(message['span']/1e6)))
         if 'rbw' in message:
-            self.view.elem['rbw_line'].setText(str(self.remove_zeros(message['rbw']/1e3)))
+            elem['rbw_line'].setText(str(self.remove_zeros(message['rbw']/1e3)))
         if 'vbw' in message:
-            self.view.elem['vbw_line'].setText(str(self.remove_zeros(message['vbw']/1e3)))
+            elem['vbw_line'].setText(str(self.remove_zeros(message['vbw']/1e3)))
 
         if 'reference level' in message:
             pass

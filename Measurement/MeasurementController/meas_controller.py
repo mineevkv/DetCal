@@ -1,16 +1,24 @@
 from PyQt6.QtCore import QObject, QTimer
 from PyQt6.QtWidgets import QLineEdit, QCheckBox, QRadioButton
-from .meas_model import MeasurementModel
+from ..meas_model import MeasurementModel
 from GUI.main_window import MainWindow
-from .gen_controller import GenController
-from .sa_controller import SAController
-from .osc_controller import OscController
+from ..gen_controller import GenController
+from ..sa_controller import SAController
+from ..osc_controller import OscController
+from ..helper_functions import remove_zeros, str_to_bool
+from .status_bar_controller import StatusBarController
 
 from GUI.palette import *
 
 from System.logger import get_logger
 logger = get_logger(__name__)
 
+
+class WriteSettings():
+    def __init__(self, meas_contr):
+        self.mc = meas_contr
+
+    
 
 class MeasurementController(QObject):
 
@@ -47,7 +55,8 @@ class MeasurementController(QObject):
         self.model = MeasurementModel()
         self.view = MainWindow()
 
-        self.connect_signals() # Must be before initialization
+        self.init_connect_signals() # Must be before initialization
+        self.init_view_handlers()
         self.model.offline_mode(0) # Set to True for offline testing without instruments
         self.model.start_initialization()
         self.model.load_settings()
@@ -56,12 +65,14 @@ class MeasurementController(QObject):
         # self.update_view()
 
 
-    def connect_signals(self):
+    def init_connect_signals(self):
         self.init_model_signals()
         self.init_view_signals()
         self.init_timers_signals()
         # self.instruments_signals()
 
+    def init_view_handlers(self):
+        self.status_bar = StatusBarController(self.view.meas.elem['status_bar_label'])
 
     def init_timers_signals(self):
         self.settings_timer = QTimer()
@@ -116,15 +127,15 @@ class MeasurementController(QObject):
 
     def lock_start(self):
         elem = self.view.meas.elem
-        self.view.meas.elem['btn_apply'].setEnabled(True)
-        self.view.meas.elem['btn_start'].setEnabled(False)
-        self.set_status_bar('Submit input parameters', 'WARNING')
+        elem['btn_apply'].setEnabled(True)
+        elem['btn_start'].setEnabled(False)
+        self.status_bar.warning('Submit input parameters')
 
     def unlock_start(self):
         elem = self.view.meas.elem
         elem['btn_apply'].setEnabled(False)
         elem['btn_start'].setEnabled(True)
-        self.set_status_bar('Ready for measurement')
+        self.status_bar.info('Ready to measurement')
 
     def radiocheck_changed(self, object_name):
         elem = self.view.meas.elem
@@ -142,21 +153,6 @@ class MeasurementController(QObject):
                 element.setProperty('class', '')
                 self.refresh_obj_view(element)
         self.unlock_start()
-
-    def set_status_bar(self, text, status="INFO"):
-        elem = self.view.meas.elem['status_bar_label']
-        if status == "INFO":
-            color = SURFGREEN
-        elif status == "ERROR":
-            color = RED
-        elif status == "WARNING":
-            color = YELLOW
-        else:
-            color = VIOLET
-
-        elem.setText(text)
-        elem.setStyleSheet(f"color: {color}")
-        
 
 
     def btn_clicked_connect(self,btn_name, btn_handler):
@@ -224,7 +220,6 @@ class MeasurementController(QObject):
     def write_osc_settings_to_model(self, param):
         return self.write_sa_settings_to_model(param)
 
-
     def btn_load_settings_click(self):
         self.model.load_settings_from_file()
         self.change_settings_status('Settings loaded')
@@ -237,13 +232,10 @@ class MeasurementController(QObject):
         elem = self.view.meas.elem
         elem['unlock_stop'].setChecked(False)
         if self.model.start_measurement_process():
-            elem['btn_save_result'].setEnabled(False)
-            elem['btn_start'].hide()
-            elem['btn_stop'].setEnabled(False)
-            elem['btn_stop'].show()
+            self.hide_start_btn()
             elem['progress_label'].setText('Waiting...')
             elem['progress_label'].show()
-            self.set_status_bar('Measurement started')
+            self.status_bar.info('Measurement in progress...')
         
     def btn_stop_click(self):
         elem = self.view.meas.elem
@@ -265,27 +257,17 @@ class MeasurementController(QObject):
         try:
             self.write_settings_to_model()
             self.set_elements_unchanged()
-            self.set_status_bar('Ready to measurement')
         except Exception as e:
-            logger.error(f"Error applying settings: {e}")
-            self.set_status_bar(f"Error applying settings: {e}", "ERROR")
+            self.status_bar.error(f"Error applying settings: {e}")
 
-    def str_to_bool(self, value):
-        """Convert string to bool """
-        if isinstance(value, str):
-            value = value.lower()
-            if value == 'true':
-                return True
-            elif value == 'false':
-                return False
-        return bool(value)
 
     def data_signals_handler(self, message):
         if 'data' in message:
             pass
         if 'point' in message:
-            pass
-
+            print(message['point'])
+            # self.view.plot.add_point(message['point'])
+            
 
     def update_gen_elem(self, message, mes_key, param):
         elem_key, unit = param
@@ -294,33 +276,19 @@ class MeasurementController(QObject):
 
         value_min, value_max, points = message.get(f'{mes_key}', (None, None, None))
         elem = self.view.meas.elem
-        elem[f'{elem_key}_min_line'].setText(self.remove_zeros(value_min/dev))
-        elem[f'{elem_key}_max_line'].setText(self.remove_zeros(value_max/dev))
-        elem[f'{elem_key}_points_line'].setText(self.remove_zeros(points))
+        elem[f'{elem_key}_min_line'].setText(remove_zeros(value_min/dev))
+        elem[f'{elem_key}_max_line'].setText(remove_zeros(value_max/dev))
+        elem[f'{elem_key}_points_line'].setText(remove_zeros(points))
 
     def update_sa_elem(self, value, param):
         elem_key, unit = param
         if unit in self.units:
              dev = self.units[unit]
-        self.view.meas.elem[f'{elem_key}_line'].setText(self.remove_zeros(value/dev))
+        self.view.meas.elem[f'{elem_key}_line'].setText(remove_zeros(value/dev))
 
     def update_osc_elem(self, value, param):
         self.update_sa_elem(value, param)
 
-    def remove_zeros(self, input_string):
-        """Remove trailing zeros from a string containing a decimal point"""
-        if input_string is None:
-            return
-        
-        input_string = str(input_string)
-        if '.' in input_string:
-            input_list = input_string.split('.')
-            input_list[1] = input_list[1].rstrip('0')
-            if input_list[1] == '':
-                return input_list[0]
-            input_string = '.'.join(input_list)
-            
-        return input_string
     
     def change_state_precise(self):
         """Precise checkbox handler"""
@@ -332,7 +300,6 @@ class MeasurementController(QObject):
         keys = ('span_precise_label', 'span_precise_line',
                 'rbw_precise_label', 'rbw_precise_line',
                 'vbw_precise_label', 'vbw_precise_line')
-
         for key in keys:
             self.view.meas.elem[key].setEnabled(state)
 
@@ -345,7 +312,7 @@ class MeasurementController(QObject):
 
     def equipment_signals_handler(self, message):
         """Handle completion of SCPI-instrument objects initialization"""
-        logger.debug('MeasController: equipment_changed_handler()')
+        logger.debug('MeasController: equipment signals handler')
 
         for instr, controller in (
             ('gen', GenController),
@@ -374,7 +341,7 @@ class MeasurementController(QObject):
                 self.update_sa_elem(message[key], param)
 
         if 'Precise' in message:
-            self.enable_precise(self.str_to_bool(message['Precise']))
+            self.enable_precise(str_to_bool(message['Precise']))
 
         # Osc settings
         for key, param in self.osc_keys.items():
@@ -387,8 +354,7 @@ class MeasurementController(QObject):
         if "Impedance_50Ohm" in message:
             status = message["Impedance_50Ohm"]
             elem['rb_50ohm'].setChecked(status)
-            elem['rb_meg'].setChecked(not status)
-            
+            elem['rb_meg'].setChecked(not status) 
         if "Coupling_DC" in message:
             status = message["Coupling_DC"]
             elem['rb_dc'].setChecked(status)
@@ -401,16 +367,26 @@ class MeasurementController(QObject):
     def meas_signals_handler(self, message):
         elem = self.view.meas.elem
         if 'Finish' in message:
-            elem['btn_stop'].hide()
-            elem['btn_start'].show()
-            elem['btn_save_result'].setEnabled(True)
+            self.hide_stop_btn()
             elem['progress_label'].setText('Finished')
-            elem.start()
         if 'Stop' in message:
-            elem['btn_stop'].hide()
-            elem['btn_start'].show()
-            elem['btn_save_result'].setEnabled(True)
+            self.hide_stop_btn()
+            elem['progress_label'].setText('Stopped')
 
+        self.waiting_timer.start()
+
+    def hide_start_btn(self):
+        elem = self.view.meas.elem
+        elem['btn_save_result'].setEnabled(False)
+        elem['btn_start'].hide()
+        elem['btn_stop'].setEnabled(False)
+        elem['btn_stop'].show()
+
+    def hide_stop_btn(self):
+        elem = self.view.meas.elem
+        elem['btn_stop'].hide()
+        elem['btn_start'].show()
+        elem['btn_save_result'].setEnabled(True)
 
     def run(self):
         logger.debug('GUI running')

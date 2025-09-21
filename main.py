@@ -2,7 +2,7 @@ import os
 import sys
 from PyQt6.QtWidgets import QApplication
 
-from Measurement.meas_controller import MeasurementController
+from Measurement.MeasurementController.meas_controller import MeasurementController
 
 from System.logger import get_logger
 logger = get_logger(__name__)

@@ -26,8 +26,8 @@ class MainWindow(QWidget):
         self.setWindowTitle("Detectors calibration")
         self.setFixedSize(1280, 720)
 
-        self.main_layout = QGridLayout()
-        self.setLayout(self.main_layout)
+        self._main_layout = QGridLayout()
+        self.setLayout(self._main_layout)
 
 
     def init_sheets(self):
@@ -45,13 +45,13 @@ class MainWindow(QWidget):
 
     def add_fields(self):
         # Left fields
-        self.main_layout.addWidget(self.gen.get_widget(), 0, 0)
-        self.main_layout.addWidget(self.sa.get_widget(), 1, 0)
-        self.main_layout.addWidget(self.osc.get_widget(), 2, 0)
+        self._main_layout.addWidget(self.gen.get_widget(), 0, 0)
+        self._main_layout.addWidget(self.sa.get_widget(), 1, 0)
+        self._main_layout.addWidget(self.osc.get_widget(), 2, 0)
         # Right fields
-        self.main_layout.addWidget(self.meas.get_widget(), 0, 1, 2, 1)
+        self._main_layout.addWidget(self.meas.get_widget(), 0, 1, 2, 1)
         self.meas.get_widget().setFixedWidth(self.sheet_param['right_width'])
-        self.main_layout.addWidget(self.plot.get_widget(), 2, 1)
+        self._main_layout.addWidget(self.plot.get_widget(), 2, 1)
 
     def init_fonts(self):
         default_font = 'Sergo UI'
@@ -86,5 +86,5 @@ class MainWindow(QWidget):
         logger.debug(f"Main window '{self.windowTitle()}' is shown")
 
     def get_layout(self):
-        return self.main_layout
+        return self._main_layout
     

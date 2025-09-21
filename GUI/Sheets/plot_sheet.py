@@ -63,8 +63,8 @@ class PlotSheet(Sheet):
 
 
 
-# Используем Qt5 агрегатор для совместимости с PyQt6
-matplotlib.use('Qt5Agg')
+# Qt5Agg for PyQt6
+matplotlib.use('Qt5Agg')  # TODO: check without this
 
 class Infographic():
     def __init__(self, layout):
@@ -99,7 +99,7 @@ class Infographic():
         self.ax.spines['right'].set_color(BLUE)
         
 
-        self.max_points = 1000  
+        self.max_points = 300  
         self.x = np.linspace(0, 10, self.max_points)
         self.y = np.zeros(self.max_points)
         
@@ -107,7 +107,10 @@ class Infographic():
         # Initialize with empty data
         self.line, = self.ax.plot([], [], '-', color=YELLOW, linewidth=2)
         
-        self.current_index = 0
+        # self.current_index = 0
+
+    def add_point(self, x, y):
+        self.ax.plot(x, y, 'o', color=YELLOW)
 
     def update_plot_data(self, meas_data):
         """Update the meas_data from external source"""
@@ -166,12 +169,4 @@ class Infographic():
         finally:
             self.mutex.unlock()    
 
-    def start_plot(self):
-        logger.debug("Infographics: start_plot")
-        self.timer.timeout.connect(self.update_plot)
-        self.timer.start(300)
 
-    def stop_plot(self):
-        logger.debug("Infographics:stop_plot")
-        self.timer.timeout.disconnect(self.update_plot)
-        self.timer.stop()
