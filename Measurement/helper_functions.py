@@ -22,3 +22,7 @@ def str_to_bool(value):
         elif value == 'false':
             return False
     return bool(value)
+
+def refresh_obj_view(object_name):
+    object_name.style().unpolish(object_name)
+    object_name.style().polish(object_name)

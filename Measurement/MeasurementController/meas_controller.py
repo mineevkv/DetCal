@@ -5,20 +5,15 @@ from GUI.main_window import MainWindow
 from ..gen_controller import GenController
 from ..sa_controller import SAController
 from ..osc_controller import OscController
-from ..helper_functions import remove_zeros, str_to_bool
+from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view
 from .status_bar_controller import StatusBarController
+from .write_settings import WriteSettings
+from .signals_handlers import SettingsSignalHandler
 
 from GUI.palette import *
 
 from System.logger import get_logger
 logger = get_logger(__name__)
-
-
-class WriteSettings():
-    def __init__(self, meas_contr):
-        self.mc = meas_contr
-
-    
 
 class MeasurementController(QObject):
 
@@ -57,19 +52,17 @@ class MeasurementController(QObject):
 
         self.init_connect_signals() # Must be before initialization
         self.init_view_handlers()
+
         self.model.offline_mode(0) # Set to True for offline testing without instruments
         self.model.start_initialization()
         self.model.load_settings()
-
-        # self.connect_signals()
-        # self.update_view()
 
 
     def init_connect_signals(self):
         self.init_model_signals()
         self.init_view_signals()
         self.init_timers_signals()
-        # self.instruments_signals()
+
 
     def init_view_handlers(self):
         self.status_bar = StatusBarController(self.view.meas.elem['status_bar_label'])
@@ -114,14 +107,10 @@ class MeasurementController(QObject):
             elif isinstance(element, QCheckBox):
                 element.toggled.connect(lambda _, object=element: self.radiocheck_changed(object))
 
-    def refresh_obj_view(self, object_name):
-        object_name.style().unpolish(object_name)
-        object_name.style().polish(object_name)
-
     #Line edit handlers
     def line_edit_changed(self, object_name):
         object_name.setProperty('class', 'line_changed')
-        self.refresh_obj_view(object_name)
+        refresh_obj_view(object_name)
         self.lock_start()
 
 
@@ -142,25 +131,23 @@ class MeasurementController(QObject):
         if object_name is elem ['unlock_stop']:
             return
         object_name.setProperty('class', 'radiocheck_changed')
-        self.refresh_obj_view(object_name)
+        refresh_obj_view(object_name)
         self.lock_start()
         
-
     def set_elements_unchanged(self):
         elem =self.view.meas.elem
         for element in elem.values():
             if isinstance(element, QLineEdit) or isinstance(element, QCheckBox) or isinstance(element, QRadioButton):
                 element.setProperty('class', '')
-                self.refresh_obj_view(element)
+                refresh_obj_view(element)
         self.unlock_start()
-
 
     def btn_clicked_connect(self,btn_name, btn_handler):
         if btn_handler is not None:
             self.view.meas.elem[f'btn_{btn_name}'].clicked.connect(btn_handler)
 
     def btn_save_settings_click(self):
-        self.write_settings_to_model()
+        WriteSettings.view_to_model(self)
         self.model.save_settings()
         self.change_settings_status('Settings saved')
 
@@ -179,46 +166,6 @@ class MeasurementController(QObject):
         self.waiting_timer.stop()
         elem = self.view.meas.elem['progress_label']
         elem.hide()
-        
-    def write_settings_to_model(self):
-        settings = self.model.settings
-        elem = self.view.meas.elem
-
-        for key, param in self.gen_keys.items():
-            settings[key] = self.write_gen_settings_to_model(param)
-
-        for key, param in self.sa_keys.items():
-            settings[key] = self.write_sa_settings_to_model(param)
-
-        settings['Precise'] = elem['precise_enabled'].isChecked()
-
-        for key, param in self.osc_keys.items():
-            settings[key] = self.write_osc_settings_to_model(param)
-
-    def write_gen_settings_to_model(self, param):
-        elem_key, unit = param
-        if unit in self.units:
-             multiplier = self.units[unit]
-
-        elem = self.view.meas.elem
-        value_min = float(elem[f'{elem_key}_min_line'].text()) * multiplier
-        value_max = float(elem[f'{elem_key}_max_line'].text()) * multiplier
-        points = int(elem[f'{elem_key}_points_line'].text())
-
-        return value_min, value_max, points
-
-    def write_sa_settings_to_model(self, param):
-        elem_key, unit = param
-        if unit in self.units:
-             multiplier = self.units[unit]
-             try:
-                return float(self.view.meas.elem[f'{elem_key}_line'].text())* multiplier
-             except ValueError:
-                logger.warning(f"Invalid value for {elem_key}_line")
-                raise
-    
-    def write_osc_settings_to_model(self, param):
-        return self.write_sa_settings_to_model(param)
 
     def btn_load_settings_click(self):
         self.model.load_settings_from_file()
@@ -255,7 +202,7 @@ class MeasurementController(QObject):
     def btn_apply_click(self):
         logger.debug('Apply button clicked')
         try:
-            self.write_settings_to_model()
+            WriteSettings.view_to_model(self)
             self.set_elements_unchanged()
         except Exception as e:
             self.status_bar.error(f"Error applying settings: {e}")
@@ -330,38 +277,7 @@ class MeasurementController(QObject):
 
 
     def settings_signals_handler(self, message):
-        # Gen settings
-        for key, param in self.gen_keys.items():
-            if key in message:
-                self.update_gen_elem(message, key, param)
-
-        # SA settings
-        for key, param in self.sa_keys.items():
-            if key in message:
-                self.update_sa_elem(message[key], param)
-
-        if 'Precise' in message:
-            self.enable_precise(str_to_bool(message['Precise']))
-
-        # Osc settings
-        for key, param in self.osc_keys.items():
-            if key in message:
-                self.update_osc_elem(message[key], param)
-
-        elem = self.view.meas.elem
-        if "High_res" in message:
-            elem['hight_res_box'].setChecked(message["High_res"])
-        if "Impedance_50Ohm" in message:
-            status = message["Impedance_50Ohm"]
-            elem['rb_50ohm'].setChecked(status)
-            elem['rb_meg'].setChecked(not status) 
-        if "Coupling_DC" in message:
-            status = message["Coupling_DC"]
-            elem['rb_dc'].setChecked(status)
-            elem['rb_ac'].setChecked(not status)
-        if 'Channel' in message:
-            elem[f'rb_ch{message["Channel"]}'].setChecked(True)
-
+        SettingsSignalHandler.handler(self, message)
         self.set_elements_unchanged()
 
     def meas_signals_handler(self, message):

@@ -2,12 +2,12 @@
     "RF_frequencies": [
         1000000000.0,
         2000000000.0,
-        3
+        5
     ],
     "RF_levels": [
         -50.0,
         -20.0,
-        3
+        10
     ],
     "SPAN_wide": 2000000.0,
     "SPAN_narrow": 100000.0,
@@ -19,9 +19,9 @@
     "SWEEP_points": 1001.0,
     "SWEEP_time": "AUTO ON",
     "Precise": false,
-    "HOR_scale": 0.002,
-    "High_res": true,
+    "HOR_scale": 0.01,
+    "High_res": false,
     "Impedance_50Ohm": true,
-    "Coupling_DC": false,
+    "Coupling_DC": true,
     "Channel": 1
 }
