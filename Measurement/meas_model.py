@@ -165,9 +165,19 @@ class MeasurementModel(QObject):
         
         self.gen.rf_on()
 
+        
+        self.measurement_loop(frequencies, levels)
+
+        self.data_changed.emit({'data': self.meas_data})
+        self.gen.rf_off()
+        self.gen.set_min_level()
+
+
+    @is_stop
+    def measurement_loop(self, frequencies, levels):
+        # Main measurement loop
         for frequency in frequencies:
-            if self.stop_requested:
-                self.meas_status.emit('Stop')
+            if self.is_stop():
                 break
 
             self.set_wide_band()
@@ -183,9 +193,8 @@ class MeasurementModel(QObject):
             
 
             if self.settings['Precise']:
-                if self.stop_requested:
-                    self.meas_status.emit('Stop')
-                    break
+                if self.is_stop():
+                        break
 
                 self.sa.find_peak_max()
                 self.sa.set_center_freq(self.sa.get_peak_freq())
@@ -193,22 +202,22 @@ class MeasurementModel(QObject):
                 time.sleep(0.1) # wait for frequency to be set
 
                 self.sa.start_single_measurement()
-                # time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done         
+                time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done         
 
             for level in reversed(levels): # TODO: fix reversed
-
                 logger.debug(f"Frequency: {frequency/1e6:.2f} MHz; Level: {level:.2f} dBm")
 
-                if self.stop_requested:
-                    self.meas_status.emit('Stop')
-                    break
+                if self.is_stop():
+                        break
+                
                 self.gen.set_level(level)
                 self.osc.ready_for_acquisition()
-                time.sleep(0.2)
-                self.osc.trigger_force() # Start measurement
+                # Start measurement
                 self.sa.start_single_measurement()
-                # time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done
-
+                time.sleep(0.3)
+                self.osc.trigger_force()
+                time.sleep(self.sa.get_sweep_time()*2) 
+                 
                 while self.osc.is_acquiring(): # Waiting for finish measurement
                     time.sleep(0.1)
 
@@ -217,8 +226,7 @@ class MeasurementModel(QObject):
                 mean_osc_value = np.mean(osc_data)
 
                 while self.check_osc_range(mean_osc_value):
-                    if self.stop_requested:
-                        self.meas_status.emit('Stop')
+                    if self.is_stop():
                         break
 
                     self.osc.ready_for_acquisition()
@@ -244,10 +252,15 @@ class MeasurementModel(QObject):
                     self.data_changed.emit({'point': point})
                 else:
                     logger.warning(f"Measured signal at ({frequency} Hz, {level} dBm) is less than limit ({limit} dBm)")
-        self.data_changed.emit({'data': self.meas_data})
-        self.gen.rf_off()
-        self.gen.set_min_level()
-
+    
+    # decorator
+    def is_stop(self):
+        """Check if stop is requested and emit status if so"""
+        if self.stop_requested:
+            self.meas_status.emit('Stop')
+            return True
+        return False
+    
     def stop_measurement_process(self):
         self.stop_requested = True
 
