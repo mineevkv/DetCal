@@ -79,7 +79,7 @@ class Infographic():
         
         self.figure.subplots_adjust(left=0.2, right=0.95, bottom=0.25, top=0.95)
         self.ax.set_xlabel('Gen output, dBm', fontsize=8)
-        self.ax.set_ylabel('Voltage, V', fontsize=8)
+        self.ax.set_ylabel('Voltage, mV', fontsize=8)
         self.figure.patch.set_alpha(0)
         self.ax.patch.set_alpha(0)
 
@@ -93,7 +93,7 @@ class Infographic():
         self.ax.tick_params(axis='y', colors=YELLOW)
 
         # self.ax.set_xlim(-20, 15)
-        # self.ax.set_ylim(0, 300e-3)
+        self.ax.set_ylim(0, 500)
 
 
         self.ax.spines['bottom'].set_color(BLUE)
