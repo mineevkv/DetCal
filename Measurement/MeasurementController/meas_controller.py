@@ -120,7 +120,7 @@ class MeasurementController(QObject):
         elem['btn_start'].setEnabled(False)
         self.status_bar.warning('Submit input parameters')
 
-    def unlock_start(self):
+    def unlock_start_btn(self):
         elem = self.view.meas.elem
         elem['btn_apply'].setEnabled(False)
         elem['btn_start'].setEnabled(True)
@@ -140,7 +140,7 @@ class MeasurementController(QObject):
             if isinstance(element, QLineEdit) or isinstance(element, QCheckBox) or isinstance(element, QRadioButton):
                 element.setProperty('class', '')
                 refresh_obj_view(element)
-        self.unlock_start()
+        self.unlock_start_btn()
 
     def btn_clicked_connect(self,btn_name, btn_handler):
         if btn_handler is not None:
@@ -204,7 +204,6 @@ class MeasurementController(QObject):
         try:
             WriteSettings.view_to_model(self)
             self.model.settings_changed.emit(self.model.settings)
-            self.set_elements_unchanged()
         except Exception as e:
             self.status_bar.error(f"Error applying settings: {e}")
 
@@ -285,9 +284,11 @@ class MeasurementController(QObject):
         elem = self.view.meas.elem
         if 'Finish' in message:
             self.hide_stop_btn()
+            self.unlock_start_btn()
             elem['progress_label'].setText('Finished')
         if 'Stop' in message:
             self.hide_stop_btn()
+            self.unlock_start_btn()
             elem['progress_label'].setText('Stopped')
 
         self.waiting_timer.start()

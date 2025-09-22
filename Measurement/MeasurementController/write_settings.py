@@ -22,6 +22,14 @@ class WriteSettings():
         for key, param in meas_controller.osc_keys.items():
             settings[key] = WriteSettings.write_osc_settings(meas_controller, param)
 
+            settings['High_res'] = elem['hight_res_box'].isChecked()
+            settings['Impedance_50Ohm'] = elem['rb_50ohm'].isChecked()
+            settings['Coupling_DC'] = elem['rb_dc'].isChecked()
+
+            settings['Channel'] = next((i for i in [1, 2, 3, 4] if elem[f'rb_ch{i}'].isChecked()), None)
+
+            
+
     @staticmethod
     def write_gen_settings(meas_controller, param):
         elem_key, unit = param
@@ -49,3 +57,5 @@ class WriteSettings():
     @staticmethod
     def write_osc_settings(meas_controller, param):
         return WriteSettings.write_sa_settings(meas_controller, param)
+    
+        
