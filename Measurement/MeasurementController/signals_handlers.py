@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view
 
+from System.logger import get_logger
+logger = get_logger(__name__)
+
 class SignalHandler(ABC):
     def __init__(self):
         pass
@@ -23,9 +26,11 @@ class SettingsSignalHandler(SignalHandler):
 
     @staticmethod
     def handler(meas_controller, message):
+        logger.debug(f"SettingsSignalHandler")
         SettingsSignalHandler.gen_handler(meas_controller, message)
         SettingsSignalHandler.sa_handler(meas_controller, message)
         SettingsSignalHandler.osc_handler(meas_controller, message)
+        SettingsSignalHandler.plot_handler(meas_controller, message)
 
     @staticmethod
     def gen_handler(meas_controller, message):
@@ -64,3 +69,12 @@ class SettingsSignalHandler(SignalHandler):
             elem['rb_ac'].setChecked(not status)
         if 'Channel' in message:
             elem[f'rb_ch{message["Channel"]}'].setChecked(True)
+
+    @staticmethod
+    def plot_handler(meas_controller, message):
+        if "RF_levels" in message:
+            level_min, level_max, _ = message["RF_levels"]
+            meas_controller.view.plot.figure.clear_plot()
+            meas_controller.view.plot.figure.ax.set_xlim(level_min, level_max)
+            meas_controller.view.plot.figure.canvas.draw_idle()
+            

@@ -203,6 +203,7 @@ class MeasurementController(QObject):
         logger.debug('Apply button clicked')
         try:
             WriteSettings.view_to_model(self)
+            self.model.settings_changed.emit(self.model.settings)
             self.set_elements_unchanged()
         except Exception as e:
             self.status_bar.error(f"Error applying settings: {e}")
@@ -213,7 +214,7 @@ class MeasurementController(QObject):
             pass
         if 'point' in message:
             print(message['point'])
-            # self.view.plot.add_point(message['point'])
+            self.view.plot.figure.add_point(message['point'][1], message['point'][3])
             
 
     def update_gen_elem(self, message, mes_key, param):

@@ -7,18 +7,6 @@ import pyvisa
 from System.logger import get_logger
 logger = get_logger(__name__)
 
-# Default setup
-
-CENTER_FREQ = 1.5e9        # 1.5 GHz (center between 1-2 GHz)
-SPAN = 1e6                 # 1 GHz span (from 1-2 GHz)
-REF_LEVEL = 0              # Reference level in dBm
-RBW = 10e3                 # 10 kHz resolution bandwidth
-VBW = 10e3                 # 10 kHz video bandwidth
-SWEEP_TIME = 'AUTO ON'     # auto sweep time
-SWEEP_POINTS = 1001        # Number of trace points
-
-
-
 class MDO34(Instrument):
 
     channel_map = {

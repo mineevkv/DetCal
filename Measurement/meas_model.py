@@ -157,9 +157,6 @@ class MeasurementModel(QObject):
         if freq_max < 1e-9:
             freq_max = freq_min
             freq_points = 1
-        if level_max < 1e-9:
-            level_max = level_min
-            level_points = 1
 
         frequencies = np.linspace(freq_min, freq_max, freq_points)
         levels = np.linspace(level_min, level_max, level_points)
@@ -199,12 +196,15 @@ class MeasurementModel(QObject):
                 # time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done         
 
             for level in reversed(levels): # TODO: fix reversed
+
+                logger.debug(f"Frequency: {frequency/1e6:.2f} MHz; Level: {level:.2f} dBm")
+
                 if self.stop_requested:
                     self.meas_status.emit('Stop')
                     break
                 self.gen.set_level(level)
                 self.osc.ready_for_acquisition()
-                time.sleep(1)
+                time.sleep(0.2)
                 self.osc.trigger_force() # Start measurement
                 self.sa.start_single_measurement()
                 # time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done
@@ -221,6 +221,17 @@ class MeasurementModel(QObject):
                         self.meas_status.emit('Stop')
                         break
 
+                    self.osc.ready_for_acquisition()
+                    time.sleep(0.2)
+                    self.osc.trigger_force() # Start measurement
+
+                    while self.osc.is_acquiring(): # Waiting for finish measurement
+                        time.sleep(0.1)
+
+                    _, osc_data = self.osc.get_waveform_data()
+                    mean_osc_value = np.mean(osc_data)
+
+                # TODO: measurement from new Y scale
                 max_value = 1
                 limit = 0
                 # max_value = max(spectrum_data)
@@ -269,7 +280,7 @@ class MeasurementModel(QObject):
         self.osc.get_settings_from_device()
 
         self.osc.channel_off(1) # CH1 is default channel
-        channel = self.settings['Cannel']
+        channel = self.settings['Channel']
         self.osc.select_channel(channel)
         if self.settings['Impedance_50Ohm']:
             self.osc.set_50Ohm_termination()

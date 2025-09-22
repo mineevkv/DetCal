@@ -79,7 +79,7 @@ class Infographic():
         
         self.figure.subplots_adjust(left=0.2, right=0.95, bottom=0.25, top=0.95)
         self.ax.set_xlabel('Gen output, dBm', fontsize=8)
-        self.ax.set_ylabel('Voltage, mV', fontsize=8)
+        self.ax.set_ylabel('Voltage, V', fontsize=8)
         self.figure.patch.set_alpha(0)
         self.ax.patch.set_alpha(0)
 
@@ -92,6 +92,9 @@ class Infographic():
         self.ax.tick_params(axis='x', colors=YELLOW)
         self.ax.tick_params(axis='y', colors=YELLOW)
 
+        # self.ax.set_xlim(-20, 15)
+        # self.ax.set_ylim(0, 300e-3)
+
 
         self.ax.spines['bottom'].set_color(BLUE)
         self.ax.spines['left'].set_color(BLUE)
@@ -100,8 +103,9 @@ class Infographic():
         
 
         self.max_points = 300  
-        self.x = np.linspace(0, 10, self.max_points)
-        self.y = np.zeros(self.max_points)
+        self.x, self.y = [], []
+        # self.x = np.linspace(0, 10, self.max_points)
+        # self.y = np.zeros(self.max_points)
         
   
         # Initialize with empty data
@@ -110,63 +114,78 @@ class Infographic():
         # self.current_index = 0
 
     def add_point(self, x, y):
-        self.ax.plot(x, y, 'o', color=YELLOW)
+        self.x = np.append(self.x, x)
+        self.y = np.append(self.y, y)
+        self.line.set_data(self.x, self.y)
+        # self.ax.set_xlim(-20, 15)
+        self.ax.set_ylim(0, max(self.y)*1.2)
+        # self.ax.relim()
+        # self.ax.autoscale_view()
+        self.canvas.draw_idle()
 
-    def update_plot_data(self, meas_data):
-        """Update the meas_data from external source"""
-        self.mutex.lock()
-        try:
-            self.meas_data = meas_data
-        finally:
-            self.mutex.unlock()
+    def clear_plot(self):
+        self.x = []
+        self.y = []
+        self.line.set_data(self.x, self.y)
+        self.canvas.draw_idle()
 
-    def update_plot(self):
-        logger.debug("Infographics:update_plot")
-        self.mutex.lock()
-        try:
-            if len(self.meas_data) > 0:
-                # Group data by frequency
-                freq_data = {}
-                for point in self.meas_data:
-                    freq = point[0]
-                    if freq not in freq_data:
-                        freq_data[freq] = []
-                    freq_data[freq].append((point[1], point[2]))
+
+
+    # def update_plot_data(self, meas_data):
+    #     """Update the meas_data from external source"""
+    #     self.mutex.lock()
+    #     try:
+    #         self.meas_data = meas_data
+    #     finally:
+    #         self.mutex.unlock()
+
+    # def update_plot(self):
+    #     logger.debug("Infographics:update_plot")
+    #     self.mutex.lock()
+    #     try:
+    #         if len(self.meas_data) > 0:
+    #             # Group data by frequency
+    #             freq_data = {}
+    #             for point in self.meas_data:
+    #                 freq = point[0]
+    #                 if freq not in freq_data:
+    #                     freq_data[freq] = []
+    #                 freq_data[freq].append((point[1], point[2]))
                 
-                # Plot each frequency
-                for freq, data in freq_data.items():
-                    x, y = zip(*data)
+    #             # Plot each frequency
+    #             for freq, data in freq_data.items():
+    #                 x, y = zip(*data)
                     
-                    # Add a new line for each frequency
-                    line, = self.ax.plot(x, y, label=f'{freq/1e6:.0f} MHz')
-                    line.set_color(YELLOW)
-                    line.set_linewidth(0.5)
+    #                 # Add a new line for each frequency
+    #                 line, = self.ax.plot(x, y, label=f'{freq/1e6:.0f} MHz')
+    #                 line.set_color(YELLOW)
+    #                 line.set_linewidth(0.5)
                 
-                # Adjust view if needed
-                x_min, x_max = min(self.meas_data, key=lambda x: x[1])[1], max(self.meas_data, key=lambda x: x[1])[1]
-                y_min, y_max = min(self.meas_data, key=lambda x: x[2])[2], max(self.meas_data, key=lambda x: x[2])[2]
-                x_padding = (x_max - x_min) * 0.1 if x_max != x_min else 1
-                y_padding = (y_max - y_min) * 0.1 if y_max != y_min else 1
+    #             # Adjust view if needed
+    #             x_min, x_max = min(self.meas_data, key=lambda x: x[1])[1], max(self.meas_data, key=lambda x: x[1])[1]
+    #             y_min, y_max = min(self.meas_data, key=lambda x: x[2])[2], max(self.meas_data, key=lambda x: x[2])[2]
+    #             x_padding = (x_max - x_min) * 0.1 if x_max != x_min else 1
+    #             y_padding = (y_max - y_min) * 0.1 if y_max != y_min else 1
                 
-                self.ax.set_xlim(x_min - x_padding, x_max + x_padding)
-                self.ax.set_ylim(y_min - y_padding, y_max + y_padding)
-                # self.ax.set_xlim(-60, 0)
-                # self.ax.set_ylim(-60, 0)
+    #             self.ax.set_xlim(x_min - x_padding, x_max + x_padding)
+    #             self.ax.set_ylim(y_min - y_padding, y_max + y_padding)
+    #             # self.ax.set_xlim(-60, 0)
+    #             # self.ax.set_ylim(-60, 0)
                 
-                # Add legend
-                # self.ax.legend()
+    #             # Add legend
+    #             # self.ax.legend()
                 
-                # Redraw the canvas
-                self.canvas.draw_idle()
-            else:
-                # Clear plot when no data
-                for line in self.ax.lines:
-                    line.remove()
-                self.ax.set_xlim(-60, 0)
-                self.ax.set_ylim(-60, 0)
-                self.canvas.draw_idle()
+    #             # Redraw the canvas
+    #             self.canvas.draw_idle()
+    #         else:
+    #             # Clear plot when no data
+    #             for line in self.ax.lines:
+    #                 line.remove()
+    #             self.ax.set_xlim(-20, 10)
+    #             self.ax.set_ylim(0, 3e-3)
+    #             self.canvas.draw_idle()
                 
-        finally:
-            self.mutex.unlock()    
+    #     finally:
+    #         self.mutex.unlock()    
 
 
