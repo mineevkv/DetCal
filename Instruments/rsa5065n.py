@@ -1,5 +1,6 @@
 from Instruments.scpi_instr import Instrument
 import numpy as np
+import time
 
 
 from System.logger import get_logger
@@ -157,6 +158,12 @@ class RSA5065N(Instrument):
         if 'SAN' not in self.get_configure():
             self.send(":CONFigure:SANalyzer")
             self.state_changed.emit({'configure': 'Spectrum Analyzer'}) 
+
+    @Instrument.device_checking
+    def delay_after_start(self, delay_time=None):
+        if delay_time is None:
+            delay_time = self.get_sweep_time()*2 + 0.3
+        time.sleep(delay_time)
 
 
 

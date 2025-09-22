@@ -151,8 +151,7 @@ QTextBrowser{
 }
 
 QProgressBar {
-    border: 1px solid #45adff;
-    border-radius: 5px;
+    border: none;
     text-align: center;
     color: transparent;
 }
@@ -160,8 +159,8 @@ QProgressBar {
 
 QProgressBar::chunk {
     background-color: #f1c40f;
-    width: 100px;
-    margin: 5px 0px;
+    width: 1px;
+    margin: 6px 0px;
 }
 
 .instr_progress_bar {

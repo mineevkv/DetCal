@@ -81,6 +81,7 @@ class MeasurementController(QObject):
         self.model.equipment_changed.connect(self.equipment_signals_handler)
         self.model.settings_changed.connect(self.settings_signals_handler)
         self.model.meas_status.connect(self.meas_signals_handler)
+        self.model.progress_bar.connect(self.status_bar_signals_handler)
 
     def init_view_signals(self):
         elem =self.view.meas.elem
@@ -164,8 +165,8 @@ class MeasurementController(QObject):
         
     def hide_waiting_status(self):
         self.waiting_timer.stop()
-        elem = self.view.meas.elem['progress_label']
-        elem.hide()
+        elem = self.view.meas.elem
+        elem['progress_label'].setText('')
 
     def btn_load_settings_click(self):
         self.model.load_settings_from_file()
@@ -256,6 +257,10 @@ class MeasurementController(QObject):
         elem['btn_stop'].setEnabled(is_checked)
         elem['unlock_stop'].setChecked(is_checked)
 
+    def status_bar_signals_handler(self, message):
+        print(message)
+        elem = self.view.meas.elem
+        elem['progress'].setValue(message)
 
     def equipment_signals_handler(self, message):
         """Handle completion of SCPI-instrument objects initialization"""
@@ -286,6 +291,7 @@ class MeasurementController(QObject):
             self.hide_stop_btn()
             self.unlock_start_btn()
             elem['progress_label'].setText('Finished')
+            elem['progress'].setValue(0)
         if 'Stop' in message:
             self.hide_stop_btn()
             self.unlock_start_btn()

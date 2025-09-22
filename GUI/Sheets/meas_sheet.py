@@ -43,7 +43,7 @@ class MeasurementSheet(Sheet):
         self.add_custom_btn('stop',  start_col, freq_row, 'STOP', 120, 45, 'btn_stop').hide()
 
         progress_col = 52
-        self.add_progress_bar('progress', progress_col, self.zero_row+1, 320, self.elem_hight).hide()
+        self.add_progress_bar('progress', progress_col, self.zero_row+1, 320, self.elem_hight)
         self.add_progress_label('progress', progress_col+13, self.zero_row+2, "Waiting...", 68).hide()
         self.add_custom_btn('save_result',  72, freq_row, 'SAVE', 120, 45, 'btn_save_result').setEnabled(False)
 

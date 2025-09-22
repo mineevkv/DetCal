@@ -31,6 +31,7 @@ class MeasurementModel(QObject):
     equipment_changed = pyqtSignal(dict)
     settings_changed = pyqtSignal(dict)
     meas_status = pyqtSignal(str)
+    progress_bar = pyqtSignal(int)
     settings_filename = 'meas_settings'
     settings_folder = 'Settings'
     settings = dict()
@@ -165,21 +166,23 @@ class MeasurementModel(QObject):
         
         self.gen.rf_on()
 
-        
         self.measurement_loop(frequencies, levels)
-
+        self.progress_bar.emit(100)
         self.data_changed.emit({'data': self.meas_data})
         self.gen.rf_off()
         self.gen.set_min_level()
 
 
-    @is_stop
+  
     def measurement_loop(self, frequencies, levels):
+        max_len = len(frequencies)*len(levels)
+        iter_obj = iter(range(0, max_len))
+
         # Main measurement loop
         for frequency in frequencies:
             if self.is_stop():
                 break
-
+            
             self.set_wide_band()
 
             self.gen.set_frequency(frequency)
@@ -189,7 +192,7 @@ class MeasurementModel(QObject):
             time.sleep(0.1) # wait for frequency to be set
                 
             self.sa.start_single_measurement()
-            # time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done
+            self.sa.delay_after_start()
             
 
             if self.settings['Precise']:
@@ -202,9 +205,11 @@ class MeasurementModel(QObject):
                 time.sleep(0.1) # wait for frequency to be set
 
                 self.sa.start_single_measurement()
-                time.sleep(self.sa.get_sweep_time()*2 + 0.3) # wait till measurement is done         
+                self.sa.delay_after_start()
 
             for level in reversed(levels): # TODO: fix reversed
+                value = int((next(iter_obj)/max_len)*100)
+                self.progress_bar.emit(value)
                 logger.debug(f"Frequency: {frequency/1e6:.2f} MHz; Level: {level:.2f} dBm")
 
                 if self.is_stop():
@@ -212,11 +217,11 @@ class MeasurementModel(QObject):
                 
                 self.gen.set_level(level)
                 self.osc.ready_for_acquisition()
+                time.sleep(0.2)
                 # Start measurement
                 self.sa.start_single_measurement()
-                time.sleep(0.3)
+                self.sa.delay_after_start()
                 self.osc.trigger_force()
-                time.sleep(self.sa.get_sweep_time()*2) 
                  
                 while self.osc.is_acquiring(): # Waiting for finish measurement
                     time.sleep(0.1)
