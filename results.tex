@@ -1,0 +1,71 @@
+\documentclass
+[12pt,a4paper]
+{article}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{verbatim}
+
+% Document information
+\title{Measurement protocol}
+\author{IAP RAS}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This is the debug template for measurements reports of detector calibration process.
+\end{abstract}
+
+\section{Parameters}
+This is the parameters section.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+RF frequencies & [2450000000.0, 0.0, 1] \\
+\hline
+RF levels & [-5.0, 15.0, 51] \\
+\hline
+SPAN wide & 2000000.0 \\
+\hline
+SPAN narrow & 100000.0 \\
+\hline
+RBW wide & 10000.0 \\
+\hline
+RBW narrow & 1000.0 \\
+\hline
+VBW wide & 10000.0 \\
+\hline
+VBW narrow & 1000.0 \\
+\hline
+REF level & 15.0 \\
+\hline
+SWEEP points & 1001.0 \\
+\hline
+SWEEP time & AUTO ON \\
+\hline
+Precise & True \\
+\hline
+HOR scale & 0.01 \\
+\hline
+High res & True \\
+\hline
+Impedance 50Ohm & True \\
+\hline
+Coupling DC & True \\
+\hline
+Channel & 4 \\
+\hline
+\end{tabular}
+\caption{Parameters}
+\label{params}
+\end{table}
+
+\end{document}

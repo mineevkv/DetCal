@@ -7,7 +7,7 @@
     "RF_levels": [
         -5.0,
         15.0,
-        11
+        51
     ],
     "SPAN_wide": 2000000.0,
     "SPAN_narrow": 100000.0,
@@ -18,7 +18,7 @@
     "REF_level": 15.0,
     "SWEEP_points": 1001.0,
     "SWEEP_time": "AUTO ON",
-    "Precise": false,
+    "Precise": true,
     "HOR_scale": 0.01,
     "High_res": true,
     "Impedance_50Ohm": true,
