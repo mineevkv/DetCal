@@ -130,7 +130,7 @@ class MeasurementModel(QObject):
 
     def start_measurement_process(self):
         abort = False
-        equipment = [self.gen]
+        equipment = [self.gen] #TODO: fix equipment
         for instr in equipment:
             if not instr.is_initialized():
                 logger.warning(f"Instrument {instr.__class__.__name__} not initialized")
@@ -245,11 +245,11 @@ class MeasurementModel(QObject):
                     mean_osc_value = np.mean(osc_data)
 
                 # TODO: measurement from new Y scale
-                max_value = 1
-                limit = 0
-                # max_value = max(spectrum_data)
-                # mean_value = np.mean(spectrum_data)
-                # limit = mean_value + 6 # +6 dBm
+                # max_value = 1
+                # limit = 0
+                max_value = max(spectrum_data)
+                mean_value = np.mean(spectrum_data)
+                limit = mean_value + 6 # +6 dBm
 
                 if max_value > limit:
                     point =  [frequency, level, max_value, mean_osc_value]

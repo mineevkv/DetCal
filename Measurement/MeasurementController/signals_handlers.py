@@ -74,7 +74,11 @@ class SettingsSignalHandler(SignalHandler):
     def plot_handler(meas_controller, message):
         if "RF_levels" in message:
             level_min, level_max, _ = message["RF_levels"]
-            meas_controller.view.plot.figure.clear_plot()
-            meas_controller.view.plot.figure.ax.set_xlim(level_min, level_max)
-            meas_controller.view.plot.figure.canvas.draw_idle()
+            meas_controller.view.plot.figure1.clear_plot()
+            meas_controller.view.plot.figure1.ax.set_xlim(level_min, level_max)
+            meas_controller.view.plot.figure1.canvas.draw_idle()
+
+            meas_controller.view.plot.figure2.clear_plot()
+            # meas_controller.view.plot.figure2.ax.set_xlim(level_min, level_max)
+            meas_controller.view.plot.figure2.canvas.draw_idle()
             

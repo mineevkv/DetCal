@@ -55,7 +55,7 @@ class RSA5065N(Instrument):
     # Amplitude (AMPT)
     @Instrument.device_checking
     def set_ref_level(self, ref_level=0):
-        self.send(f":DISPLAY:TRACE:Y:SCALE:RLEVEL {ref_level}")
+        self.send(f":DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {ref_level}")
         self.state_changed.emit({'ref_level': ref_level})
 
     # Bandwidth (BW)

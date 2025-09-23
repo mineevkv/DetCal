@@ -34,33 +34,27 @@ class PlotSheet(Sheet):
         self.box = QGroupBox("Infographic")
 
         self.layout.addWidget(self.box, 2, 1)
+        self.layout.addWidget(self.box, 2, 1)
         
         # Create a proper container for the plot
-        plot_container = QWidget(parent=self.box)
-        plot_container.setStyleSheet("background-color: none; border: none;")
-        plot_layout = QVBoxLayout(plot_container)
-        plot_container.setLayout(plot_layout)
-
+        plot_container1 = QWidget(parent=self.box)
+        plot_container1.setStyleSheet("background-color: none; border: none;")
+        plot_layout1 = QVBoxLayout(plot_container1)
+        plot_container1.setLayout(plot_layout1)
         # Set geometry to ensure visibility
-        plot_container.setGeometry(QtCore.QRect(10, 20, 380, 200))
-        self.figure = Infographic(plot_layout)
+        dx = 120
+        plot_container1.setGeometry(QtCore.QRect(0 + dx, 20, 380, 200))
+        self.figure1 = Infographic(plot_layout1)
 
-
-       
-
-    def start_plot(self):
-        self.figure.start_plot()
-        
-    def stop_plot(self):
-        self.figure.stop_plot()
-
-    def debug_plot_visibility(self):
-        """Debug method to check if plot is properly positioned"""
-        logger.info(f"Plot box geometry: {self.box.geometry()}")
-        logger.info(f"Plot box is visible: {self.box.isVisible()}")
-        if hasattr(self, 'figure') and hasattr(self.figure, 'canvas'):
-            logger.info(f"Canvas is visible: {self.figure.canvas.isVisible()}")
-
+        # Create a proper container for the plot
+        plot_container2 = QWidget(parent=self.box)
+        plot_container2.setStyleSheet("background-color: none; border: none;")
+        plot_layout2 = QVBoxLayout(plot_container2)
+        plot_container2.setLayout(plot_layout2)
+        # Set geometry to ensure visibility
+        plot_container2.setGeometry(QtCore.QRect(360 + dx, 20, 380, 200))
+        self.figure2 = Infographic(plot_layout2)
+        self.figure2.ax.set_xlabel('SA input, dBm', fontsize=8)
 
 
 # Qt5Agg for PyQt6
@@ -113,14 +107,15 @@ class Infographic():
         
         # self.current_index = 0
 
-    def add_point(self, x, y):
+    def add_point(self, x, y, autoscale=False):
         self.x = np.append(self.x, x)
         self.y = np.append(self.y, y)
         self.line.set_data(self.x, self.y)
         # self.ax.set_xlim(-20, 15)
         self.ax.set_ylim(0, max(self.y)*1.2)
-        # self.ax.relim()
-        # self.ax.autoscale_view()
+        if autoscale:
+            self.ax.relim()
+            self.ax.autoscale_view()
         self.canvas.draw_idle()
 
     def clear_plot(self):

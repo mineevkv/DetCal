@@ -214,8 +214,8 @@ class MeasurementController(QObject):
             pass
         if 'point' in message:
             print(message['point'])
-            self.view.plot.figure.add_point(message['point'][1], message['point'][3]*1e3)
-            
+            self.view.plot.figure1.add_point(message['point'][1], message['point'][3]*1e3)
+            self.view.plot.figure2.add_point(message['point'][2], message['point'][3]*1e3, autoscale=True)
 
     def update_gen_elem(self, message, mes_key, param):
         elem_key, unit = param
