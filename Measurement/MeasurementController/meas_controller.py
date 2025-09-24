@@ -84,6 +84,7 @@ class MeasurementController(QObject):
         self.model.progress_bar.connect(self.status_bar_signals_handler)
 
     def init_view_signals(self):
+        #Measurement sheet
         elem =self.view.meas.elem
         keys = ('save_settings',
                 'load_settings',
@@ -107,6 +108,15 @@ class MeasurementController(QObject):
                 element.toggled.connect(lambda _, object=element: self.radiocheck_changed(object))
             elif isinstance(element, QCheckBox):
                 element.toggled.connect(lambda _, object=element: self.radiocheck_changed(object))
+
+        #Infographic
+        elem =self.view.plot.elem
+        elem['freq_cobmo'].currentTextChanged.connect(self.selector_handler)
+
+   
+    def selector_handler(self):
+        logger.debug('selector_handler')
+
 
     #Line edit handlers
     def line_edit_changed(self, object_name):
@@ -216,9 +226,14 @@ class MeasurementController(QObject):
         if 'data' in message:
             pass
         if 'point' in message:
-            print(message['point'])
-            self.view.plot.figure1.add_point(message['point'][1], message['point'][3]*1e3)
-            self.view.plot.figure2.add_point(message['point'][2], message['point'][3]*1e3, autoscale=True)
+            print(f"message['point'][0]: {message['point'][0]}")
+            if (self.view.plot.frequency - message['point'][0]) < 100: # 100 Hz tolerance
+                self.view.plot.figure1.add_point(message['point'][1], message['point'][3]*1e3)
+                self.view.plot.figure2.add_point(message['point'][2], message['point'][3]*1e3, autoscale=True)
+        if 'frequency' in message:
+            self.view.plot.frequency = message['frequency']
+            self.view.plot.clear_plot()
+            self.view.plot.set_selector()
 
     def update_gen_elem(self, message, mes_key, param):
         elem_key, unit = param

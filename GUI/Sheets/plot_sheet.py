@@ -28,6 +28,7 @@ class PlotSheet(Sheet):
         super().__init__(main_layout)
         
         self.box.setTitle("Infografic")
+        self.frequency = None
 
         self.add_plot_sheet()
 
@@ -37,25 +38,32 @@ class PlotSheet(Sheet):
 
         self.add_frequency_selector('freq_cobmo',self.zero_col, row_combo, width_combo, 20)
         self.add_custom_btn('protocol', self.zero_col, row_btn , 'Generate Protocol', width_combo, 45, 'btn_protocol')
-        self.elem['freq_cobmo'].currentTextChanged.connect(self.update_frequency)
 
     def add_frequency_selector(self, key, col, row, width, hight):
         self.elem[key] = QtWidgets.QComboBox(parent=self.box)
         self.elem[key].setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, hight))
 
     def add_selector_point(self, frequency):
+        elem =  self.elem['freq_cobmo']
         text = f'{frequency/1e6:.2f} MHz'
-        self.elem['freq_cobmo'].addItem(text)
-
-        middle_index = (self.elem['freq_cobmo'].count()-1)//2
-        self.elem['freq_cobmo'].setCurrentIndex(middle_index)
+        elem.addItem(text)
+        elem.setCurrentIndex(elem.count() - 1)
 
     def clear_selector(self):
         self.elem['freq_cobmo'].clear()
-        
 
-    def update_frequency(self):
-        logger.info(f"Frequency changed")
+    def clear_plot(self):
+        self.figure1.clear_plot()
+        self.figure2.clear_plot()
+
+    def set_selector(self):
+        elem = self.elem['freq_cobmo']
+        for i in range(elem.count()): 
+            box_frequency = float(elem.itemText(i).replace(' MHz','')) * 1e6 if ' MHz' in elem.itemText(i) else None
+            if  abs(self.frequency - box_frequency) < 1e4:
+                elem.setCurrentIndex(i)
+                return
+        
 
     def add_plot_sheet(self):
         

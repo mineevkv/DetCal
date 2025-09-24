@@ -180,6 +180,7 @@ class MeasurementModel(QObject):
 
         # Main measurement loop
         for frequency in frequencies:
+            self.data_changed.emit({'frequency': frequency})
             if self.is_stop():
                 break
             
