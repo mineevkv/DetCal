@@ -68,3 +68,12 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# External Files
+*.pdf
+*.csv
+*.tex
+*.aux
+*.log
+*.out
+*.png

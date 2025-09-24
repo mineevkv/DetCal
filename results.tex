@@ -8,9 +8,15 @@
 \usepackage{hyperref}
 \usepackage{booktabs}
 \usepackage{verbatim}
+\usepackage{geometry}
+\geometry{left=2cm}
+\geometry{right=1.5cm}
+\geometry{top=1cm}
+\geometry{bottom=2cm}
+
 
 % Document information
-\title{Measurement protocol}
+\title{Protocol of RF Detector Calibration}
 \author{IAP RAS}
 \date{\today}
 
@@ -18,12 +24,17 @@
 
 \maketitle
 
-\begin{abstract}
-This is the debug template for measurements reports of detector calibration process.
-\end{abstract}
+\section{Measurement equipment}
+
+
+\begin{enumerate}
+    \item Microwave generator: \texttt{Rigol DSG830}
+    \item Spectrum analyzer: \texttt{Rigol RSA5065N}
+    \item Oscilloscope: \texttt{Tektronix MDO34}
+\end{enumerate}
 
 \section{Parameters}
-This is the parameters section.
+Parameters from DetCal settings file shown below.
 
 \begin{table}[htbp]
 \centering
@@ -64,8 +75,19 @@ Coupling DC & True \\
 Channel & 4 \\
 \hline
 \end{tabular}
-\caption{Parameters}
+\caption{Measurement parameters}
 \label{params}
 \end{table}
+
+\newpage
+\section{Results}
+
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=1.0\textwidth]{measurement_data.png}
+\caption{Detector response at 2450.00 MHz}
+\label{Figure}
+\end{figure}
 
 \end{document}

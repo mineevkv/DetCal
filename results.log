@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.4) (preloaded format=pdflatex 2023.9.6)  23 SEP 2025 15:43
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 23.4) (preloaded format=pdflatex 2023.9.6)  24 SEP 2025 09:26
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -280,46 +280,66 @@ Package: verbatim 2022-07-02 v1.5u LaTeX2e package for verbatim enhancements
 \verbatim@line=\toks23
 \verbatim@in@stream=\read2
 )
+(C:\Users\KM\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+
+(C:\Users\KM\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+)
+\Gm@cnth=\count286
+\Gm@cntv=\count287
+\c@Gm@tempcnt=\count288
+\Gm@bindingoffset=\dimen169
+\Gm@wd@mp=\dimen170
+\Gm@odd@mp=\dimen171
+\Gm@even@mp=\dimen172
+\Gm@layoutwidth=\dimen173
+\Gm@layoutheight=\dimen174
+\Gm@layouthoffset=\dimen175
+\Gm@layoutvoffset=\dimen176
+\Gm@dimlist=\toks24
+
+(C:\Users\KM\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
 (C:\Users\KM\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex
 .def
 File: l3backend-pdftex.def 2023-03-30 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count286
+\l__color_backend_stack_int=\count289
 \l__pdf_internal_box=\box53
 ) (results.aux)
 \openout1 = `results.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
 
 (C:\Users\KM\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count287
-\scratchdimen=\dimen169
+\scratchcounter=\count290
+\scratchdimen=\dimen177
 \scratchbox=\box54
-\nofMPsegments=\count288
-\nofMParguments=\count289
-\everyMPshowfont=\toks24
-\MPscratchCnt=\count290
-\MPscratchDim=\dimen170
-\MPnumerator=\count291
-\makeMPintoPDFobject=\count292
-\everyMPtoPDFconversion=\toks25
+\nofMPsegments=\count291
+\nofMParguments=\count292
+\everyMPshowfont=\toks25
+\MPscratchCnt=\count293
+\MPscratchDim=\dimen178
+\MPnumerator=\count294
+\makeMPintoPDFobject=\count295
+\everyMPtoPDFconversion=\toks26
 )
 (C:\Users\KM\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base
 .sty
@@ -330,34 +350,74 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 (C:\Users\KM\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 17.
+Package hyperref Info: Link coloring OFF on input line 23.
  (results.out) (results.out)
 \@outlinefile=\write3
 \openout3 = `results.out'.
 
- [1
 
-{C:/Users/KM/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] (results.aux)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(56.9055pt, 497.92325pt, 42.67912pt)
+* v-part:(T,H,B)=(28.45274pt, 759.6886pt, 56.9055pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=497.92325pt
+* \textheight=759.6886pt
+* \oddsidemargin=-15.36449pt
+* \evensidemargin=-15.36449pt
+* \topmargin=-80.81725pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=12.0pt
+* \footskip=30.0pt
+* \marginparwidth=35.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.8pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+[1
+
+{C:/Users/KM/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
+<measurement_data.png, id=28, 433.1382pt x 318.83115pt>
+File: measurement_data.png Graphic file (type png)
+<use measurement_data.png>
+Package pdftex.def Info: measurement_data.png  used on input line 88.
+(pdftex.def)             Requested size: 497.92325pt x 366.52647pt.
+ [2 <./measurement_data.png>] (results.aux)
 Package rerunfilecheck Info: File `results.out' has not changed.
-(rerunfilecheck)             Checksum: 3F136D2175DB395719DD38249F492B5E;93.
+(rerunfilecheck)             Checksum: 9143AA5B97BD4293580FB28F5F139A77;322.
  ) 
 Here is how much of TeX's memory you used:
- 8943 strings out of 477996
- 142433 string characters out of 5834322
- 1862660 words of memory out of 5000000
- 29058 multiletter control sequences out of 15000+600000
- 518574 words of font info for 54 fonts, out of 8000000 for 9000
+ 9450 strings out of 477996
+ 150506 string characters out of 5834322
+ 1863660 words of memory out of 5000000
+ 29549 multiletter control sequences out of 15000+600000
+ 518135 words of font info for 53 fonts, out of 8000000 for 9000
  206 hyphenation exceptions out of 8191
- 75i,8n,76p,294b,435s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,8n,76p,294b,436s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/KM/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmb
-x10.pfb><C:/Users/KM/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/
-cm/cmbx12.pfb><C:/Users/KM/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
-fonts/cm/cmr10.pfb><C:/Users/KM/AppData/Local/Programs/MiKTeX/fonts/type1/publi
-c/amsfonts/cm/cmr12.pfb><C:/Users/KM/AppData/Local/Programs/MiKTeX/fonts/type1/
-public/amsfonts/cm/cmr17.pfb>
-Output written on results.pdf (1 page, 67475 bytes).
+x12.pfb><C:/Users/KM/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/
+cm/cmr12.pfb><C:/Users/KM/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
+onts/cm/cmr17.pfb><C:/Users/KM/AppData/Local/Programs/MiKTeX/fonts/type1/public
+/amsfonts/cm/cmtt12.pfb>
+Output written on results.pdf (2 pages, 239259 bytes).
 PDF statistics:
- 42 PDF objects out of 1000 (max. 8388607)
- 4 named destinations out of 1000 (max. 500000)
- 9 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 58 PDF objects out of 1000 (max. 8388607)
+ 11 named destinations out of 1000 (max. 500000)
+ 30 words of extra memory for PDF output out of 10000 (max. 10000000)
 

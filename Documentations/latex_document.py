@@ -47,6 +47,8 @@ class LatexDocument:
             "",
             "% Packages",
         ]
+
+
         
         # Add packages
         for package in self.packages:
@@ -61,7 +63,9 @@ class LatexDocument:
             else:
                 # Simple package
                 self.content.append(f"\\usepackage{{{package}}}")
-        
+                
+        self.set_geometry(left=2, right=1.5, top=1, bottom=2)
+
         self.content.extend([
             "",
             "% Document information",
@@ -74,6 +78,30 @@ class LatexDocument:
             r"\maketitle",
             ""
         ])
+
+    def set_geometry(self, left, right, top, bottom):
+        """
+        Set the document geometry.
+
+        Args:
+            left: Left margin in cm
+            right: Right margin in cm
+            top: Top margin in cm
+            bottom: Bottom margin in cm
+        """
+        
+        self.content.extend([
+            "\\usepackage{geometry}",
+            f"\\geometry{{left={left}cm}}",
+            f"\\geometry{{right={right}cm}}",
+            f"\\geometry{{top={top}cm}}",
+            f"\\geometry{{bottom={bottom}cm}}",
+            ""
+        ])
+
+    def add_newpage(self):
+        """Add a new page to the document."""
+        self.content.append(r"\newpage")
     
     def add_section(self, title: str, content: str, level: int = 1):
         """
@@ -98,7 +126,8 @@ class LatexDocument:
     def add_text(self, text: str):
         """Add plain text to the document."""
         self.content.append(text)
-        self.content.append("")
+        # self.content.append("")
+
     
     def add_equation(self, equation: str, numbered: bool = True):
         """
