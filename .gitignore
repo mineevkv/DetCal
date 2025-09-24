@@ -77,3 +77,15 @@ dmypy.json
 *.log
 *.out
 *.png
+
+# LaTeX compilation files
+*.bbl
+*.blg
+*.brf
+*.dvi
+*.fls
+*.fdb_latexmk
+*.lof
+*.lot
+*.synctex.gz
+*.toc
