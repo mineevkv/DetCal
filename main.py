@@ -24,14 +24,15 @@ def main():
     sys.exit(app.exec())
   
 if __name__ == "__main__":
-    # main()
+    main()
 
-    with open("results.csv", "r") as file:
-        result_file = list(csv.reader(file))
 
-    with open("Settings/meas_settings.json", "r") as file:
-        settings = json.load(file)
+    # Temp example fo generating protocol TODO: fix
+    # with open("results.csv", "r") as file:
+    #     result_file = list(csv.reader(file))
 
-    doc = MeasurementProtocol(result_file, settings)
-    # doc.fill_document()
+    # with open("Settings/meas_settings.json", "r") as file:
+    #     settings = json.load(file)
+
+    # doc = MeasurementProtocol(result_file, settings)
 

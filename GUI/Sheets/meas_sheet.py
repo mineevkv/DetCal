@@ -155,13 +155,6 @@ class MeasurementSheet(Sheet):
                     'rbw_precise_label', 'rbw_precise_line',
                     'vbw_precise_label', 'vbw_precise_line']:
             self.elem[key].setEnabled(state)
-
-    def add_custom_btn(self, key,  col, row, text, width, hight, elem_class = None):
-        btn = self.add_btn(key, col, row, text, width)
-        btn.setFixedHeight(hight)
-        if elem_class is not None: 
-            btn.setProperty('class', elem_class)
-        return btn
     
     def add_progress_label(self, key, col, row, text, width):
         label = self.add_label(key, col, row, text, width)

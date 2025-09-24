@@ -97,6 +97,13 @@ class Sheet:
         btn.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, self.elem_hight))
         return btn
 
+    def add_custom_btn(self, key,  col, row, text, width, hight, elem_class = None):
+        btn = self.add_btn(key, col, row, text, width)
+        btn.setFixedHeight(hight)
+        if elem_class is not None: 
+            btn.setProperty('class', elem_class)
+        return btn
+
     def add_check_box(self, key, col, row, text):
         check_box = self.elem[key] = QCheckBox(parent=self.box, text=text)
         check_box.setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], 200, 20))

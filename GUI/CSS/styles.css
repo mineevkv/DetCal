@@ -296,3 +296,10 @@ QRadioButton::indicator:hover {
     background-color: transparent;
     border: none;
 }
+
+QComboBox {
+    font-size: 14px;
+    border: 1px solid #45adff;
+    border-radius: none;
+    padding-left: 5px;
+}

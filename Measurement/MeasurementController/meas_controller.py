@@ -169,10 +169,12 @@ class MeasurementController(QObject):
         elem['progress_label'].setText('')
 
     def btn_load_settings_click(self):
+        self.view.plot.clear_selector()
         self.model.load_settings_from_file()
         self.change_settings_status('Settings loaded')
 
     def btn_set_default_click(self):
+        self.view.plot.clear_selector()
         self.model.load_default_settings()
         self.change_settings_status('Default settings')
     
@@ -204,6 +206,7 @@ class MeasurementController(QObject):
         logger.debug('Apply button clicked')
         try:
             WriteSettings.view_to_model(self)
+            self.view.plot.clear_selector()
             self.model.settings_changed.emit(self.model.settings)
         except Exception as e:
             self.status_bar.error(f"Error applying settings: {e}")

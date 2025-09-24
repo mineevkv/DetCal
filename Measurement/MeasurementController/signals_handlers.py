@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view
+import numpy as np
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -81,4 +82,16 @@ class SettingsSignalHandler(SignalHandler):
             meas_controller.view.plot.figure2.clear_plot()
             # meas_controller.view.plot.figure2.ax.set_xlim(level_min, level_max)
             meas_controller.view.plot.figure2.canvas.draw_idle()
+        if "RF_frequencies" in message:
+            freq_min, freq_max, points = message["RF_frequencies"]
+            if freq_min == freq_max:
+                points = 1
+                frequencies = freq_min
+            else:
+                frequencies = np.linspace(freq_min, freq_max, points)
+
+            for frequency in frequencies:
+                meas_controller.view.plot.add_selector_point(frequency)
+
+
             

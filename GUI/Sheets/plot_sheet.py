@@ -27,15 +27,39 @@ class PlotSheet(Sheet):
     def __init__(self, main_layout):
         super().__init__(main_layout)
         
+        self.box.setTitle("Infografic")
+
         self.add_plot_sheet()
 
-    
-    def add_plot_sheet(self):
-        self.box = QGroupBox("Infographic")
+        width_combo = 120
+        row_combo = 2
+        row_btn = row_combo + 1
 
-        self.layout.addWidget(self.box, 2, 1)
-        self.layout.addWidget(self.box, 2, 1)
+        self.add_frequency_selector('freq_cobmo',self.zero_col, row_combo, width_combo, 20)
+        self.add_custom_btn('protocol', self.zero_col, row_btn , 'Generate Protocol', width_combo, 45, 'btn_protocol')
+        self.elem['freq_cobmo'].currentTextChanged.connect(self.update_frequency)
+
+    def add_frequency_selector(self, key, col, row, width, hight):
+        self.elem[key] = QtWidgets.QComboBox(parent=self.box)
+        self.elem[key].setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, hight))
+
+    def add_selector_point(self, frequency):
+        text = f'{frequency/1e6:.2f} MHz'
+        self.elem['freq_cobmo'].addItem(text)
+
+        middle_index = (self.elem['freq_cobmo'].count()-1)//2
+        self.elem['freq_cobmo'].setCurrentIndex(middle_index)
+
+    def clear_selector(self):
+        self.elem['freq_cobmo'].clear()
         
+
+    def update_frequency(self):
+        logger.info(f"Frequency changed")
+
+    def add_plot_sheet(self):
+        
+
         # Create a proper container for the plot
         plot_container1 = QWidget(parent=self.box)
         plot_container1.setStyleSheet("background-color: none; border: none;")
@@ -43,7 +67,7 @@ class PlotSheet(Sheet):
         plot_container1.setLayout(plot_layout1)
         # Set geometry to ensure visibility
         dx = 120
-        plot_container1.setGeometry(QtCore.QRect(0 + dx, 20, 380, 200))
+        plot_container1.setGeometry(QtCore.QRect(self.x_col[self.zero_col] + dx, 20, 380, 200))
         self.figure1 = Infographic(plot_layout1)
 
         # Create a proper container for the plot
@@ -52,7 +76,7 @@ class PlotSheet(Sheet):
         plot_layout2 = QVBoxLayout(plot_container2)
         plot_container2.setLayout(plot_layout2)
         # Set geometry to ensure visibility
-        plot_container2.setGeometry(QtCore.QRect(360 + dx, 20, 380, 200))
+        plot_container2.setGeometry(QtCore.QRect(self.x_col[self.zero_col] + 350 + dx, 20, 380, 200))
         self.figure2 = Infographic(plot_layout2)
         self.figure2.ax.set_xlabel('SA input, dBm', fontsize=8)
 
@@ -63,7 +87,6 @@ matplotlib.use('Qt5Agg')  # TODO: check without this
 class Infographic():
     def __init__(self, layout):
         self.layout = layout
-        self.mutex = QMutex()  # Add a mutex for thread safety
         self.meas_data = []
    
         self.figure, self.ax = plt.subplots()
@@ -89,7 +112,6 @@ class Infographic():
         # self.ax.set_xlim(-20, 15)
         self.ax.set_ylim(0, 500)
 
-
         self.ax.spines['bottom'].set_color(BLUE)
         self.ax.spines['left'].set_color(BLUE)
         self.ax.spines['top'].set_color(BLUE)
@@ -98,14 +120,10 @@ class Infographic():
 
         self.max_points = 300  
         self.x, self.y = [], []
-        # self.x = np.linspace(0, 10, self.max_points)
-        # self.y = np.zeros(self.max_points)
-        
   
         # Initialize with empty data
         self.line, = self.ax.plot([], [], '-', color=YELLOW, linewidth=2)
         
-        # self.current_index = 0
 
     def add_point(self, x, y, autoscale=False):
         self.x = np.append(self.x, x)
@@ -123,64 +141,3 @@ class Infographic():
         self.y = []
         self.line.set_data(self.x, self.y)
         self.canvas.draw_idle()
-
-
-
-    # def update_plot_data(self, meas_data):
-    #     """Update the meas_data from external source"""
-    #     self.mutex.lock()
-    #     try:
-    #         self.meas_data = meas_data
-    #     finally:
-    #         self.mutex.unlock()
-
-    # def update_plot(self):
-    #     logger.debug("Infographics:update_plot")
-    #     self.mutex.lock()
-    #     try:
-    #         if len(self.meas_data) > 0:
-    #             # Group data by frequency
-    #             freq_data = {}
-    #             for point in self.meas_data:
-    #                 freq = point[0]
-    #                 if freq not in freq_data:
-    #                     freq_data[freq] = []
-    #                 freq_data[freq].append((point[1], point[2]))
-                
-    #             # Plot each frequency
-    #             for freq, data in freq_data.items():
-    #                 x, y = zip(*data)
-                    
-    #                 # Add a new line for each frequency
-    #                 line, = self.ax.plot(x, y, label=f'{freq/1e6:.0f} MHz')
-    #                 line.set_color(YELLOW)
-    #                 line.set_linewidth(0.5)
-                
-    #             # Adjust view if needed
-    #             x_min, x_max = min(self.meas_data, key=lambda x: x[1])[1], max(self.meas_data, key=lambda x: x[1])[1]
-    #             y_min, y_max = min(self.meas_data, key=lambda x: x[2])[2], max(self.meas_data, key=lambda x: x[2])[2]
-    #             x_padding = (x_max - x_min) * 0.1 if x_max != x_min else 1
-    #             y_padding = (y_max - y_min) * 0.1 if y_max != y_min else 1
-                
-    #             self.ax.set_xlim(x_min - x_padding, x_max + x_padding)
-    #             self.ax.set_ylim(y_min - y_padding, y_max + y_padding)
-    #             # self.ax.set_xlim(-60, 0)
-    #             # self.ax.set_ylim(-60, 0)
-                
-    #             # Add legend
-    #             # self.ax.legend()
-                
-    #             # Redraw the canvas
-    #             self.canvas.draw_idle()
-    #         else:
-    #             # Clear plot when no data
-    #             for line in self.ax.lines:
-    #                 line.remove()
-    #             self.ax.set_xlim(-20, 10)
-    #             self.ax.set_ylim(0, 3e-3)
-    #             self.canvas.draw_idle()
-                
-    #     finally:
-    #         self.mutex.unlock()    
-
-
