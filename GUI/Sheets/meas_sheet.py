@@ -47,7 +47,7 @@ class MeasurementSheet(Sheet):
         self.add_progress_label('progress', progress_col+13, self.zero_row+2, "Waiting...", 68).hide()
         self.add_custom_btn('save_result',  72, freq_row, 'SAVE', 120, 45, 'btn_save_result').setEnabled(False)
 
-        # Spectrum analyzer and apply fields
+        # Spectrum analyzer and 
         points_row = level_row + 2
         span_row = points_row + 1
         rbw_row = span_row + 1
@@ -65,7 +65,18 @@ class MeasurementSheet(Sheet):
         self.add_sa_elem('rbw_precise', precise_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')
         self.add_sa_elem('vbw_precise', precise_col, vbw_row, edit_line_width, 'VBW, kHz:', '0')
 
-        self.add_custom_btn('apply', 40, span_row, 'APPLY', 60, 69, 'btn_apply')
+        # S21 (VNA) fields
+        s21_col = precise_col + 20
+        s21_file_col = s21_col + 12
+        s21_btn_col = s21_file_col + 20
+        self.add_check_box('recalc_att', s21_col, points_row, 'Recalc attenuation')
+        self.add_label('s21_gen_sa', s21_col, span_row, 'S21 Gen-SA file:', 120).setProperty('class', 's21_label')
+        self.add_label('s21_gen_sa_file', s21_file_col, span_row, 'No S21 file', 200).setProperty('class', 's21_label_nofile')
+        self.add_custom_btn('load_s21_gen_sa', s21_btn_col, span_row, 'Load', 60, self.elem_hight)
+        self.add_label('s21_gen_det', s21_col, rbw_row, 'S21 Gen-Det file:', 120).setProperty('class', 's21_label')
+        self.add_label('s21_gen_det_file', s21_file_col, rbw_row, 'No S21 file', 200).setProperty('class', 's21_label_nofile')
+        self.add_custom_btn('load_s21_gen_det', s21_btn_col, rbw_row, 'Load', 60, self.elem_hight)
+
         
         # Oscilloscope fields
 
@@ -115,13 +126,11 @@ class MeasurementSheet(Sheet):
         for rb in channel_buttons:
             self.channel_group.addButton(rb)
 
+        # Apply button
+        self.add_custom_btn('apply', 44, imp_row, 'APPLY', 60, 69, 'btn_apply')
+
         # Status bar field
-
         self.add_label('status_bar', self.zero_col, ch_row+3, '', 800)
-
-        # self.rb_impedance.toggled.connect(self.rb_impedance_toggled)
-
-
 
 
     def add_gen_elem(self, key, col, row, width, text, text_min, value_min, text_max, value_max):

@@ -23,5 +23,6 @@
     "High_res": false,
     "Impedance_50Ohm" : true,
     "Coupling_DC" : true,
-    "Channel": 1
+    "Channel": 1,
+    "Recalc_atten": false
 }

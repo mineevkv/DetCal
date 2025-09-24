@@ -79,9 +79,20 @@ QLabel {
     font-weight: bold;
 }
 
-.meas_label_sa, .meas_label_osc {
+.meas_label_sa, .meas_label_osc,
+.s21_label {
     font-size: 16px;
     font-weight: bold;
+}
+
+.s21_label_file, .s21_label_nofile {
+    color: #50e3c2;
+    font-size: 14px;
+    qproperty-alignment: 'AlignCenter'
+}
+
+.s21_label_nofile {
+    color: #ff5436;
 }
 
 .meas_progress_label {

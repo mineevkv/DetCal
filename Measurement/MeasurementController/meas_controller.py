@@ -82,6 +82,7 @@ class MeasurementController(QObject):
         self.model.settings_changed.connect(self.settings_signals_handler)
         self.model.meas_status.connect(self.meas_signals_handler)
         self.model.progress_bar.connect(self.status_bar_signals_handler)
+        self.model.s21_file_changed.connect(self.s21_signals_handler)
 
     def init_view_signals(self):
         #Measurement sheet
@@ -92,6 +93,8 @@ class MeasurementController(QObject):
                 'start',
                 'stop',
                 'save_result',
+                'load_s21_gen_sa',
+                'load_s21_gen_det',
                 'apply'
         )
         
@@ -100,6 +103,7 @@ class MeasurementController(QObject):
 
         elem['precise_enabled'].stateChanged.connect(self.change_state_precise)
         elem['unlock_stop'].stateChanged.connect(self.unlock_stop_btn)
+        elem['recalc_att'].stateChanged.connect(self.change_state_recalc)
 
         for element in elem.values():
             if isinstance(element, QLineEdit):
@@ -211,6 +215,14 @@ class MeasurementController(QObject):
         self.view.meas.elem['progress_label'].setText('Saved')
         self.view.meas.elem['progress_label'].show()
         self.waiting_timer.start()
+
+    def btn_load_s21_gen_sa_click(self):
+        self.model.load_s21_gen_sa()
+        logger.debug('Load S21 Gen-SA file')
+
+    def btn_load_s21_gen_det_click(self):
+        self.model.load_s21_gen_det()
+        logger.debug('Load S21 Gen-Det file')
   
     def btn_apply_click(self):
         logger.debug('Apply button clicked')
@@ -261,13 +273,27 @@ class MeasurementController(QObject):
         is_checked = self.view.meas.elem['precise_enabled'].isChecked()
         self.enable_precise(is_checked)
 
+    def change_state_recalc(self):
+        is_checked = self.view.meas.elem['recalc_att'].isChecked()
+        self.enable_recalc(is_checked)
+
     def enable_precise(self, state):
-        self.view.meas.elem['precise_enabled'].setChecked(state)
+        elem = self.view.meas.elem
+        elem['precise_enabled'].setChecked(state)
         keys = ('span_precise_label', 'span_precise_line',
                 'rbw_precise_label', 'rbw_precise_line',
                 'vbw_precise_label', 'vbw_precise_line')
         for key in keys:
-            self.view.meas.elem[key].setEnabled(state)
+            elem[key].setEnabled(state)
+
+    def enable_recalc(self, state):
+        elem = self.view.meas.elem
+        elem['recalc_att'].setChecked(state)
+        keys = ('s21_gen_sa_label', 's21_gen_sa_file_label',
+                's21_gen_det_label', 's21_gen_det_file_label',
+                'btn_load_s21_gen_sa', 'btn_load_s21_gen_det')
+        for key in keys:
+            elem[key].setEnabled(state)
 
     def unlock_stop_btn(self):
         elem = self.view.meas.elem
@@ -279,6 +305,19 @@ class MeasurementController(QObject):
         print(message)
         elem = self.view.meas.elem
         elem['progress'].setValue(message)
+
+    def s21_signals_handler(self, message):
+        if 's21_gen_sa' in message:
+            elem = self.view.meas.elem['s21_gen_sa_file_label']
+            elem.setText(message['s21_gen_sa'])
+            elem.setProperty('class', 's21_label_file')
+            refresh_obj_view(elem)
+        if 's21_gen_det' in message:
+            elem = self.view.meas.elem['s21_gen_det_file_label']
+            elem.setText(message['s21_gen_det'])
+            elem.setProperty('class', 's21_label_file')
+            refresh_obj_view(elem)
+
 
     def equipment_signals_handler(self, message):
         """Handle completion of SCPI-instrument objects initialization"""

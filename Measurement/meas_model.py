@@ -6,6 +6,8 @@ import os
 import json
 import numpy as np
 import time
+import csv
+from pathlib import Path
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -30,10 +32,12 @@ class MeasurementModel(QObject):
     data_changed = pyqtSignal(dict)  # Signal to notify data changes
     equipment_changed = pyqtSignal(dict)
     settings_changed = pyqtSignal(dict)
+    s21_file_changed = pyqtSignal(dict)
     meas_status = pyqtSignal(str)
     progress_bar = pyqtSignal(int)
     settings_filename = 'meas_settings'
     settings_folder = 'Settings'
+    s21_folder = 'S21files'
     settings = dict()
     
     def __init__(self):
@@ -106,18 +110,18 @@ class MeasurementModel(QObject):
  
 
     def open_settings_file(self):
-        filename, _ = QFileDialog.getOpenFileName(
+        path, _ = QFileDialog.getOpenFileName(
             caption="Load settings file",
             directory=self.settings_folder,
             filter="JSON files (*.json)"
         )
         settings =  dict()
-        if filename:
+        if path:
             try:
-                with open(filename, 'r') as f:
+                with open(path, 'r') as f:
                     settings = json.load(f)
             except Exception as e:
-                logger.warning(f"Failed to load settings from {filename}: {e}")
+                logger.warning(f"Failed to load settings from {path}: {e}")
         else:
             logger.warning(f"No file selected")
         
@@ -127,6 +131,49 @@ class MeasurementModel(QObject):
         with open(f"{self.settings_folder}/{self.settings_filename}.json", 'w') as f:
             json.dump(self.settings, f, indent=4)
             self.settings_changed.emit(self.settings)
+
+    def load_s21_gen_sa(self):
+        try:
+            s21_file = self.load_s21_file()
+            if s21_file is None:
+                return
+            path, self.s21_gen_sa = s21_file
+            filename = Path(path).name
+            self.s21_file_changed.emit({'s21_gen_sa' : filename})
+        except Exception as e:
+            logger.warning(f"Failed to load S21 file: {e}")
+
+
+    def load_s21_gen_det(self):
+        try:
+            s21_file = self.load_s21_file()
+            if s21_file is None:
+                return
+            path, self.s21_gen_det = s21_file
+            filename = Path(path).name
+            self.s21_file_changed.emit({'s21_gen_det' : filename})
+        except Exception as e:
+            logger.warning(f"Failed to load S21 file: {e}")
+
+    def load_s21_file(self):
+        path = self.open_file(self.s21_folder)
+        if path:
+            try:
+                with open(path, 'r') as f: 
+                    return path, list(csv.reader(f))
+            except Exception as e:
+                logger.warning(f"Failed to load S21 file from {path}: {e}")
+        else:
+            logger.warning(f"No file selected")
+
+
+    def open_file(self, folder, filter="CSV files (*.csv)"):
+        filename, _ = QFileDialog.getOpenFileName(
+            caption="Open file",
+            directory=folder,
+            filter=filter
+        )
+        return filename
 
     def start_measurement_process(self):
         abort = False

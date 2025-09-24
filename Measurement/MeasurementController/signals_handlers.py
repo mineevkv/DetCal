@@ -28,10 +28,12 @@ class SettingsSignalHandler(SignalHandler):
     @staticmethod
     def handler(meas_controller, message):
         logger.debug(f"SettingsSignalHandler")
-        SettingsSignalHandler.gen_handler(meas_controller, message)
-        SettingsSignalHandler.sa_handler(meas_controller, message)
-        SettingsSignalHandler.osc_handler(meas_controller, message)
-        SettingsSignalHandler.plot_handler(meas_controller, message)
+        args = meas_controller, message
+        SettingsSignalHandler.gen_handler(*args)
+        SettingsSignalHandler.sa_handler(*args)
+        SettingsSignalHandler.osc_handler(*args)
+        SettingsSignalHandler.recalc_handler(*args)
+        SettingsSignalHandler.plot_handler(*args)
 
     @staticmethod
     def gen_handler(meas_controller, message):
@@ -70,6 +72,11 @@ class SettingsSignalHandler(SignalHandler):
             elem['rb_ac'].setChecked(not status)
         if 'Channel' in message:
             elem[f'rb_ch{message["Channel"]}'].setChecked(True)
+
+    @staticmethod
+    def recalc_handler(meas_controller, message):
+        if "Recalc_atten" in message:
+             meas_controller.enable_recalc(message["Recalc_atten"])
 
     @staticmethod
     def plot_handler(meas_controller, message):
