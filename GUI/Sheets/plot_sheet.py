@@ -36,18 +36,25 @@ class PlotSheet(Sheet):
         row_combo = 2
         row_btn = row_combo + 1
 
-        self.add_frequency_selector('freq_cobmo',self.zero_col, row_combo, width_combo, 20)
+        self.add_frequency_selector('freq_cobmo',self.zero_col, row_combo, width_combo, self.elem_hight)
         self.add_custom_btn('protocol', self.zero_col, row_btn , 'Generate Protocol', width_combo, 45, 'btn_protocol')
 
     def add_frequency_selector(self, key, col, row, width, hight):
         self.elem[key] = QtWidgets.QComboBox(parent=self.box)
         self.elem[key].setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, hight))
+        return self.elem[key]
 
     def add_selector_point(self, frequency):
         elem =  self.elem['freq_cobmo']
         text = f'{frequency/1e6:.2f} MHz'
         elem.addItem(text)
         elem.setCurrentIndex(elem.count() - 1)
+
+    def get_current_frequency(self):
+        text = self.elem['freq_cobmo'].currentText()
+        if text == '':
+            return None
+        return float(text.replace(' MHz','')) * 1e6
 
     def clear_selector(self):
         self.elem['freq_cobmo'].clear()
@@ -63,11 +70,17 @@ class PlotSheet(Sheet):
             if  abs(self.frequency - box_frequency) < 1e4:
                 elem.setCurrentIndex(i)
                 return
+            
+    def plot_data_from_frequency(self, data):
+        self.clear_plot()
+        for point in data:
+            self.figure1.add_point(point[1], point[3])
+            self.figure2.add_point(point[2], point[3])
         
 
-    def add_plot_sheet(self):
-        
+     
 
+    def add_plot_sheet(self):  
         # Create a proper container for the plot
         plot_container1 = QWidget(parent=self.box)
         plot_container1.setStyleSheet("background-color: none; border: none;")
@@ -136,6 +149,17 @@ class Infographic():
     def add_point(self, x, y, autoscale=False):
         self.x = np.append(self.x, x)
         self.y = np.append(self.y, y)
+        self.line.set_data(self.x, self.y)
+        # self.ax.set_xlim(-20, 15)
+        self.ax.set_ylim(0, max(self.y)*1.2)
+        if autoscale:
+            self.ax.relim()
+            self.ax.autoscale_view()
+        self.canvas.draw_idle()
+    
+    def plot_line(self, x, y, autoscale=False):
+        self.x = np.asarray(x)
+        self.y = np.asarray(y)
         self.line.set_data(self.x, self.y)
         # self.ax.set_xlim(-20, 15)
         self.ax.set_ylim(0, max(self.y)*1.2)

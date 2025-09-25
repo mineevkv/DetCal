@@ -1,6 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QFileDialog
 from Instruments.Initializer import InstrumentInitializer
+from .helper_functions import read_csv_file
 
 import os
 import json
@@ -40,6 +41,8 @@ class MeasurementModel(QObject):
     s21_folder = 'S21files'
     settings = dict()
     
+    meas_data = []
+
     def __init__(self):
         super().__init__()
 
@@ -137,44 +140,36 @@ class MeasurementModel(QObject):
             s21_file = self.load_s21_file()
             if s21_file is None:
                 return
-            path, self.s21_gen_sa = s21_file
+            self.s21_gen_sa, path = s21_file
             filename = Path(path).name
             self.s21_file_changed.emit({'s21_gen_sa' : filename})
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
-
 
     def load_s21_gen_det(self):
         try:
             s21_file = self.load_s21_file()
             if s21_file is None:
                 return
-            path, self.s21_gen_det = s21_file
+            self.s21_gen_det, path = s21_file
             filename = Path(path).name
             self.s21_file_changed.emit({'s21_gen_det' : filename})
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
 
     def load_s21_file(self):
-        path = self.open_file(self.s21_folder)
-        if path:
-            try:
-                with open(path, 'r') as f: 
-                    return path, list(csv.reader(f))
-            except Exception as e:
-                logger.warning(f"Failed to load S21 file from {path}: {e}")
-        else:
-            logger.warning(f"No file selected")
+        return read_csv_file(self.s21_folder)
+    
+    def get_data_from_frequency(self, frequency):
+        data = []
+        for row in self.meas_data:
+            if self.equal_frequencies(row[0], frequency):
+                data.append(row)
+        return data
 
-
-    def open_file(self, folder, filter="CSV files (*.csv)"):
-        filename, _ = QFileDialog.getOpenFileName(
-            caption="Open file",
-            directory=folder,
-            filter=filter
-        )
-        return filename
-
+    def equal_frequencies(self, frequency1, frequency2):
+        return abs(frequency1 - frequency2) < 0.01e6
+    
     def start_measurement_process(self):
         abort = False
         equipment = [self.gen] #TODO: fix equipment

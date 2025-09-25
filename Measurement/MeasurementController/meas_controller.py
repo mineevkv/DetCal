@@ -119,17 +119,21 @@ class MeasurementController(QObject):
 
    
     def selector_handler(self):
-        logger.debug('selector_handler')
+        selected_freq = self.view.plot.get_current_frequency()
+        if selected_freq is None:
+            return
+        data = self.model.get_data_from_frequency(selected_freq)
+        self.view.plot.plot_data_from_frequency(data)
 
 
     #Line edit handlers
     def line_edit_changed(self, object_name):
         object_name.setProperty('class', 'line_changed')
         refresh_obj_view(object_name)
-        self.lock_start()
+        self.lock_start_btn()
 
 
-    def lock_start(self):
+    def lock_start_btn(self):
         elem = self.view.meas.elem
         elem['btn_apply'].setEnabled(True)
         elem['btn_start'].setEnabled(False)
@@ -147,7 +151,7 @@ class MeasurementController(QObject):
             return
         object_name.setProperty('class', 'radiocheck_changed')
         refresh_obj_view(object_name)
-        self.lock_start()
+        self.lock_start_btn()
         
     def set_elements_unchanged(self):
         elem =self.view.meas.elem
@@ -196,7 +200,7 @@ class MeasurementController(QObject):
         elem = self.view.meas.elem
         elem['unlock_stop'].setChecked(False)
         if self.model.start_measurement_process():
-            self.hide_start_btn()
+            self.lock_control_elem()
             elem['progress_label'].setText('Waiting...')
             elem['progress_label'].show()
             self.status_bar.info('Measurement in progress...')
@@ -345,29 +349,37 @@ class MeasurementController(QObject):
     def meas_signals_handler(self, message):
         elem = self.view.meas.elem
         if 'Finish' in message:
-            self.hide_stop_btn()
+            self.unlock_control_elem()
             self.unlock_start_btn()
             elem['progress_label'].setText('Finished')
             elem['progress'].setValue(0)
         if 'Stop' in message:
-            self.hide_stop_btn()
+            self.unlock_control_elem()
             self.unlock_start_btn()
             elem['progress_label'].setText('Stopped')
 
         self.waiting_timer.start()
 
-    def hide_start_btn(self):
+    def lock_control_elem(self):
         elem = self.view.meas.elem
         elem['btn_save_result'].setEnabled(False)
         elem['btn_start'].hide()
         elem['btn_stop'].setEnabled(False)
         elem['btn_stop'].show()
 
-    def hide_stop_btn(self):
+        elem = self.view.plot.elem
+        elem['freq_cobmo'].setEnabled(False)
+        elem['btn_protocol'].setEnabled(False)
+
+    def unlock_control_elem(self):
         elem = self.view.meas.elem
         elem['btn_stop'].hide()
         elem['btn_start'].show()
         elem['btn_save_result'].setEnabled(True)
+
+        elem = self.view.plot.elem
+        elem['freq_cobmo'].setEnabled(True)
+        elem['btn_protocol'].setEnabled(True)
 
     def run(self):
         logger.debug('GUI running')
