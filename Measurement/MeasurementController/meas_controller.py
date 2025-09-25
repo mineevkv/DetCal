@@ -5,11 +5,13 @@ from GUI.main_window import MainWindow
 from ..gen_controller import GenController
 from ..sa_controller import SAController
 from ..osc_controller import OscController
-from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view
+from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view, is_equal_frequencies
 from .status_bar_controller import StatusBarController
 from .write_settings import WriteSettings
 from .signals_handlers import SettingsSignalHandler
-
+from Documentations.protocol_creator import MeasurementProtocol
+import csv
+import json
 from GUI.palette import *
 
 from System.logger import get_logger
@@ -117,6 +119,7 @@ class MeasurementController(QObject):
         #Infographic
         elem =self.view.plot.elem
         elem['freq_cobmo'].currentTextChanged.connect(self.selector_handler)
+        elem['btn_protocol'].clicked.connect(self.btn_protocol_click)
 
    
     def selector_handler(self):
@@ -238,6 +241,22 @@ class MeasurementController(QObject):
         except Exception as e:
             self.status_bar.error(f"Error applying settings: {e}")
 
+    def btn_protocol_click(self):
+        selected_frequency = self.view.plot.get_current_frequency()
+        if selected_frequency is None:
+            return
+        
+        with open("results.csv", "r") as file:
+            next(file) # skip header
+            result_file = list(csv.reader(file))
+            data = []
+            for row in result_file:
+                if is_equal_frequencies(row[0], selected_frequency):
+                    data.append(row)
+
+        with open("Settings/meas_settings.json", "r") as file:
+            settings = json.load(file)
+            doc = MeasurementProtocol(data, settings)
 
     def data_signals_handler(self, message):
         if 'data' in message:

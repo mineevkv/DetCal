@@ -34,18 +34,7 @@ def protocol():
 
     doc = MeasurementProtocol(result_file, settings)
 
-def vna_parcing():
-        # Parse the file
-    parser = RSA506N_S21_Parser("S21files/gen_det.trs")
-    data = parser.parse_file()
-    
-    # Access the data directly
-    frequency = data['frequency']
-    magnitude_db = data['magnitude_db']
-    print (frequency, magnitude_db)
-  
 if __name__ == "__main__":
     main()
-    # vna_parcing()
-
+  
 

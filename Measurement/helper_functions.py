@@ -43,10 +43,13 @@ def open_file(folder, filter=None):
     )
     return patn
 
-def get_s21(frequency, s21):
-    freq = s21[0]
-    magnitude = s21[1]
-    return np.interp(frequency, freq, magnitude)
+def get_s21(target_frequency, s21):
+    frequencies = s21[0]
+    magnitude_dB = s21[1]
+    return np.interp(target_frequency, frequencies, magnitude_dB)
+
+def is_equal_frequencies(frequency1, frequency2):
+    return abs(float(frequency1) - float(frequency2)) < 0.01e6 # 10 kHz difference
 
 def read_csv_file(folder, filename=None):
     """

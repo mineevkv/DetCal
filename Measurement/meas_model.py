@@ -2,7 +2,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QFileDialog
 from Instruments.Initializer import InstrumentInitializer
 from Instruments.rsa5000vna_parcer import RSA506N_S21_Parser
-from .helper_functions import read_csv_file, open_file, get_s21
+from .helper_functions import read_csv_file, open_file, get_s21, is_equal_frequencies
 
 import os
 import json
@@ -173,7 +173,7 @@ class MeasurementModel(QObject):
     def get_data_from_frequency(self, frequency):
         data = []
         for row in self.meas_data:
-            if self.equal_frequencies(row[0], frequency):
+            if is_equal_frequencies(row[0], frequency):
                 data.append(row)
         return data
 
