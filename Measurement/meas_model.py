@@ -1,6 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QFileDialog
 from Instruments.Initializer import InstrumentInitializer
+from Instruments.rsa5000vna_parcer import RSA506N_S21_Parser
 from .helper_functions import read_csv_file
 
 import os
@@ -40,6 +41,8 @@ class MeasurementModel(QObject):
     settings_folder = 'Settings'
     s21_folder = 'S21files'
     settings = dict()
+    s21_gen_det = None
+    s21_gen_sa = None
     
     meas_data = []
 
@@ -137,22 +140,20 @@ class MeasurementModel(QObject):
 
     def load_s21_gen_sa(self):
         try:
-            s21_file = self.load_s21_file()
-            if s21_file is None:
-                return
-            self.s21_gen_sa, path = s21_file
-            filename = Path(path).name
+            filename = 's21_gen_sa.trs'        
+            parser = RSA506N_S21_Parser(os.path.join(self.s21_folder, filename))
+            data = parser.parse_file()
+            self.s21_gen_sa = (data['frequency'], data['magnitude_db'])
             self.s21_file_changed.emit({'s21_gen_sa' : filename})
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
 
     def load_s21_gen_det(self):
         try:
-            s21_file = self.load_s21_file()
-            if s21_file is None:
-                return
-            self.s21_gen_det, path = s21_file
-            filename = Path(path).name
+            filename = 's21_gen_det.trs'        
+            parser = RSA506N_S21_Parser(os.path.join(self.s21_folder, filename))
+            data = parser.parse_file()
+            self.s21_gen_sa = (data['frequency'], data['magnitude_db'])
             self.s21_file_changed.emit({'s21_gen_det' : filename})
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
@@ -319,11 +320,33 @@ class MeasurementModel(QObject):
             filter="CSV files (*.csv)"
         )
         if filename:
-            file_header = 'Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V)'
+            file_header = 'Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V), S21 Gen-Sa (dB), S21 Gen-Det (dB), Det Level (dBm)'
             np.savetxt(filename, self.meas_data, delimiter=',', header=file_header) # Frequency, Level, Value, Mean Osc Value
             logger.info(f"Results saved to {filename}")
         else:
             logger.warning(f"No file selected")
+
+    def recalc_data(self):
+        """Recalculate data via measured S21 parameters"""
+        recalc_data = []
+        for point in self.meas_data:
+            frequency = point[0]
+            level = point[1]
+            sa_level = point[2]
+            osc_voltage = point[3]
+            s21_gen_sa = self.get_s21(frequency, self.s21_gen_sa)
+            s21_gen_det = self.get_s21(frequency, self.s21_gen_det)
+            det_level = (sa_level + s21_gen_sa) - s21_gen_det
+
+            recalc_point = [frequency, level, sa_level, osc_voltage, s21_gen_sa, s21_gen_det, det_level]
+            recalc_data.append(recalc_point)
+
+        self.data_changed.emit({'recalc_data': recalc_data})
+        self.meas_data = recalc_data
+
+    def get_s21(self, frequency, s21):
+        pass
+    
 
     def setup_devices(self):
         self.gen.factory_preset()

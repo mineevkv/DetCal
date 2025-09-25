@@ -240,7 +240,10 @@ class MeasurementController(QObject):
 
     def data_signals_handler(self, message):
         if 'data' in message:
-            pass
+            print(message['data'])
+            if self.check_recalc():
+                self.model.recalc_data()
+            
         if 'point' in message:
             print(f"message['point'][0]: {message['point'][0]}")
             if (self.view.plot.frequency - message['point'][0]) < 100: # 100 Hz tolerance
@@ -298,6 +301,12 @@ class MeasurementController(QObject):
                 'btn_load_s21_gen_sa', 'btn_load_s21_gen_det')
         for key in keys:
             elem[key].setEnabled(state)
+    
+    def check_recalc(self):
+        if  self.model.s21_gen_det is None or self.model.s21_gen_sa is None:
+            return False
+        return True
+
 
     def unlock_stop_btn(self):
         elem = self.view.meas.elem
