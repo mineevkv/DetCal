@@ -1,6 +1,7 @@
 import os
 from .latex_document import LatexDocument
 from .helper_functions import *
+from Measurement.helper_functions import remove_zeros
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from GUI.palette import *
@@ -55,19 +56,60 @@ class MeasurementProtocol(ProtocolCreator):
     def add_settings_section(self):
         # Add sections with content
         self.doc.add_section("Parameters", 
-                   "Parameters from DetCal settings file shown below.")
-        
+                   "Parameters from DetCal application settings file.")
+        table_data = self.parse_settings()
+        # table_data = [[str(key),  str(value)] for key, value in self.meas_settings.items()]
         table_data = [[f'{key.replace("_", " ")}', str(value)] for key, value in self.meas_settings.items()]
         self.doc.add_table(table_data, caption="Measurement parameters", label="params")
 
+
+    def parse_settings(self):
+        settings = self.meas_settings
+
+        freq_start, freq_stop, points = settings['RF_frequencies']
+        freq_start = f"{(float(freq_start)/1e6):.2f}"
+        freq_stop = f"{(float(freq_stop)/1e6):.2f}"
+        points = int(points)
+        settings['RF_frequencies'] = f'{remove_zeros(freq_start)} to {remove_zeros(freq_stop)} MHz [{points}]'
+
+        level_start, level_stop, points = settings['RF_levels']
+        settings['RF_levels'] = f'{level_start} to {level_stop} dBm [{points}]'
+
+        keys = (
+            "SPAN_wide",
+            "SPAN_narrow",
+            "RBW_wide",
+            "RBW_narrow",
+            "VBW_wide",
+            "VBW_narrow",
+        )
+
+        for key in keys:
+            elem = settings[key]
+            elem = f"{(float(elem)/1e3):.3f}"
+            elem = f"{remove_zeros(elem)} kHz"
+            settings[key] = elem
+
+        settings['REF_level']= f"{settings['REF_level']} dBm"
+        settings['SWEEP_points'] = f"{int(settings['SWEEP_points'])}"
+
+        elem = settings['HOR_scale']
+        elem = f"{(float(elem)*1e3):.3f}"
+        elem = f"{remove_zeros(elem)} ms/div"
+        settings['HOR_scale'] = elem
+
+
+        return settings
+    
     def add_plot_section(self):
         self.doc.add_newpage()
         self.doc.add_section("Results", "")
         self.create_plot()
 
         frequency = float(self.meas_data[1][0])/1e6
+        frequency = f"{frequency:.2f}"
         self.doc.add_figure(image_path = "measurement_data.png",
-                            caption=f"Detector response at {frequency:.2f} MHz",
+                            caption=f"Detector response at {remove_zeros(frequency)} MHz",
                             label = "Figure", 
                             width="1.0\\textwidth")
 
@@ -114,7 +156,7 @@ class MeasurementProtocol(ProtocolCreator):
                 return False
                 
             # Extract data
-            level = [float(meas_data[2]) for meas_data in self.meas_data[1:]]
+            level = [float(meas_data[2]) for meas_data in self.meas_data[1:]] #TODO: [6]
             voltage = [float(meas_data[3]) for meas_data in self.meas_data[1:]]
             
             if not level or not voltage:
@@ -140,7 +182,7 @@ class MeasurementProtocol(ProtocolCreator):
     def apply_plot_settings(self):
         """Apply comprehensive plot settings"""
         # Labels and titles
-        self.ax.set_xlabel('Spectrum Analyzer input, dBm', fontsize=10, color=DARK, fontweight='bold')
+        self.ax.set_xlabel('Input power, dBm', fontsize=10, color=DARK, fontweight='bold')
         self.ax.set_ylabel('Detector signal, V', fontsize=10, color=DARK, fontweight='bold')
         
         # Tick parameters
