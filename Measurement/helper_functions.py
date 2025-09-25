@@ -1,5 +1,6 @@
 import csv
 import os
+import numpy as np
 from PyQt6.QtWidgets import QFileDialog
 
 from System.logger import get_logger
@@ -34,13 +35,18 @@ def refresh_obj_view(object_name):
     object_name.style().unpolish(object_name)
     object_name.style().polish(object_name)
 
-def open_file(folder, filter):
+def open_file(folder, filter=None):
     patn, _ = QFileDialog.getOpenFileName(
         caption="Open file",
         directory=folder,
         filter=filter
     )
     return patn
+
+def get_s21(frequency, s21):
+    freq = s21[0]
+    magnitude = s21[1]
+    return np.interp(frequency, freq, magnitude)
 
 def read_csv_file(folder, filename=None):
     """

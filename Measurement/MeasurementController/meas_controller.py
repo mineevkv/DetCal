@@ -56,6 +56,7 @@ class MeasurementController(QObject):
         self.model.offline_mode(0) # Set to True for offline testing without instruments
         self.model.start_initialization()
         self.model.load_settings()
+        self.model.load_s21_files()
 
 
     def init_connect_signals(self):
@@ -240,10 +241,8 @@ class MeasurementController(QObject):
 
     def data_signals_handler(self, message):
         if 'data' in message:
-            print(message['data'])
             if self.check_recalc():
                 self.model.recalc_data()
-            
         if 'point' in message:
             print(f"message['point'][0]: {message['point'][0]}")
             if (self.view.plot.frequency - message['point'][0]) < 100: # 100 Hz tolerance
@@ -253,6 +252,9 @@ class MeasurementController(QObject):
             self.view.plot.frequency = message['frequency']
             self.view.plot.clear_plot()
             self.view.plot.set_selector()
+        if 'recalc_data' in message:
+            print(message['recalc_data'])
+
 
     def update_gen_elem(self, message, mes_key, param):
         elem_key, unit = param
@@ -303,6 +305,8 @@ class MeasurementController(QObject):
             elem[key].setEnabled(state)
     
     def check_recalc(self):
+        if not self.view.meas.elem['recalc_att'].isChecked():
+            return False
         if  self.model.s21_gen_det is None or self.model.s21_gen_sa is None:
             return False
         return True

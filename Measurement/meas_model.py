@@ -2,7 +2,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QFileDialog
 from Instruments.Initializer import InstrumentInitializer
 from Instruments.rsa5000vna_parcer import RSA506N_S21_Parser
-from .helper_functions import read_csv_file
+from .helper_functions import read_csv_file, open_file, get_s21
 
 import os
 import json
@@ -83,6 +83,11 @@ class MeasurementModel(QObject):
 
         # TODO: emit the data_changed signal with the initialized instruments
         
+
+    def load_s21_files(self):
+        self.load_s21_gen_sa('s21_gen_sa.trs')
+        self.load_s21_gen_det('s21_gen_det.trs')
+
     def offline_mode(self, mode):
         if mode:
             self.initializer.offline_debug = True
@@ -138,18 +143,24 @@ class MeasurementModel(QObject):
             json.dump(self.settings, f, indent=4)
             self.settings_changed.emit(self.settings)
 
-    def load_s21_gen_sa(self):
+    def load_s21_gen_sa(self, filename=None):
         try:
-            filename = 's21_gen_sa.trs'        
+            # filename = 's21_gen_sa.trs'
+            if filename is None:
+                path = open_file(self.s21_folder, "S21 files (*.trs)")
+                filename = os.path.basename(path)  
             self.s21_gen_sa = self.parse_s21_file(filename)
             self.s21_file_changed.emit({'s21_gen_sa' : filename})
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
 
-    def load_s21_gen_det(self):
+    def load_s21_gen_det(self, filename=None):
         try:
-            filename = 's21_gen_det.trs'        
+            if filename is None:
+                path = open_file(self.s21_folder, "S21 files (*.trs)")
+                filename = os.path.basename(path)  
             self.s21_gen_det = self.parse_s21_file(filename)
+            print(filename)
             self.s21_file_changed.emit({'s21_gen_det' : filename})
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
@@ -332,8 +343,8 @@ class MeasurementModel(QObject):
             level = point[1]
             sa_level = point[2]
             osc_voltage = point[3]
-            s21_gen_sa = self.get_s21(frequency, self.s21_gen_sa)
-            s21_gen_det = self.get_s21(frequency, self.s21_gen_det)
+            s21_gen_sa = get_s21(frequency, self.s21_gen_sa)
+            s21_gen_det = get_s21(frequency, self.s21_gen_det)
             det_level = (sa_level + s21_gen_sa) - s21_gen_det
 
             recalc_point = [frequency, level, sa_level, osc_voltage, s21_gen_sa, s21_gen_det, det_level]
@@ -341,10 +352,6 @@ class MeasurementModel(QObject):
 
         self.data_changed.emit({'recalc_data': recalc_data})
         self.meas_data = recalc_data
-
-    def get_s21(self, frequency, s21):
-        pass
-    
 
     def setup_devices(self):
         self.gen.factory_preset()

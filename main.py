@@ -45,7 +45,7 @@ def vna_parcing():
     print (frequency, magnitude_db)
   
 if __name__ == "__main__":
-    # main()
-    vna_parcing()
+    main()
+    # vna_parcing()
 
 

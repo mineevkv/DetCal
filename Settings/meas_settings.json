@@ -24,5 +24,5 @@
     "Impedance_50Ohm": true,
     "Coupling_DC": true,
     "Channel": 4,
-    "Recalc_atten": false
+    "Recalc_atten": true
 }
