@@ -141,9 +141,7 @@ class MeasurementModel(QObject):
     def load_s21_gen_sa(self):
         try:
             filename = 's21_gen_sa.trs'        
-            parser = RSA506N_S21_Parser(os.path.join(self.s21_folder, filename))
-            data = parser.parse_file()
-            self.s21_gen_sa = (data['frequency'], data['magnitude_db'])
+            self.s21_gen_sa = self.parse_s21_file(filename)
             self.s21_file_changed.emit({'s21_gen_sa' : filename})
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
@@ -151,15 +149,15 @@ class MeasurementModel(QObject):
     def load_s21_gen_det(self):
         try:
             filename = 's21_gen_det.trs'        
-            parser = RSA506N_S21_Parser(os.path.join(self.s21_folder, filename))
-            data = parser.parse_file()
-            self.s21_gen_sa = (data['frequency'], data['magnitude_db'])
+            self.s21_gen_det = self.parse_s21_file(filename)
             self.s21_file_changed.emit({'s21_gen_det' : filename})
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
 
-    def load_s21_file(self):
-        return read_csv_file(self.s21_folder)
+    def parse_s21_file(self, filename):
+        parser = RSA506N_S21_Parser(os.path.join(self.s21_folder, filename))
+        data = parser.parse_file()
+        return (data['frequency'], data['magnitude_db'])
     
     def get_data_from_frequency(self, frequency):
         data = []
