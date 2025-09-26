@@ -104,11 +104,18 @@ class MeasurementProtocol(ProtocolCreator):
     def add_plot_section(self):
         self.doc.add_newpage()
         self.doc.add_section("Results", "")
-        self.create_plot()
-
+       
         frequency = float(self.meas_data[1][0])/1e6
         frequency = f"{frequency:.2f}"
-        self.doc.add_figure(image_path = "measurement_data.png",
+
+        self.create_plot('mW')
+        self.doc.add_figure(image_path = "measurement_data_mW.png",
+                            caption=f"Detector response at {remove_zeros(frequency)} MHz",
+                            label = "Figure", 
+                            width="1.0\\textwidth")
+        
+        self.create_plot('dBm')
+        self.doc.add_figure(image_path = "measurement_data_dBm.png",
                             caption=f"Detector response at {remove_zeros(frequency)} MHz",
                             label = "Figure", 
                             width="1.0\\textwidth")
@@ -121,10 +128,10 @@ class MeasurementProtocol(ProtocolCreator):
             logger.error(f"PDF compilation failed: {e}")
             logger.debug("But the .tex file was created successfully!")
 
-    def create_plot(self):
+    def create_plot(self, unit='mW'):
         try:
             # Create fresh figure
-            self.figure, self.ax = plt.subplots(figsize=(cm_to_inches(16), cm_to_inches(12)))
+            self.figure, self.ax = plt.subplots(figsize=(cm_to_inches(16), cm_to_inches(18)))
             self.canvas = FigureCanvas(self.figure)
             
             # Set background transparency
@@ -132,10 +139,10 @@ class MeasurementProtocol(ProtocolCreator):
             self.ax.patch.set_alpha(0)
             
             # Extract and plot
-            success = self.extract_and_plot_data()
+            success = self.extract_and_plot_data(unit)
             
             if success:
-                self.apply_plot_settings()
+                self.apply_plot_settings(unit)
                 self.figure.tight_layout()
                 self.canvas.draw()
                 print("Plot created successfully")
@@ -146,9 +153,9 @@ class MeasurementProtocol(ProtocolCreator):
             print(f"Error creating plot: {e}")
         
         # Save figure as PNG
-        self.figure.savefig('measurement_data.png', dpi=600, bbox_inches='tight', pad_inches=0)
+        self.figure.savefig(f'measurement_data_{unit}.png', dpi=600, bbox_inches='tight', pad_inches=0)
 
-    def extract_and_plot_data(self):
+    def extract_and_plot_data(self, unit='mW'):
         """Extract measurement data and plot it"""
         try:
             if len(self.meas_data) <= 1:
@@ -156,18 +163,24 @@ class MeasurementProtocol(ProtocolCreator):
                 return False
                 
             # Extract data
-            level = [float(meas_data[2]) for meas_data in self.meas_data[1:]] #TODO: [6]
-            voltage = [float(meas_data[3]) for meas_data in self.meas_data[1:]]
+            level_dBm = [float(meas_data[6]) for meas_data in self.meas_data] # meas_data[2] - Gen level, meas_data[6] - Det level
+            voltage = [float(meas_data[3]) for meas_data in self.meas_data]
             
-            if not level or not voltage:
+            if not level_dBm or not voltage:
                 print("No valid data to plot")
                 return False
             
-            self.x = np.array(level)
-            self.y = np.array(voltage)
             
-            print(f"Data ranges - X: {self.x.min():.2f} to {self.x.max():.2f}, "
-                f"Y: {self.y.min():.4f} to {self.y.max():.4f}")
+
+            self.x = np.array(voltage)
+            if unit == 'mW':
+                level_mW = [10**(float(level_dBm[i])/10) for i in range(len(level_dBm))]
+                self.y = np.array(level_mW)
+            if unit == 'dBm':
+                self.y = np.array(level_dBm)
+            
+            print(f"Data ranges - X: {self.x.min():.4f} to {self.x.max():.4f}, "
+                f"Y: {self.y.min():.2f} to {self.y.max():.2f}")
             
             # Plot the data
             self.ax.plot(self.x, self.y, '-', color=BLUE, linewidth=2,
@@ -179,11 +192,11 @@ class MeasurementProtocol(ProtocolCreator):
             print(f"Error in extract_and_plot_data: {e}")
             return False
 
-    def apply_plot_settings(self):
+    def apply_plot_settings(self, unit='mW'):
         """Apply comprehensive plot settings"""
         # Labels and titles
-        self.ax.set_xlabel('Input power, dBm', fontsize=10, color=DARK, fontweight='bold')
-        self.ax.set_ylabel('Detector signal, V', fontsize=10, color=DARK, fontweight='bold')
+        self.ax.set_xlabel('Detector signal, V', fontsize=10, color=DARK, fontweight='bold')
+        self.ax.set_ylabel(f'Input power, {unit}', fontsize=10, color=DARK, fontweight='bold')
         
         # Tick parameters
         self.ax.tick_params(axis='both', which='major', labelsize=9, colors=DARK)
@@ -191,6 +204,9 @@ class MeasurementProtocol(ProtocolCreator):
         
         # Grid
         self.ax.grid(True, color=GRAY, alpha=0.7, linestyle='-', linewidth=0.5)
+        self.ax.grid(True, color=GRAY, alpha=0.3, linestyle='--', linewidth=0.3, which='minor')
+        self.ax.minorticks_on()
+        
         
         # Spine colors
         for spine in self.ax.spines.values():
@@ -205,8 +221,8 @@ class MeasurementProtocol(ProtocolCreator):
         self.ax.set_ylim(self.y.min() - padding_y, self.y.max() + padding_y)
         
         # Formatting
-        self.ax.xaxis.set_major_locator(plt.MaxNLocator(8))
-        self.ax.yaxis.set_major_locator(plt.MaxNLocator(8))
+        self.ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+        self.ax.yaxis.set_major_locator(plt.MaxNLocator(16))
 
         # self.protocol.add_section("Measurement Data", self.meas_data)
         # self.protocol.add_section("Measurement Settings", self.meas_settings)
