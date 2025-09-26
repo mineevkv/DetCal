@@ -1,25 +1,8 @@
-from abc import ABC, abstractmethod
 from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view
 import numpy as np
 
 from System.logger import get_logger
 logger = get_logger(__name__)
-
-class SignalHandler(ABC):
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def handler(self, message):
-        pass
-
-class DataSignalHandler(SignalHandler):
-    def __init__(self):
-        super().__init__()
-
-class EquipmentSignalHandler(SignalHandler):
-    def __init__(self):
-        super().__init__()
 
 class SettingsSignalHandler(SignalHandler):
     def __init__(self):

@@ -2,7 +2,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QFileDialog
 from Instruments.Initializer import InstrumentInitializer
 from Instruments.rsa5000vna_parcer import RSA506N_S21_Parser
-from .helper_functions import read_csv_file, open_file, get_s21, is_equal_frequencies
+from ..helper_functions import read_csv_file, open_file, get_s21, is_equal_frequencies
 
 import os
 import json

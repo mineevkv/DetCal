@@ -22,7 +22,7 @@ from GUI.QtCustomWidgets.custom_widgets import *
 from System.logger import get_logger
 logger = get_logger(__name__)
 
-class PlotSheet(Sheet):
+class InfographicSheet(Sheet):
 
     def __init__(self, main_layout):
         super().__init__(main_layout)
@@ -89,7 +89,7 @@ class PlotSheet(Sheet):
         # Set geometry to ensure visibility
         dx = 120
         plot_container1.setGeometry(QtCore.QRect(self.x_col[self.zero_col] + dx, 20, 380, 200))
-        self.figure1 = Infographic(plot_layout1)
+        self.figure1 = PlotFigure(plot_layout1)
 
         # Create a proper container for the plot
         plot_container2 = QWidget(parent=self.box)
@@ -98,14 +98,14 @@ class PlotSheet(Sheet):
         plot_container2.setLayout(plot_layout2)
         # Set geometry to ensure visibility
         plot_container2.setGeometry(QtCore.QRect(self.x_col[self.zero_col] + 350 + dx, 20, 380, 200))
-        self.figure2 = Infographic(plot_layout2)
+        self.figure2 = PlotFigure(plot_layout2)
         self.figure2.ax.set_xlabel('SA input, dBm', fontsize=8)
 
 
 # Qt5Agg for PyQt6
 matplotlib.use('Qt5Agg')  # TODO: check without this
 
-class Infographic():
+class PlotFigure():
     def __init__(self, layout):
         self.layout = layout
         self.meas_data = []

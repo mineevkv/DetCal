@@ -1,15 +1,17 @@
 from PyQt6.QtCore import QObject, QTimer
 from PyQt6.QtWidgets import QLineEdit, QCheckBox, QRadioButton
-from ..meas_model import MeasurementModel
+from ..MeasurementModel.meas_model import MeasurementModel
 from GUI.main_window import MainWindow
-from ..gen_controller import GenController
-from ..sa_controller import SAController
-from ..osc_controller import OscController
+
 from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view, is_equal_frequencies
 from .status_bar_controller import StatusBarController
 from .write_settings import WriteSettings
-from .signals_handlers import SettingsSignalHandler
-from Documentations.protocol_creator import MeasurementProtocol
+from .data_signal_handler import DataSignalHandler
+from .settings_signal_handler import SettingsSignalHandler
+from .equipment_signal_handler import EquipmentSignalHandler
+
+from InfographicController.infographic_controller import InfographicController
+
 import csv
 import json
 from GUI.palette import *
@@ -117,17 +119,9 @@ class MeasurementController(QObject):
                 element.toggled.connect(lambda _, object=element: self.radiocheck_changed(object))
 
         #Infographic
-        elem =self.view.plot.elem
-        elem['freq_cobmo'].currentTextChanged.connect(self.selector_handler)
-        elem['btn_protocol'].clicked.connect(self.btn_protocol_click)
-
+        self.ig_controller = InfographicController(self.model, self.view)
    
-    def selector_handler(self):
-        selected_freq = self.view.plot.get_current_frequency()
-        if selected_freq is None:
-            return
-        data = self.model.get_data_from_frequency(selected_freq)
-        self.view.plot.plot_data_from_frequency(data)
+
 
 
     #Line edit handlers
@@ -191,12 +185,12 @@ class MeasurementController(QObject):
         elem['progress_label'].setText('')
 
     def btn_load_settings_click(self):
-        self.view.plot.clear_selector()
+        self.view.ig.clear_selector()
         self.model.load_settings_from_file()
         self.change_settings_status('Settings loaded')
 
     def btn_set_default_click(self):
-        self.view.plot.clear_selector()
+        self.view.ig.clear_selector()
         self.model.load_default_settings()
         self.change_settings_status('Default settings')
     
@@ -236,43 +230,15 @@ class MeasurementController(QObject):
         logger.debug('Apply button clicked')
         try:
             WriteSettings.view_to_model(self)
-            self.view.plot.clear_selector()
+            self.view.ig.clear_selector()
             self.model.settings_changed.emit(self.model.settings)
         except Exception as e:
             self.status_bar.error(f"Error applying settings: {e}")
 
-    def btn_protocol_click(self):
-        selected_frequency = self.view.plot.get_current_frequency()
-        if selected_frequency is None:
-            return
-        
-        with open("results.csv", "r") as file:
-            next(file) # skip header
-            result_file = list(csv.reader(file))
-            data = []
-            for row in result_file:
-                if is_equal_frequencies(row[0], selected_frequency):
-                    data.append(row)
 
-        with open("Settings/meas_settings.json", "r") as file:
-            settings = json.load(file)
-            doc = MeasurementProtocol(data, settings)
 
     def data_signals_handler(self, message):
-        if 'data' in message:
-            if self.check_recalc():
-                self.model.recalc_data()
-        if 'point' in message:
-            print(f"message['point'][0]: {message['point'][0]}")
-            if (self.view.plot.frequency - message['point'][0]) < 100: # 100 Hz tolerance
-                self.view.plot.figure1.add_point(message['point'][1], message['point'][3]*1e3)
-                self.view.plot.figure2.add_point(message['point'][2], message['point'][3]*1e3, autoscale=True)
-        if 'frequency' in message:
-            self.view.plot.frequency = message['frequency']
-            self.view.plot.clear_plot()
-            self.view.plot.set_selector()
-        if 'recalc_data' in message:
-            print(message['recalc_data'])
+        DataSignalHandler.handler(self, message)
 
 
     def update_gen_elem(self, message, mes_key, param):
@@ -357,21 +323,7 @@ class MeasurementController(QObject):
 
     def equipment_signals_handler(self, message):
         """Handle completion of SCPI-instrument objects initialization"""
-        logger.debug('MeasController: equipment signals handler')
-
-        for instr, controller in (
-            ('gen', GenController),
-            ('sa', SAController),
-            ('osc', OscController)
-        ):
-            if instr in message:
-                try:
-                    if hasattr(self.model, instr) and getattr(self.model, instr):
-                        logger.debug(f'Create {controller.__name__}')
-                        setattr(self, f'{instr}_controller',
-                                controller(getattr(self.model, instr), getattr(self.view, instr)))
-                except AttributeError as e:
-                    logger.error(f"Failed to set instrument controllers: {e}")
+        EquipmentSignalHandler.handler(self, message)
 
 
     def settings_signals_handler(self, message):
@@ -399,7 +351,7 @@ class MeasurementController(QObject):
         elem['btn_stop'].setEnabled(False)
         elem['btn_stop'].show()
 
-        elem = self.view.plot.elem
+        elem = self.view.ig.elem
         elem['freq_cobmo'].setEnabled(False)
         elem['btn_protocol'].setEnabled(False)
 
@@ -409,7 +361,7 @@ class MeasurementController(QObject):
         elem['btn_start'].show()
         elem['btn_save_result'].setEnabled(True)
 
-        elem = self.view.plot.elem
+        elem = self.view.ig.elem
         elem['freq_cobmo'].setEnabled(True)
         elem['btn_protocol'].setEnabled(True)
 

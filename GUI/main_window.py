@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QWidget, QGridLayout, QApplication
 from PyQt6.QtGui import QFont, QFontDatabase
 
 from GUI.Sheets.meas_sheet import MeasurementSheet
-from GUI.Sheets.plot_sheet import PlotSheet
+from GUI.Sheets.infographic_sheet import InfographicSheet
 from GUI.Sheets.gen_sheet import GeneratorSheet
 from GUI.Sheets.sa_sheet import SpectrumAnalyzerSheet
 from GUI.Sheets.osc_sheet import OscilloscopeSheet
@@ -37,7 +37,7 @@ class MainWindow(QWidget):
         }
     
         self.meas = MeasurementSheet(self)
-        self.plot = PlotSheet(self)
+        self.ig = InfographicSheet(self)
         self.gen = GeneratorSheet(self)
         self.sa = SpectrumAnalyzerSheet(self)
         self.osc = OscilloscopeSheet(self)
@@ -51,7 +51,7 @@ class MainWindow(QWidget):
         # Right fields
         self._main_layout.addWidget(self.meas.get_widget(), 0, 1, 2, 1)
         self.meas.get_widget().setFixedWidth(self.sheet_param['right_width'])
-        self._main_layout.addWidget(self.plot.get_widget(), 2, 1)
+        self._main_layout.addWidget(self.ig.get_widget(), 2, 1)
 
     def init_fonts(self):
         default_font = 'Sergo UI'
