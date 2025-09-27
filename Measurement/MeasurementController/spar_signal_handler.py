@@ -10,13 +10,13 @@ class SparSignalHandler(SignalHandler):
 
     @staticmethod
     def handler(meas_controller, message):
-        if 's21_gen_sa' in message:
-            elem = meas_controller.view.elem['s21_gen_sa_file_label']
-            elem.setText(message['s21_gen_sa'])
+        if 'S21_GEN_SA' in message:
+            elem = meas_controller.view.elem['S21_GEN_SA_FILE_LABEL']
+            elem.setText(message['S21_GEN_SA'])
             elem.setProperty('class', 's21_label_file')
             refresh_obj_view(elem)
-        if 's21_gen_det' in message:
-            elem = meas_controller.view.elem['s21_gen_det_file_label']
-            elem.setText(message['s21_gen_det'])
+        if 'S21_GEN_DET' in message:
+            elem = meas_controller.view.elem['S21_GEN_DET_FILE_LABEL']
+            elem.setText(message['S21_GEN_DET'])
             elem.setProperty('class', 's21_label_file')
             refresh_obj_view(elem)

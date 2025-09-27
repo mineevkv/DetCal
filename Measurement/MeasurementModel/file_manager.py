@@ -61,6 +61,7 @@ class FileManager():
         with open(f"{self.model.settings_folder}/{self.model.settings_filename}.json", 'w') as f:
             json.dump(self.model.settings, f, indent=4)
             self.model.settings_changed.emit(self.model.settings)
+            return True
 
     def load_s21_gen_sa(self, filename=None):
         try:
@@ -69,9 +70,11 @@ class FileManager():
                 path = open_file(self.model.s21_folder, "S21 files (*.trs)")
                 filename = os.path.basename(path)  
             self.model.s21_gen_sa = self.parse_s21_file(filename)
-            self.model.s21_file_changed.emit({'s21_gen_sa' : filename})
+            self.model.s21_file_changed.emit({'S21_GEN_SA' : filename})
+            return True
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
+            return False
 
     def load_s21_gen_det(self, filename=None):
         try:
@@ -79,10 +82,11 @@ class FileManager():
                 path = open_file(self.model.s21_folder, "S21 files (*.trs)")
                 filename = os.path.basename(path)  
             self.s21_gen_det = self.parse_s21_file(filename)
-            print(filename)
-            self.model.s21_file_changed.emit({'s21_gen_det' : filename})
+            self.model.s21_file_changed.emit({'S21_GEN_DET' : filename})
+            return True
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
+            return False
 
     def load_s21_files(self):
         self.load_s21_gen_sa('s21_gen_sa.trs')

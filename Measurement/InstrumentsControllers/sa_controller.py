@@ -12,41 +12,41 @@ class SAController(InstrumentController):
     def connect_signals(self): 
         super().connect_signals()
         elem = self.view.elem
-        elem['btn_center_freq'].clicked.connect(self.btn_center_freq_click)
-        elem['btn_span'].clicked.connect(self.btn_span_click)
-        elem['btn_rbw'].clicked.connect(self.btn_rbw_click)
-        elem['btn_vbw'].clicked.connect(self.btn_vbw_click)
-        elem['btn_single'].clicked.connect(self.btn_single_click)
+        elem['BTN_CENTER_FREQ'].clicked.connect(self.btn_center_freq_click)
+        elem['BTN_SPAN'].clicked.connect(self.btn_span_click)
+        elem['BTN_RBW'].clicked.connect(self.btn_rbw_click)
+        elem['BTN_VBW'].clicked.connect(self.btn_vbw_click)
+        elem['BTN_SINGLE'].clicked.connect(self.btn_single_click)
 
     def signal_handler(self, message):
         super().signal_handler(message)
         elem = self.view.elem
-        if 'center_freq' in message:
-            elem['center_freq_line'].setText(str(self.remove_zeros(message['center_freq']/1e6)))
-        if 'span' in message:
-            elem['span_line'].setText(str(self.remove_zeros(message['span']/1e6)))
-        if 'rbw' in message:
-            elem['rbw_line'].setText(str(self.remove_zeros(message['rbw']/1e3)))
-        if 'vbw' in message:
-            elem['vbw_line'].setText(str(self.remove_zeros(message['vbw']/1e3)))
+        if 'CENTER_FREQ' in message:
+            elem['CENTER_FREQ_LINE'].setText(str(self.remove_zeros(message['CENTER_FREQ']/1e6)))
+        if 'SPAN' in message:
+            elem['SPAN_LINE'].setText(str(self.remove_zeros(message['SPAN']/1e6)))
+        if 'RBW' in message:
+            elem['RBW_LINE'].setText(str(self.remove_zeros(message['RBW']/1e3)))
+        if 'VBW' in message:
+            elem['VBW_LINE'].setText(str(self.remove_zeros(message['VBW']/1e3)))
 
-        if 'reference level' in message:
+        if 'REFERENCE_LEVEL' in message:
             pass
-        if 'sweep_time' in message:
+        if 'SWEEP_TIME' in message:
             pass
-        if 'sweep_points' in message:
+        if 'SWEEP_POINTS' in message:
             pass
-        if 'trace_format' in message:
+        if 'TRACE_FORMAT' in message:
             pass
-        if 'single_sweep' in message:
+        if 'SINGLE_SWEEP' in message:
             pass
-        if 'continuous_sweep' in message:
+        if 'CONTINUOUS_SWEEP' in message:
             pass
-        if 'configure' in message:
+        if 'CONFIGURE' in message:
             pass
 
     def btn_center_freq_click(self): # TODO: freq_line_edit_handler
-        line_edit = self.view.elem['center_freq_line']
+        line_edit = self.view.elem['CENTER_FREQ_LINE']
         try:
             freq = float(line_edit.text())*1e6
             if not 1e3 <= freq <= 6.5e9:
@@ -80,7 +80,7 @@ class SAController(InstrumentController):
             
 
     def btn_span_click(self):
-        self.freq_line_edit_handler(self.view.elem['span_line'], self.instr.set_span, self.instr.get_span, 'kHz')
+        self.freq_line_edit_handler(self.view.elem['SPAN_LINE'], self.instr.set_span, self.instr.get_span, 'kHz')
         
 
     def btn_rbw_click(self):

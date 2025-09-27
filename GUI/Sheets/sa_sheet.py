@@ -32,12 +32,12 @@ class SpectrumAnalyzerSheet(InstrumentSheet):
         rbw_label_width = 60
 
         # INPUT PARAMETERS
-        self.add_control_elem('center_freq', self.zero_col, center_freq_row, 'CENTER FREQ, MHz:', '1000', label_width)
-        self.add_control_elem('span', self.zero_col, span_row, 'SPAN, MHz:', '1', label_width)
-        self.add_control_elem('rbw', self.zero_col, rbw_row, 'RBW, kHz:', '10', rbw_label_width, edit_line_width_small)
-        self.add_control_elem('vbw', vbw_col, vbw_row, 'VBW, kHz:', '10', rbw_label_width, edit_line_width_small)
+        self.add_control_elem('CENTER_FREQ', self.zero_col, center_freq_row, 'CENTER FREQ, MHz:', '1000', label_width)
+        self.add_control_elem('SPAN', self.zero_col, span_row, 'SPAN, MHz:', '1', label_width)
+        self.add_control_elem('RBW', self.zero_col, rbw_row, 'RBW, kHz:', '10', rbw_label_width, edit_line_width_small)
+        self.add_control_elem('VBW', vbw_col, vbw_row, 'VBW, kHz:', '10', rbw_label_width, edit_line_width_small)
 
-        self.add_big_btn('single', 31, single_row, 'SINGLE')
+        self.add_big_btn('SINGLE', 31, single_row, 'SINGLE')
         
         # # Controller
         

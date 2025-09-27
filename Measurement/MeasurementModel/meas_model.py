@@ -102,7 +102,7 @@ class MeasurementModel(QObject):
     
     def start_measurement_process(self):
         abort = False
-        equipment = [self.gen] #TODO: fix equipment
+        equipment = [self.gen, self.sa, self.osc]
         for instr in equipment:
             if not instr.is_initialized():
                 logger.warning(f"Instrument {instr.__class__.__name__} not initialized")
@@ -119,13 +119,13 @@ class MeasurementModel(QObject):
 
     def start_measurement(self):
         logger.info(f"Starting measurement")
-        self.progress_status.emit('Start')
+        self.progress_status.emit('START')
 
         self.meas_data = []
         self.stop_requested = False
 
-        freq_min, freq_max, freq_points = self.settings['RF_frequencies']
-        level_min, level_max, level_points = self.settings['RF_levels']
+        freq_min, freq_max, freq_points = self.settings['RF_FREQUENCIES']
+        level_min, level_max, level_points = self.settings['RF_LEVELS']
         
         if freq_max < 1e-9:
             freq_max = freq_min
@@ -140,7 +140,7 @@ class MeasurementModel(QObject):
 
         self.measurement_loop(frequencies, levels)
         self.progress_bar.emit(100)
-        self.data_changed.emit({'data': self.meas_data})
+        self.data_changed.emit({'DATA': self.meas_data})
         self.gen.rf_off()
         self.gen.set_min_level()
 
@@ -152,7 +152,7 @@ class MeasurementModel(QObject):
 
         # Main measurement loop
         for frequency in frequencies:
-            self.data_changed.emit({'frequency': frequency})
+            self.data_changed.emit({'FREQUENCY': frequency})
             if self.is_stop():
                 break
             
@@ -168,7 +168,7 @@ class MeasurementModel(QObject):
             self.sa.delay_after_start()
             
 
-            if self.settings['Precise']:
+            if self.settings['PRECISE']:
                 if self.is_stop():
                         break
 
@@ -182,7 +182,7 @@ class MeasurementModel(QObject):
 
             for level in reversed(levels): # TODO: fix reversed
                 value = int((next(iter_obj)/max_len)*100)
-                self.progress_status.emit({'Progress':value})
+                self.progress_status.emit({'PROGRESS':value})
                 logger.debug(f"Frequency: {frequency/1e6:.2f} MHz; Level: {level:.2f} dBm")
 
                 if self.is_stop():
@@ -227,7 +227,7 @@ class MeasurementModel(QObject):
                 if max_value > limit:
                     point =  [frequency, level, max_value, mean_osc_value]
                     self.meas_data.append(point)
-                    self.data_changed.emit({'point': point})
+                    self.data_changed.emit({'POINT': point})
                 else:
                     logger.warning(f"Measured signal at ({frequency} Hz, {level} dBm) is less than limit ({limit} dBm)")
     
@@ -235,7 +235,7 @@ class MeasurementModel(QObject):
     def is_stop(self):
         """Check if stop is requested and emit status if so"""
         if self.stop_requested:
-            self.progress_status.emit('Stop')
+            self.progress_status.emit('STOP')
             return True
         return False
     
@@ -257,7 +257,7 @@ class MeasurementModel(QObject):
             recalc_point = [frequency, level, sa_level, osc_voltage, s21_gen_sa, s21_gen_det, det_level]
             recalc_data.append(recalc_point)
 
-        self.data_changed.emit({'recalc_data': recalc_data})
+        self.data_changed.emit({'RECALC_DATA': recalc_data})
         self.meas_data = recalc_data
 
     def setup_devices(self):
@@ -265,9 +265,9 @@ class MeasurementModel(QObject):
         self.gen.set_min_level()
 
         self.sa.set_swept_sa()
-        self.sa.set_ref_level(self.settings['REF_level'])
-        self.sa.set_sweep_time(self.settings['SWEEP_time'])
-        self.sa.set_sweep_points(self.settings['SWEEP_points'])
+        self.sa.set_ref_level(self.settings['REF_LEVEL'])
+        self.sa.set_sweep_time(self.settings['SWEEP_TIME'])
+        self.sa.set_sweep_points(self.settings['SWEEP_POINTS'])
         self.sa.trace_clear_all()
         self.sa.set_format_trace_bin()
 
@@ -276,19 +276,19 @@ class MeasurementModel(QObject):
         self.osc.get_settings_from_device()
 
         self.osc.channel_off(1) # CH1 is default channel
-        channel = self.settings['Channel']
+        channel = self.settings['CHANNEL']
         self.osc.select_channel(channel)
-        if self.settings['Impedance_50Ohm']:
+        if self.settings['IMPEDANCE_50OHM']:
             self.osc.set_50Ohm_termination()
-        if self.settings['Coupling_DC']:
+        if self.settings['COUPLING_DC']:
             self.osc.set_coupling('DC')
         self.osc.set_vertical_scale(1) # 1V/div
         self.osc.set_vertical_position(0)
         self.osc.channel_on(channel)
         self.osc.set_bandwidth('FULL')
-        if self.settings['High_res']:
+        if self.settings['HIGH_RES']:
             self.osc.set_high_res_mode()
-        self.osc.set_horizontal_scale(self.settings['HOR_scale'])
+        self.osc.set_horizontal_scale(self.settings['HOR_SCALE'])
         self.osc.set_horizontal_position(0)
 
         self.osc.set_measurement_source(channel)
@@ -307,14 +307,14 @@ class MeasurementModel(QObject):
         
 
     def set_wide_band(self):
-        self.sa.set_span(self.settings['SPAN_wide'])
-        self.sa.set_rbw(self.settings['RBW_wide'])
-        self.sa.set_vbw(self.settings['VBW_wide'])
+        self.sa.set_span(self.settings['SPAN_WIDE'])
+        self.sa.set_rbw(self.settings['RBW_WIDE'])
+        self.sa.set_vbw(self.settings['VBW_WIDE'])
 
     def set_narrow_band(self):
-        self.sa.set_span(self.settings['SPAN_narrow'])
-        self.sa.set_rbw(self.settings['RBW_narrow'])
-        self.sa.set_vbw(self.settings['VBW_narrow'])
+        self.sa.set_span(self.settings['SPAN_NARROW'])
+        self.sa.set_rbw(self.settings['RBW_NARROW'])
+        self.sa.set_vbw(self.settings['VBW_NARROW'])
 
 
     def check_osc_range(self, value):
@@ -346,7 +346,7 @@ class MeasurementModel(QObject):
 
    
     def meas_finish_handler(self):
-        self.progress_status.emit('Finish')
+        self.progress_status.emit('FINISH')
         logger.info(f"Measurement finished")
 
 

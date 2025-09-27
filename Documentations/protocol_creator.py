@@ -65,22 +65,22 @@ class MeasurementProtocol(ProtocolCreator):
     def parse_settings(self):
         settings = self.meas_settings
 
-        freq_start, freq_stop, points = settings['RF_frequencies']
+        freq_start, freq_stop, points = settings['RF_FREQUENCIES']
         freq_start = f"{(float(freq_start)/1e6):.2f}"
         freq_stop = f"{(float(freq_stop)/1e6):.2f}"
         points = int(points)
-        settings['RF_frequencies'] = f'{remove_zeros(freq_start)} to {remove_zeros(freq_stop)} MHz [{points}]'
+        settings['RF_FREQUENCIES'] = f'{remove_zeros(freq_start)} to {remove_zeros(freq_stop)} MHz [{points}]'
 
-        level_start, level_stop, points = settings['RF_levels']
-        settings['RF_levels'] = f'{level_start} to {level_stop} dBm [{points}]'
+        level_start, level_stop, points = settings['RF_LEVELS']
+        settings['RF_LEVELS'] = f'{level_start} to {level_stop} dBm [{points}]'
 
         keys = (
-            "SPAN_wide",
-            "SPAN_narrow",
-            "RBW_wide",
-            "RBW_narrow",
-            "VBW_wide",
-            "VBW_narrow",
+            "SPAN_WIDE",
+            "SPAN_NARROW",
+            "RBW_WIDE",
+            "RBW_NARROW",
+            "VBW_WIDE",
+            "VBW_NARROW",
         )
 
         for key in keys:
@@ -89,13 +89,13 @@ class MeasurementProtocol(ProtocolCreator):
             elem = f"{remove_zeros(elem)} kHz"
             settings[key] = elem
 
-        settings['REF_level']= f"{settings['REF_level']} dBm"
-        settings['SWEEP_points'] = f"{int(settings['SWEEP_points'])}"
+        settings['REF_LEVEL']= f"{settings['REF_LEVEL']} dBm"
+        settings['SWEEP_POINTS'] = f"{int(settings['SWEEP_POINTS'])}"
 
-        elem = settings['HOR_scale']
+        elem = settings['HOR_SCALE']
         elem = f"{(float(elem)*1e3):.3f}"
         elem = f"{remove_zeros(elem)} ms/div"
-        settings['HOR_scale'] = elem
+        settings['HOR_SCALE'] = elem
 
 
         return settings

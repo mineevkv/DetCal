@@ -19,16 +19,16 @@ class WriteSettings():
         for key, param in Keys.sa.items():
             settings[key] = WriteSettings.write_sa_settings(meas_controller, param)
 
-        settings['Precise'] = elem['precise_enabled'].isChecked()
-        settings['Recalc_atten'] = elem['recalc_att'].isChecked()
+        settings['PRECISE'] = elem['PRECISE_ENABLED'].isChecked()
+        settings['RECALC_ATTEN'] = elem['RECALC_ATT'].isChecked()
         
         for key, param in Keys.osc.items():
             settings[key] = WriteSettings.write_osc_settings(meas_controller, param)
 
-        settings['High_res'] = elem['hight_res_box'].isChecked()
-        settings['Impedance_50Ohm'] = elem['rb_50ohm'].isChecked()
-        settings['Coupling_DC'] = elem['rb_dc'].isChecked()
-        settings['Channel'] = next((i for i in [1, 2, 3, 4] if elem[f'rb_ch{i}'].isChecked()), None)
+        settings['HIGH_RES'] = elem['HIGHT_RES_BOX'].isChecked()
+        settings['IMPEDANCE_50OHM'] = elem['RB_50OHM'].isChecked()
+        settings['COUPLING_DC'] = elem['RB_DC'].isChecked()
+        settings['CHANNEL'] = next((i for i in [1, 2, 3, 4] if elem[f'RB_CH{i}'].isChecked()), None)
 
 
         
@@ -39,9 +39,9 @@ class WriteSettings():
              multiplier = meas_controller.units[unit]
 
         elem = meas_controller.view.elem
-        value_min = float(elem[f'{elem_key}_min_line'].text()) * multiplier
-        value_max = float(elem[f'{elem_key}_max_line'].text()) * multiplier
-        points = int(elem[f'{elem_key}_points_line'].text())
+        value_min = float(elem[f'{elem_key}_MIN_LINE'].text()) * multiplier
+        value_max = float(elem[f'{elem_key}_MAX_LINE'].text()) * multiplier
+        points = int(elem[f'{elem_key}_POINTS_LINE'].text())
 
         return value_min, value_max, points
 
@@ -51,9 +51,9 @@ class WriteSettings():
         if unit in meas_controller.units:
              multiplier = meas_controller.units[unit]
              try:
-                return float(meas_controller.view.elem[f'{elem_key}_line'].text())* multiplier
+                return float(meas_controller.view.elem[f'{elem_key}_LINE'].text())* multiplier
              except ValueError:
-                logger.warning(f"Invalid value for {elem_key}_line")
+                logger.warning(f"Invalid value for {elem_key}_LINE")
                 raise
              
     @staticmethod

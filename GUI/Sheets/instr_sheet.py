@@ -25,18 +25,18 @@ class InstrumentSheet(Sheet):
         """Initialize instrument sheet in the main window"""
         self.box = QGroupBox("Instrument type")
 
-        self.add_label("model", 20, self.zero_row, "Model", 100).setStyleSheet(f"color: {YELLOW}; font-weight: bold")
+        self.add_label("MODEL", 20, self.zero_row, "Model", 100).setStyleSheet(f"color: {YELLOW}; font-weight: bold")
 
     def add_ip_field(self):
         self.ip_row = 2
-        key = 'ip'
+        key = 'IP'
         self.add_label(key , self.zero_col, self.ip_row, "IP:", 50)
         self.add_clickable_line_edit(key, 3, self.ip_row, f"{self.ip}", 93)
         self.add_btn(key, 13, self.ip_row, "Connect")
-        self.add_label(f'{key}_status', 20, self.ip_row, "", 100)
+        self.add_label(f'{key}_STATUS', 20, self.ip_row, "", 100)
 
     def add_animate_progress_bar(self):
-        bar = self.add_progress_bar('progress', self.zero_col, 8, 391 - 2*self.margin_left, self.elem_hight)
+        bar = self.add_progress_bar('PROGRESS', self.zero_col, 8, 391 - 2*self.margin_left, self.elem_hight)
         self.shift_position(bar, shift_x=0, shift_y=-3)
         bar.setProperty('class', 'instr_progress_bar')
         bar.setRange(0, 100)

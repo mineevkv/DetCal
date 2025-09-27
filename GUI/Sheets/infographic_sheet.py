@@ -35,8 +35,8 @@ class InfographicSheet(Sheet):
         row_combo = 2
         row_btn = row_combo + 1
 
-        self.add_frequency_selector('freq_cobmo',self.zero_col, row_combo, width_combo, self.elem_hight)
-        self.add_custom_btn('protocol', self.zero_col, row_btn , 'Generate Protocol', width_combo, 45, 'btn_protocol')
+        self.add_frequency_selector('FREQ_COBMO',self.zero_col, row_combo, width_combo, self.elem_hight)
+        self.add_custom_btn('PROTOCOL', self.zero_col, row_btn , 'Generate Protocol', width_combo, 45, 'btn_protocol')
 
     def add_frequency_selector(self, key, col, row, width, hight):
         self.elem[key] = QtWidgets.QComboBox(parent=self.box)

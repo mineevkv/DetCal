@@ -21,8 +21,8 @@ class InfographicController(QObject):
         
     def connect_signals(self): 
         elem =self.view.elem
-        elem['freq_cobmo'].currentTextChanged.connect(self.selector_handler)
-        elem['btn_protocol'].clicked.connect(self.btn_protocol_click)
+        elem['FREQ_COBMO'].currentTextChanged.connect(self.selector_handler)
+        elem['BTN_PROTOCOL'].clicked.connect(self.btn_protocol_click)
 
     def selector_handler(self):
         selected_freq = self.get_current_frequency()
@@ -55,26 +55,26 @@ class InfographicController(QObject):
             self.view.figure2.add_point(point[2], point[3])
 
     def add_selector_point(self, frequency):
-        elem =  self.view.elem['freq_cobmo']
+        elem =  self.view.elem['FREQ_COBMO']
         text = f'{frequency/1e6:.2f} MHz'
         elem.addItem(text)
         elem.setCurrentIndex(elem.count() - 1)
 
     def get_current_frequency(self):
-        text = self.view.elem['freq_cobmo'].currentText()
+        text = self.view.elem['FREQ_COBMO'].currentText()
         if text == '':
             return None
         return float(text.replace(' MHz','')) * 1e6
 
     def clear_selector(self):
-        self.view.elem['freq_cobmo'].clear()
+        self.view.elem['FREQ_COBMO'].clear()
 
     def clear_plot(self):
         self.view.figure1.clear_plot()
         self.view.figure2.clear_plot()
 
     def set_selector(self):
-        elem = self.view.elem['freq_cobmo']
+        elem = self.view.elem['FREQ_COBMO']
         for i in range(elem.count()): 
             box_frequency = float(elem.itemText(i).replace(' MHz','')) * 1e6 if ' MHz' in elem.itemText(i) else None
             if  abs(self.frequency - box_frequency) < 1e4:
@@ -83,10 +83,10 @@ class InfographicController(QObject):
             
     def lock_control_elem(self):
         elem = self.view.elem
-        elem['freq_cobmo'].setEnabled(False)
-        elem['btn_protocol'].setEnabled(False)
+        elem['FREQ_COBMO'].setEnabled(False)
+        elem['BTN_PROTOCOL'].setEnabled(False)
 
     def unlock_control_elem(self):
         elem = self.view.elem
-        elem['freq_cobmo'].setEnabled(True)
-        elem['btn_protocol'].setEnabled(True)
+        elem['FREQ_COBMO'].setEnabled(True)
+        elem['BTN_PROTOCOL'].setEnabled(True)

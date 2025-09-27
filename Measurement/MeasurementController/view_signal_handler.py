@@ -13,29 +13,29 @@ class ViewSignalHandler(SignalHandler):
 
     def init(meas_controller):
         elem =meas_controller.view.elem
-        keys = ('save_settings',
-                'load_settings',
-                'set_default',
-                'start',
-                'stop',
-                'save_result',
-                'load_s21_gen_sa',
-                'load_s21_gen_det',
-                'apply'
+        keys = ('SAVE_SETTINGS',
+                'LOAD_SETTINGS',
+                'SET_DEFAULT',
+                'START',
+                'STOP',
+                'SAVE_RESULT',
+                'LOAD_S21_GEN_SA',
+                'LOAD_S21_GEN_DET',
+                'APPLY'
         )
         
         for key in keys:
                 meas_controller.btn_clicked_connect(key, getattr(meas_controller, f'btn_{key}_click', None))
 
-        elem['precise_enabled'].stateChanged.connect(meas_controller.change_state_precise)
-        elem['unlock_stop'].stateChanged.connect(meas_controller.unlock_stop_btn)
-        elem['recalc_att'].stateChanged.connect(meas_controller.change_state_recalc)
+        elem['PRECISE_ENABLED'].stateChanged.connect(meas_controller.change_state_precise)
+        elem['UNLOCK_STOP'].stateChanged.connect(meas_controller.unlock_stop_btn)
+        elem['RECALC_ATT'].stateChanged.connect(meas_controller.change_state_recalc)
 
         for element in elem.values():
             if isinstance(element, QLineEdit):
                 element.textChanged.connect(lambda _, object=element: ViewSignalHandler.element_changed(meas_controller, object))
             elif isinstance(element, (QRadioButton, QCheckBox)):
-                if isinstance(element, QCheckBox) and element is elem['unlock_stop']:
+                if isinstance(element, QCheckBox) and element is elem['UNLOCK_STOP']:
                     continue
                 element.toggled.connect(lambda _, object=element: ViewSignalHandler.element_changed(meas_controller, object))
 

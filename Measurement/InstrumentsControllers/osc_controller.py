@@ -10,41 +10,41 @@ class OscController(InstrumentController):
     def connect_signals(self): 
         super().connect_signals()
 
-        self.btn_clicked('vert_scale', self.btn_vert_scale_click)
-        self.btn_clicked('vert_pos', self.btn_vert_pos_click)
+        self.btn_clicked('VERT_SCALE', self.btn_vert_scale_click)
+        self.btn_clicked('VERT_POS', self.btn_vert_pos_click)
 
-        self.btn_clicked('hor_scale', self.btn_hor_scale_click)
-        self.btn_clicked('hor_pos', self.btn_hor_pos_click)
+        self.btn_clicked('HOR_SCALE', self.btn_hor_scale_click)
+        self.btn_clicked('HOR_POS', self.btn_hor_pos_click)
 
-        self.btn_clicked('ch1', self.btn_ch1_click)
-        self.btn_clicked('ch2', self.btn_ch2_click)
-        self.btn_clicked('ch3', self.btn_ch3_click)
-        self.btn_clicked('ch4', self.btn_ch4_click)
-        self.btn_clicked('hi_res', self.btn_hi_res_click)
+        self.btn_clicked('CH1', self.btn_ch1_click)
+        self.btn_clicked('CH2', self.btn_ch2_click)
+        self.btn_clicked('CH3', self.btn_ch3_click)
+        self.btn_clicked('CH4', self.btn_ch4_click)
+        self.btn_clicked('HI_RES', self.btn_hi_res_click)
 
-        self.btn_clicked('run', self.btn_run_click)
-        self.btn_clicked('single', self.btn_single_click)
-        self.btn_clicked('trig_force', self.btn_trig_force_click)
+        self.btn_clicked('RUN', self.btn_run_click)
+        self.btn_clicked('SINGLE', self.btn_single_click)
+        self.btn_clicked('TRIG_FORCE', self.btn_trig_force_click)
 
     def btn_vert_scale_click(self):
-        value = float(self.read_line('vert_scale'))/1e3
+        value = float(self.read_line('VERT_SCALE'))/1e3
         self.instr.set_vertical_scale(value)
 
     def btn_vert_pos_click(self):
-        value = float(self.read_line('vert_pos'))/1e3
+        value = float(self.read_line('VERT_POS'))/1e3
         self.instr.set_vertical_position(value)
 
     def btn_hor_scale_click(self):
-        value = float(self.read_line('hor_scale'))/1e3
+        value = float(self.read_line('HOR_SCALE'))/1e3
         self.instr.set_horizontal_scale(value)
 
     def btn_hor_pos_click(self):
-        value = float(self.read_line('hor_pos'))
+        value = float(self.read_line('HOR_POS'))
         self.instr.set_horizontal_position(value)
 
     def bth_ch_handler(self, channel): # TODO: fix switching
         self.instr.selected_channel = channel
-        btn = self.view.elem[f'btn_{channel.lower()}']
+        btn = self.view.elem[f'BTN_{channel.lower()}']
         if not btn.isChecked():
             self.instr.channel_off()
             btn.setChecked(False)
@@ -59,11 +59,11 @@ class OscController(InstrumentController):
         self.selected_channel = channel
         self.hide_channel_frames()
         if channel:
-            self.view.elem[f'ch{channel}_frame'].show()
+            self.view.elem[f'CH{channel}_FRAME'].show()
 
     def hide_channel_frames(self):
         for channel in [1, 2, 3, 4]:
-            self.view.elem[f'ch{channel}_frame'].hide()
+            self.view.elem[f'CH{channel}_FRAME'].hide()
   
 
     def btn_ch1_click(self):
@@ -88,7 +88,7 @@ class OscController(InstrumentController):
         pass
 
     def btn_hi_res_click(self):
-        btn = self.view.elem[f'btn_hi_res']
+        btn = self.view.elem[f'BTN_HI_RES']
         if not btn.isChecked():
             self.instr.set_sample_mode()
             btn.setChecked(False)
@@ -102,10 +102,10 @@ class OscController(InstrumentController):
 
         # Updating current measurement parameters
         lines = {
-        'vert_scale': ('vert_scale_line', lambda v: str(v * 1e3)),
-        'vert_pos':   ('vert_pos_line',   lambda v: str(v * 1e3)),
-        'hor_scale':  ('hor_scale_line',  lambda v: str(v * 1e3)),
-        'hor_pos':    ('hor_pos_line',    str)
+        'VERT_SCALE': ('VERT_SCALE_LINE', lambda v: str(v * 1e3)),
+        'VERT_POS':   ('VERT_POS_LINE',   lambda v: str(v * 1e3)),
+        'HOR_SCALE':  ('HOR_SCALE_LINE',  lambda v: str(v * 1e3)),
+        'HOR_POS':    ('HOR_POS_LINE',    str)
         }
 
         for key, (line, conv) in lines.items():
@@ -116,53 +116,30 @@ class OscController(InstrumentController):
         for channel in [1, 2, 3, 4]:
             key = f'CH{channel}'
             if key in message:
-                elem[f'btn_ch{channel}'].setChecked(message[key])
+                elem[f'BTN_CH{channel}'].setChecked(message[key])
         
 
         # Updating Hight Resolution mode
-        if 'acquire_mode' in message:
-            elem['btn_hi_res'].setChecked(message['acquire_mode'] == 'HIRES')
+        if 'ACQUIRE_MODE' in message:
+            elem['BTN_HI_RES'].setChecked(message['ACQUIRE_MODE'] == 'HIRES')
 
-        if 'select_ch' in message:
-            channel = message['select_ch']
+        if 'SELECT_CH' in message:
+            channel = message['SELECT_CH']
             if channel is not None:
                 self.hide_channel_frames()
                 print(channel)
                 if channel:
-                    self.view.elem[f'ch{channel}_frame'].show()
+                    self.view.elem[f'CH{channel}_FRAME'].show()
 
-        if 'ch_on' in message:
-            channel = message['ch_on']
-            elem['btn_hi_res'].setChecked(message['acquire_mode'] == 'HIRES')
+        if 'CH_ON' in message:
+            channel = message['CH_ON']
+            elem['BTN_HI_RES'].setChecked(message['ACQUIRE_MODE'] == 'HIRES')
             
 
-        if 'coupling' in message:
+        if 'COUPLING' in message:
             pass
 
-        if 'reset' in message:
+        if 'RESET' in message:
             pass
             
-
-        # if 'vert_scale' in message: TODO: for debug
-        #     elem['vert_scale_line'].setText(str(message['vert_scale']*1e3))
-        # if 'vert_pos' in message:
-        #     elem['vert_pos_line'].setText(str(message['vert_pos']*1e3))
-        # if 'hor_scale' in message:
-        #     elem['hor_scale_line'].setText(str(message['hor_scale']*1e3))
-        # if 'hor_pos' in message:
-        #     elem['hor_pos_line'].setText(str(message['hor_pos']))
-        # if 'CH1' in message:
-        #     elem['btn_ch1'].setChecked(message['CH1'])
-        # if 'CH2' in message:
-        #     elem['btn_ch2'].setChecked(message['CH2'])
-        # if 'CH3' in message:
-        #     elem['btn_ch3'].setChecked(message['CH3'])
-        # if 'CH4' in message:
-        #     elem['btn_ch4'].setChecked(message['CH4'])
-                
-        # if 'acquire_mode' in message:
-        #     if message['acquire_mode' ] == 'HIRes':
-        #         elem['btn_hi_res'].setChecked(True)
-        #     else:
-        #         elem['btn_hi_res'].setChecked(False)
 

@@ -1,23 +1,23 @@
 
 class Keys:
     gen = { 
-            'RF_frequencies' : ('freq', 'MHz'),
-            'RF_levels' : ('level', 'dBm')
+            'RF_FREQUENCIES' : ('FREQ', 'MHz'),
+            'RF_LEVELS' : ('LEVEL', 'dBm')
         }
 
     sa = {
-            'SPAN_wide' : ('span', 'MHz'),
-            'RBW_wide' : ('rbw', 'kHz'),
-            'VBW_wide' : ('vbw', 'kHz'),
-            'REF_level' : ('ref_level', 'dB'),
-            'SWEEP_points' : ('sweep_points', 'point'),
-            'SPAN_narrow' : ('span_precise', 'MHz'),
-            'RBW_narrow' : ('rbw_precise', 'kHz'),
-            'VBW_narrow' : ('vbw_precise', 'kHz')
+            'SPAN_WIDE' : ('SPAN', 'MHz'),
+            'RBW_WIDE' : ('RBW', 'kHz'),
+            'VBW_WIDE' : ('VBW', 'kHz'),
+            'REF_LEVEL' : ('REF_LEVEL', 'dB'),
+            'SWEEP_POINTS' : ('SWEEP_POINTS', 'point'),
+            'SPAN_NARROW' : ('SPAN_PRECISE', 'MHz'),
+            'RBW_NARROW' : ('RBW_PRECISE', 'kHz'),
+            'VBW_NARROW' : ('VBW_PRECISE', 'kHz')
         }
     
     osc = {
-            'HOR_scale' : ('hor_scale', 'ms')
+            'HOR_SCALE' : ('HOR_SCALE', 'ms')
         }
     
     def __init__(self):

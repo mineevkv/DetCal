@@ -22,20 +22,20 @@ class InstrumentController(QObject):
     #Controller
     @abstractmethod
     def connect_signals(self):
-        self.view.elem['btn_ip'].clicked.connect(self.btn_connect_click)
+        self.view.elem['BTN_IP'].clicked.connect(self.btn_connect_click)
         self.instr.state_changed.connect(self.signal_handler)
         self.instr.progress_changed.connect(self.progress)
 
     @abstractmethod
     def signal_handler(self, message):
-        if 'ip' in message:
-            self.view.elem['ip_clickline'].setText(message['ip'])
+        if 'IP' in message:
+            self.view.elem['IP_CLICKLINE'].setText(message['IP'])
             self.set_connection_field()
-        if 'model' in message:
-            self.view.elem['model_label'].setText(message['model'])
-        if 'type' in message:
-            self.view.box.setTitle(message['type'])
-        if 'thread' in message:
+        if 'MODEL' in message:
+            self.view.elem['MODEL_LABEL'].setText(message['MODEL'])
+        if 'TYPE' in message:
+            self.view.box.setTitle(message['TYPE'])
+        if 'THREAD' in message:
             self.instr.connect_thread = None
 
             
@@ -46,8 +46,8 @@ class InstrumentController(QObject):
             return False
 
     def set_connection_field(self):
-        label = self.view.elem['ip_status_label']
-        line_edit = self.view.elem['ip_clickline']
+        label = self.view.elem['IP_STATUS_LABEL']
+        line_edit = self.view.elem['IP_CLICKLINE']
         
         if self.is_connect():           
             label.setText("Connected")
@@ -59,7 +59,7 @@ class InstrumentController(QObject):
             line_edit.setEnabled(True)
 
     def btn_connect_click(self):
-        new_ip = self.view.elem['ip_clickline'].text()
+        new_ip = self.view.elem['IP_CLICKLINE'].text()
         new_ip = new_ip.strip()
 
         if not self.is_valid_ip(new_ip):
@@ -83,12 +83,12 @@ class InstrumentController(QObject):
         self.timer.start(300)
 
     def progress(self,value):
-        self.view.elem['progress'].setValue(value)
+        self.view.elem['PROGRESS'].setValue(value)
         if value == 100:
             self.timer.timeout.connect(self.progress_hide)
 
     def progress_update(self):
-        value = self.view.elem['progress'].value()
+        value = self.view.elem['PROGRESS'].value()
         self.progress(value + 1)
 
     def progress_hide(self):
@@ -132,10 +132,10 @@ class InstrumentController(QObject):
             self.elem[key].setEnabled(True)
 
     def btn_clicked(self,btn_name, btn_handler):
-        self.view.elem[f'btn_{btn_name}'].clicked.connect(btn_handler)
+        self.view.elem[f'BTN_{btn_name}'].clicked.connect(btn_handler)
 
     def read_line(self, line_edit):
-        return self.view.elem[f'{line_edit}_line'].text()
+        return self.view.elem[f'{line_edit}_LINE'].text()
     
 
     def remove_zeros(self, input_string):

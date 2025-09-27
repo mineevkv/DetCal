@@ -39,8 +39,8 @@ class SettingsSignalHandler(SignalHandler):
             if key in message:
                 SettingsSignalHandler.update_sa_elem(meas_controller, message[key], param)
 
-        if 'Precise' in message:
-            meas_controller.enable_precise(str_to_bool(message['Precise']))
+        if 'PRECISE' in message:
+            meas_controller.enable_precise(str_to_bool(message['PRECISE']))
 
     @staticmethod
     def osc_handler(meas_controller, message):
@@ -50,28 +50,28 @@ class SettingsSignalHandler(SignalHandler):
                 SettingsSignalHandler.update_osc_elem(meas_controller, message[key], param)
 
         elem = meas_controller.view.elem
-        if "High_res" in message:
-            elem['hight_res_box'].setChecked(message["High_res"])
-        if "Impedance_50Ohm" in message:
-            status = message["Impedance_50Ohm"]
-            elem['rb_50ohm'].setChecked(status)
-            elem['rb_meg'].setChecked(not status) 
-        if "Coupling_DC" in message:
-            status = message["Coupling_DC"]
-            elem['rb_dc'].setChecked(status)
-            elem['rb_ac'].setChecked(not status)
-        if 'Channel' in message:
-            elem[f'rb_ch{message["Channel"]}'].setChecked(True)
+        if "HIGH_RES" in message:
+            elem['HIGHT_RES_BOX'].setChecked(message["HIGH_RES"])
+        if "IMPEDANCE_50OHM" in message:
+            status = message["IMPEDANCE_50OHM"]
+            elem['RB_50OHM'].setChecked(status)
+            elem['RB_MEG'].setChecked(not status) 
+        if "COUPLING_DC" in message:
+            status = message["COUPLING_DC"]
+            elem['RB_DC'].setChecked(status)
+            elem['RB_AC'].setChecked(not status)
+        if 'CHANNEL' in message:
+            elem[f'RB_CH{message["CHANNEL"]}'].setChecked(True)
 
     @staticmethod
     def recalc_handler(meas_controller, message):
-        if "Recalc_atten" in message:
-             meas_controller.enable_recalc(message["Recalc_atten"])
+        if "RECALC_ATTEN" in message:
+             meas_controller.enable_recalc(message["RECALC_ATTEN"])
 
     @staticmethod
     def plot_handler(ig_controller, message):
-        if "RF_levels" in message:
-            level_min, level_max, _ = message["RF_levels"]
+        if "RF_LEVELS" in message:
+            level_min, level_max, _ = message["RF_LEVELS"]
             ig_controller.clear_plot()
 
             ig_controller.view.figure1.ax.set_xlim(level_min, level_max)
@@ -79,8 +79,8 @@ class SettingsSignalHandler(SignalHandler):
 
             # meas_controller.view.plot.figure2.ax.set_xlim(level_min, level_max)
             ig_controller.view.figure2.canvas.draw_idle()
-        if "RF_frequencies" in message:
-            freq_min, freq_max, points = message["RF_frequencies"]
+        if "RF_FREQUENCIES" in message:
+            freq_min, freq_max, points = message["RF_FREQUENCIES"]
             if freq_min == freq_max:
                 points = 1
                 frequencies = freq_min
@@ -98,16 +98,16 @@ class SettingsSignalHandler(SignalHandler):
 
         value_min, value_max, points = message.get(f'{mes_key}', (None, None, None))
         elem = meas_controller.view.elem
-        elem[f'{elem_key}_min_line'].setText(remove_zeros(value_min/dev))
-        elem[f'{elem_key}_max_line'].setText(remove_zeros(value_max/dev))
-        elem[f'{elem_key}_points_line'].setText(remove_zeros(points))
+        elem[f'{elem_key}_MIN_LINE'].setText(remove_zeros(value_min/dev))
+        elem[f'{elem_key}_MAX_LINE'].setText(remove_zeros(value_max/dev))
+        elem[f'{elem_key}_POINTS_LINE'].setText(remove_zeros(points))
 
     @staticmethod
     def update_sa_elem(meas_controller, value, param):
         elem_key, unit = param
         if unit in meas_controller.units:
              dev = meas_controller.units[unit]
-        meas_controller.view.elem[f'{elem_key}_line'].setText(remove_zeros(value/dev))
+        meas_controller.view.elem[f'{elem_key}_LINE'].setText(remove_zeros(value/dev))
                 
     @staticmethod
     def update_osc_elem(meas_controller, value, param):

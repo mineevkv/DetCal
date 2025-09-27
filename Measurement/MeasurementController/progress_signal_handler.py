@@ -10,15 +10,15 @@ class ProgressSignalHandler(SignalHandler):
     def handler(meas_controller, message):
         logger.debug(f"ProgressSignalHandler")
         elem = meas_controller.view.elem
-        if 'Finish' in message:
+        if 'FINISH' in message:
             meas_controller.unlock_control_elem()
             meas_controller.unlock_start_btn()
             meas_controller.progress_label_text('Finished')
-            elem['progress'].setValue(0)
-        if 'Stop' in message:
+            elem['PROGRESS'].setValue(0)
+        if 'STOP' in message:
             meas_controller.unlock_control_elem()
             meas_controller.unlock_start_btn()
             meas_controller.progress_label_text('Stopped')
 
-        if 'Progress' in message:
-           meas_controller.view.elem['progress'].setValue(int(message))
+        if 'PROGRESS' in message:
+           meas_controller.view.elem['PROGRESS'].setValue(int(message))

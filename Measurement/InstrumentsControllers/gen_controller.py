@@ -11,20 +11,20 @@ class GenController(InstrumentController):
         
     def connect_signals(self): 
         super().connect_signals()
-        self.view.elem['btn_rf_on'].clicked.connect(self.btn_rf_on_click)
-        self.view.elem['btn_freq'].clicked.connect(self.btn_freq_set_click)
-        self.view.elem['btn_level'].clicked.connect(self.btn_level_set_click)
+        self.view.elem['BTN_RF_ON'].clicked.connect(self.btn_rf_on_click)
+        self.view.elem['BTN_FREQ'].clicked.connect(self.btn_freq_set_click)
+        self.view.elem['BTN_LEVEL'].clicked.connect(self.btn_level_set_click)
 
     def btn_freq_set_click(self):
-        freq = float(self.view.elem['freq_line'].text())*1e6
+        freq = float(self.view.elem['FREQ_LINE'].text())*1e6
         self.instr.set_frequency(freq)
 
     def btn_level_set_click(self):
-        level = float(self.view.elem['level_line'].text())
+        level = float(self.view.elem['LEVEL_LINE'].text())
         self.instr.set_level(level)
 
     def btn_rf_on_click(self):
-        btn = self.view.elem['btn_rf_on']
+        btn = self.view.elem['BTN_RF_ON']
         state = self.instr.get_output_state()
         if state == True:
             self.instr.rf_off()
@@ -36,14 +36,14 @@ class GenController(InstrumentController):
     def signal_handler(self, message):
         super().signal_handler(message)
         elem = self.view.elem
-        if 'level' in message:
-           elem['level_line'].setText(str(self.remove_zeros(round(message['level'], 2))))
-        if 'frequency' in message:
-            elem['freq_line'].setText(str(self.remove_zeros(round(message['frequency']/1e6, 2))))
-        if 'rf_state' in message:
-            elem['btn_rf_on'].setDown(message['rf_state'])
-        if 'modulation' in message:
-            elem['btn_mod_on'].setDown(message['mod_state'])
+        if 'LEVEL' in message:
+           elem['LEVEL_LINE'].setText(str(self.remove_zeros(round(message['LEVEL'], 2))))
+        if 'FREQUENCY' in message:
+            elem['FREQ_LINE'].setText(str(self.remove_zeros(round(message['FREQUENCY']/1e6, 2))))
+        if 'RF_STATE' in message:
+            elem['BTN_RF_ON'].setDown(message['RF_STATE'])
+        if 'MODULATION' in message:
+            elem['BTN_MOD_ON'].setDown(message['MOD_STATE'])
 
             
         

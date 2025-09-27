@@ -19,7 +19,7 @@ class GeneratorSheet(InstrumentSheet):
         mod_row = freq_row + 2
 
         # OUTPUT PARAMETERS
-        self.add_control_elem('freq', self.zero_col, freq_row, 'FREQ, MHz:', '1000')
-        self.add_control_elem('level', self.zero_col, level_row, 'LEVEL, dBm:', '-50')
-        self.add_big_btn('rf_on', 31, rf_row, 'RF ON').setCheckable(True)
-        self.add_big_btn('mod_on', self.zero_col, mod_row, 'Mod ON').setCheckable(True)
+        self.add_control_elem('FREQ', self.zero_col, freq_row, 'FREQ, MHz:', '1000')
+        self.add_control_elem('LEVEL', self.zero_col, level_row, 'LEVEL, dBm:', '-50')
+        self.add_big_btn('RF_ON', 31, rf_row, 'RF ON').setCheckable(True)
+        self.add_big_btn('MOD_ON', self.zero_col, mod_row, 'Mod ON').setCheckable(True)

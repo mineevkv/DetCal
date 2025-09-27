@@ -10,17 +10,16 @@ class DataSignalHandler(SignalHandler):
     @staticmethod
     def handler(meas_controller, message):
         logger.debug(f"DataSignalHandler")
-        if 'data' in message:
+        if 'DATA' in message:
             if meas_controller.check_recalc():
                 meas_controller.model.recalc_data()
-        if 'point' in message:
-            print(f"message['point'][0]: {message['point'][0]}")
-            if (meas_controller.view.plot.frequency - message['point'][0]) < 100: # 100 Hz tolerance
-                meas_controller.view.plot.figure1.add_point(message['point'][1], message['point'][3]*1e3)
-                meas_controller.view.plot.figure2.add_point(message['point'][2], message['point'][3]*1e3, autoscale=True)
-        if 'frequency' in message:
-            meas_controller.view.plot.frequency = message['frequency']
+        if 'POINT' in message:
+            if (meas_controller.view.plot.frequency - message['POINT'][0]) < 100: # 100 Hz tolerance
+                meas_controller.view.plot.figure1.add_point(message['POINT'][1], message['POINT'][3]*1e3)
+                meas_controller.view.plot.figure2.add_point(message['POINT'][2], message['POINT'][3]*1e3, autoscale=True)
+        if 'FREQUENCY' in message:
+            meas_controller.view.plot.frequency = message['FREQUENCY']
             meas_controller.view.plot.clear_plot()
             meas_controller.view.plot.set_selector()
-        if 'recalc_data' in message:
+        if 'RECALC_DATA' in message:
             pass
