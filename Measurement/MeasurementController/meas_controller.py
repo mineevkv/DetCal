@@ -1,5 +1,4 @@
 from PyQt6.QtCore import QObject, QTimer
-from ..helper_functions import refresh_obj_view
 from GUI.palette import *
 from Measurement.InfographicController.infographic_controller import (
     InfographicController,
@@ -10,7 +9,6 @@ from .status_bar_controller import StatusBarController
 from .view_signal_handler import ViewSignalHandler
 from .write_settings import WriteSettings
 from .settings_validator import SettingsValidator
-from functools import wraps
 
 from System.logger import get_logger
 
@@ -218,8 +216,6 @@ class MeasurementController(QObject):
         This function is called when the "Save result" button is clicked.
         It will save the measurement results to a file and update the progress label.
         """
-        if not self.validate_settings():
-                return
         logger.debug("Save result")
         try:
             self.model.file_manager.save_results()
