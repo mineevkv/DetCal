@@ -46,7 +46,6 @@ class MeasurementProtocol(ProtocolCreator):
         
 
 
-
     def add_equipments_section(self):
         self.doc.add_section("Measurement equipment", "")
         self.doc.add_numbered_list([r"Microwave generator: \texttt{Rigol DSG830}",

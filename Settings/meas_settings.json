@@ -1,28 +1,28 @@
 {
     "RF_frequencies": [
+        1000000000.0,
         2000000000.0,
-        2900000000.0,
-        3
+        6
     ],
     "RF_levels": [
-        -10.0,
-        15.0,
-        52
+        -50.0,
+        -20.0,
+        3
     ],
-    "SPAN_wide": 1000000.0,
+    "SPAN_wide": 2000000.0,
     "SPAN_narrow": 100000.0,
     "RBW_wide": 10000.0,
     "RBW_narrow": 1000.0,
     "VBW_wide": 10000.0,
     "VBW_narrow": 1000.0,
-    "REF_level": 14.0,
+    "REF_level": 0.0,
     "SWEEP_points": 1001.0,
     "SWEEP_time": "AUTO ON",
-    "Precise": true,
+    "Precise": false,
     "HOR_scale": 0.01,
-    "High_res": true,
-    "Impedance_50Ohm": false,
+    "High_res": false,
+    "Impedance_50Ohm": true,
     "Coupling_DC": true,
-    "Channel": 4,
-    "Recalc_atten": true
+    "Channel": 1,
+    "Recalc_atten": false
 }

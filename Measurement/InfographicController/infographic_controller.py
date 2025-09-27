@@ -80,3 +80,13 @@ class InfographicController(QObject):
             if  abs(self.frequency - box_frequency) < 1e4:
                 elem.setCurrentIndex(i)
                 return
+            
+    def lock_control_elem(self):
+        elem = self.view.elem
+        elem['freq_cobmo'].setEnabled(False)
+        elem['btn_protocol'].setEnabled(False)
+
+    def unlock_control_elem(self):
+        elem = self.view.elem
+        elem['freq_cobmo'].setEnabled(True)
+        elem['btn_protocol'].setEnabled(True)

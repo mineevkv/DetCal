@@ -1,7 +1,9 @@
 import csv
 import os
+import json
 import numpy as np
 from PyQt6.QtWidgets import QFileDialog
+
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -84,3 +86,7 @@ def read_csv_file(folder, filename=None):
             logger.warning(f"Failed to read CSV file from {path}: {e}")
     else:
         logger.warning(f"No file selected")
+
+def load_units():
+    with open('Settings/units.json', 'r') as f:
+        return json.load(f)

@@ -14,7 +14,7 @@ class EquipmentSignalHandler(SignalHandler):
 
     @staticmethod
     def handler(meas_controller, message):
-        logger.debug('MeasController: equipment signals handler')
+        logger.debug('EquipmentSignalHandler')
 
         for instr, controller in (
             ('gen', GenController),
@@ -26,6 +26,6 @@ class EquipmentSignalHandler(SignalHandler):
                     if hasattr(meas_controller.model, instr) and getattr(meas_controller.model, instr):
                         logger.debug(f'Create {controller.__name__}')
                         setattr(meas_controller, f'{instr}_controller',
-                                controller(getattr(meas_controller.model, instr), getattr(meas_controller.parent_view, instr)))
+                                controller(getattr(meas_controller.model, instr), getattr(meas_controller.general_view, instr)))
                 except AttributeError as e:
                     logger.error(f"Failed to set instrument controllers: {e}")

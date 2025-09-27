@@ -9,7 +9,7 @@ class WriteSettings():
     @staticmethod
     def view_to_model(meas_controller):
         settings = meas_controller.model.settings
-        elem = meas_controller.view.meas.elem
+        elem = meas_controller.view.elem
 
         for key, param in meas_controller.gen_keys.items():
             settings[key] = WriteSettings.write_gen_settings(meas_controller, param)
@@ -29,7 +29,6 @@ class WriteSettings():
         settings['Channel'] = next((i for i in [1, 2, 3, 4] if elem[f'rb_ch{i}'].isChecked()), None)
 
 
-
         
     @staticmethod
     def write_gen_settings(meas_controller, param):
@@ -37,7 +36,7 @@ class WriteSettings():
         if unit in meas_controller.units:
              multiplier = meas_controller.units[unit]
 
-        elem = meas_controller.view.meas.elem
+        elem = meas_controller.view.elem
         value_min = float(elem[f'{elem_key}_min_line'].text()) * multiplier
         value_max = float(elem[f'{elem_key}_max_line'].text()) * multiplier
         points = int(elem[f'{elem_key}_points_line'].text())
@@ -50,7 +49,7 @@ class WriteSettings():
         if unit in meas_controller.units:
              multiplier = meas_controller.units[unit]
              try:
-                return float(meas_controller.view.meas.elem[f'{elem_key}_line'].text())* multiplier
+                return float(meas_controller.view.elem[f'{elem_key}_line'].text())* multiplier
              except ValueError:
                 logger.warning(f"Invalid value for {elem_key}_line")
                 raise

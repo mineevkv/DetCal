@@ -35,8 +35,7 @@ class MeasurementModel(QObject):
     equipment_changed = pyqtSignal(dict)
     settings_changed = pyqtSignal(dict)
     s21_file_changed = pyqtSignal(dict)
-    meas_status = pyqtSignal(str)
-    progress_bar = pyqtSignal(int)
+    progress_status = pyqtSignal(str)
     settings_filename = 'meas_settings'
     settings_folder = 'Settings'
     s21_folder = 'S21files'
@@ -120,7 +119,7 @@ class MeasurementModel(QObject):
 
     def start_measurement(self):
         logger.info(f"Starting measurement")
-        self.meas_status.emit('Start')
+        self.progress_status.emit('Start')
 
         self.meas_data = []
         self.stop_requested = False
@@ -183,7 +182,7 @@ class MeasurementModel(QObject):
 
             for level in reversed(levels): # TODO: fix reversed
                 value = int((next(iter_obj)/max_len)*100)
-                self.progress_bar.emit(value)
+                self.progress_status.emit({'Progress':value})
                 logger.debug(f"Frequency: {frequency/1e6:.2f} MHz; Level: {level:.2f} dBm")
 
                 if self.is_stop():
@@ -236,7 +235,7 @@ class MeasurementModel(QObject):
     def is_stop(self):
         """Check if stop is requested and emit status if so"""
         if self.stop_requested:
-            self.meas_status.emit('Stop')
+            self.progress_status.emit('Stop')
             return True
         return False
     
@@ -347,7 +346,7 @@ class MeasurementModel(QObject):
 
    
     def meas_finish_handler(self):
-        self.meas_status.emit('Finish')
+        self.progress_status.emit('Finish')
         logger.info(f"Measurement finished")
 
 

@@ -20,19 +20,21 @@ class SettingsSignalHandler(SignalHandler):
         args = meas_controller.ig_controller, message
         SettingsSignalHandler.plot_handler(*args)
 
+        meas_controller.set_elements_unchanged()
+
     @staticmethod
     def gen_handler(meas_controller, message):
         # Gen settings
         for key, param in meas_controller.gen_keys.items():
             if key in message:
-                meas_controller.update_gen_elem(message, key, param)
+                SettingsSignalHandler.update_gen_elem(meas_controller, message, key, param)
 
     @staticmethod
     def sa_handler(meas_controller, message):
         # SA settings
         for key, param in meas_controller.sa_keys.items():
             if key in message:
-                meas_controller.update_sa_elem(message[key], param)
+                SettingsSignalHandler.update_sa_elem(meas_controller, message[key], param)
 
         if 'Precise' in message:
             meas_controller.enable_precise(str_to_bool(message['Precise']))
@@ -42,7 +44,7 @@ class SettingsSignalHandler(SignalHandler):
         # Osc settings
         for key, param in meas_controller.osc_keys.items():
             if key in message:
-                meas_controller.update_osc_elem(message[key], param)
+                SettingsSignalHandler.update_osc_elem(meas_controller, message[key], param)
 
         elem = meas_controller.view.elem
         if "High_res" in message:
@@ -85,5 +87,27 @@ class SettingsSignalHandler(SignalHandler):
             for frequency in frequencies:
                 ig_controller.add_selector_point(frequency)
 
+    @staticmethod
+    def update_gen_elem(meas_controller, message, mes_key, param):
+        elem_key, unit = param
+        if unit in meas_controller.units:
+             dev = meas_controller.units[unit]
+
+        value_min, value_max, points = message.get(f'{mes_key}', (None, None, None))
+        elem = meas_controller.view.elem
+        elem[f'{elem_key}_min_line'].setText(remove_zeros(value_min/dev))
+        elem[f'{elem_key}_max_line'].setText(remove_zeros(value_max/dev))
+        elem[f'{elem_key}_points_line'].setText(remove_zeros(points))
+
+    @staticmethod
+    def update_sa_elem(meas_controller, value, param):
+        elem_key, unit = param
+        if unit in meas_controller.units:
+             dev = meas_controller.units[unit]
+        meas_controller.view.elem[f'{elem_key}_line'].setText(remove_zeros(value/dev))
+                
+    @staticmethod
+    def update_osc_elem(meas_controller, value, param):
+        SettingsSignalHandler.update_sa_elem(meas_controller, value, param)
 
             

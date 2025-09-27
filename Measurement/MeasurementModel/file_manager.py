@@ -18,7 +18,7 @@ class FileManager():
         settings = self.open_settings_file()
         if not settings == {}:
             self.model.settings = settings
-            self.model.settings_changed.emit(self.settings)
+            self.model.settings_changed.emit(self.model.settings)
 
     def load_settings(self, default=False):
         type = 'default ' if default else ''
@@ -32,8 +32,8 @@ class FileManager():
             logger.warning(f"Failed to load {type}settings from {path}: {e}")
 
         if not settings == {}:
-            self.settings = settings
-            self.model.settings_changed.emit(self.settings) 
+            self.model.settings = settings
+            self.model.settings_changed.emit(self.model.settings) 
 
     def load_default_settings(self):
         self.load_settings(default=True)
@@ -59,8 +59,8 @@ class FileManager():
     
     def save_settings(self):
         with open(f"{self.model.settings_folder}/{self.model.settings_filename}.json", 'w') as f:
-            json.dump(self.settings, f, indent=4)
-            self.model.settings_changed.emit(self.settings)
+            json.dump(self.model.settings, f, indent=4)
+            self.model.settings_changed.emit(self.model.settings)
 
     def load_s21_gen_sa(self, filename=None):
         try:
