@@ -1,20 +1,14 @@
 from PyQt6.QtCore import QObject, QTimer
-from PyQt6.QtWidgets import QCheckBox, QLineEdit, QRadioButton
-
 from ..helper_functions import refresh_obj_view
 from GUI.palette import *
 from Measurement.InfographicController.infographic_controller import (
     InfographicController,
 )
 from Measurement.MeasurementModel.file_manager import FileManager
-from System.logger import get_logger
 from .model_signal_handler import ModelSignalHandler
 from .status_bar_controller import StatusBarController
 from .view_signal_handler import ViewSignalHandler
 from .write_settings import WriteSettings
-
-
-from GUI.palette import *
 
 from System.logger import get_logger
 
@@ -70,13 +64,14 @@ class MeasurementController(QObject):
 
         The Timers are used to hide the status messages after a certain amount of time.
         """
-        self.settings_timer = QTimer()
-        self.settings_timer.setInterval(3000)  # 3 second
-        self.settings_timer.timeout.connect(self.hide_settings_status)
+        # TODO class for timers
+        self.settings_status_timer = QTimer()
+        self.settings_status_timer.setInterval(3000)  # 3 second
+        self.settings_status_timer.timeout.connect(self.hide_settings_status)
 
-        self.waiting_timer = QTimer()
-        self.waiting_timer.setInterval(5000)  # 5 second
-        self.waiting_timer.timeout.connect(self.hide_waiting_status)
+        self.meas_waiting_timer = QTimer()
+        self.meas_waiting_timer.setInterval(5000)  # 5 second
+        self.meas_waiting_timer.timeout.connect(self.hide_meas_waiting_status)
 
     def lock_start_btn(self) -> None:
         """
@@ -99,19 +94,6 @@ class MeasurementController(QObject):
         elem["BTN_APPLY"].setEnabled(False)
         elem["BTN_START"].setEnabled(True)
         self.status_bar.info("Ready for measurement")
-
-    def set_elements_unchanged(self) -> None:
-        """
-        Reset the style of the elements to their default state after submitting the input parameters.
-
-        This function is called when the "Apply" button is clicked.
-        """
-        elem = self.view.elem
-        for element in elem.values():
-            if isinstance(element, (QLineEdit, QCheckBox, QRadioButton)):
-                element.setProperty("class", "")
-                refresh_obj_view(element)
-        self.unlock_start_btn()
 
     def btn_save_settings_click(self) -> None:
         """
@@ -139,7 +121,7 @@ class MeasurementController(QObject):
         It will show the new status for a few seconds.
         """
         self.view.elem["SETTINGS_STATUS_LABEL"].setText(text)
-        self.settings_timer.start()
+        self.settings_status_timer.start()
 
     def hide_settings_status(self) -> None:
         """
@@ -148,17 +130,17 @@ class MeasurementController(QObject):
         This function is called after the settings status label has been shown for a few seconds.
         It will stop the timer and erase the text of the label.
         """
-        self.settings_timer.stop()
+        self.settings_status_timer.stop()
         self.view.elem["SETTINGS_STATUS_LABEL"].setText("")
 
-    def hide_waiting_status(self) -> None:
+    def hide_meas_waiting_status(self) -> None:
         """
         Hide the waiting status label.
 
         This function is called after the waiting status label has been shown for a few seconds.
         It will stop the timer and erase the text of the label.
         """
-        self.waiting_timer.stop()
+        self.meas_waiting_timer.stop()
         self.view.elem["PROGRESS_LABEL"].setText("")
 
     def btn_load_settings_click(self) -> None:
@@ -205,9 +187,9 @@ class MeasurementController(QObject):
         This function is called when the progress label needs to be updated.
         It will stop the waiting timer, update the label text, and then start the waiting timer again.
         """
-        self.waiting_timer.stop()
+        self.meas_waiting_timer.stop()
         self.view.elem["PROGRESS_LABEL"].setText(text)
-        self.waiting_timer.start()
+        self.meas_waiting_timer.start()
 
     def btn_stop_click(self) -> None:
         """
@@ -409,5 +391,5 @@ class MeasurementController(QObject):
         This function is called when the measurement controller is about to be deleted.
         It will stop all the timers and clean up the resources.
         """
-        self.settings_timer.stop()
-        self.waiting_timer.stop()
+        self.settings_status_timer.stop()
+        self.meas_waiting_timer.stop()

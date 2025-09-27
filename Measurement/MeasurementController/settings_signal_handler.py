@@ -2,6 +2,7 @@ from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view
 import numpy as np
 from .abstract_signal_handler import SignalHandler
 from .keys import Keys
+from PyQt6.QtWidgets import QCheckBox, QLineEdit, QRadioButton
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -12,8 +13,7 @@ class SettingsSignalHandler(SignalHandler):
 
     @staticmethod
     def handler(meas_controller, message):
-        logger.debug(f"SettingsSignalHandler"
-                     )
+        logger.debug(f"SettingsSignalHandler")
         args = meas_controller, message
         SettingsSignalHandler.gen_handler(*args)
         SettingsSignalHandler.sa_handler(*args)
@@ -23,7 +23,7 @@ class SettingsSignalHandler(SignalHandler):
         args = meas_controller.ig_controller, message
         SettingsSignalHandler.plot_handler(*args)
 
-        meas_controller.set_elements_unchanged()
+        SettingsSignalHandler.set_elements_unchanged(meas_controller)
 
     @staticmethod
     def gen_handler(meas_controller, message):
@@ -112,5 +112,17 @@ class SettingsSignalHandler(SignalHandler):
     @staticmethod
     def update_osc_elem(meas_controller, value, param):
         SettingsSignalHandler.update_sa_elem(meas_controller, value, param)
+
+    @staticmethod
+    def set_elements_unchanged(meas_controller) -> None:
+        """
+        Reset the style of the elements to their default state after submitting the input parameters.
+        """
+        elem = meas_controller.view.elem
+        for element in elem.values():
+            if isinstance(element, (QLineEdit, QCheckBox, QRadioButton)):
+                element.setProperty("class", "")
+                refresh_obj_view(element)
+        meas_controller.unlock_start_btn()
 
             

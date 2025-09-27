@@ -4,6 +4,7 @@ logger = get_logger(__name__)
 from .abstract_signal_handler import SignalHandler
 
 class DataSignalHandler(SignalHandler):
+    
     def __init__(self):
         super().__init__()
 
