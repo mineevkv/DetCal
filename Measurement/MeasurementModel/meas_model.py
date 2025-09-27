@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal, QThread
 from PyQt6.QtWidgets import QFileDialog
 from Instruments.Initializer import InstrumentInitializer
-from Instruments.rsa5000vna_parcer import RSA506N_S21_Parser
+from .file_manager import FileManager
 from ..helper_functions import read_csv_file, open_file, get_s21, is_equal_frequencies
 
 import os
@@ -55,8 +55,9 @@ class MeasurementModel(QObject):
 
         self.initializer = InstrumentInitializer()
         self.initializer.finished.connect(self.init_instruments)
+        self.file_manager = FileManager(self)
 
-    def start_initialization(self):
+    def instr_initialization(self):
         """Start the instrument initialization process"""
         if not self.initializer.isRunning():
             self.initializer.start()
@@ -80,13 +81,7 @@ class MeasurementModel(QObject):
             logger.debug(f'init_osc: {self.osc}')
             self.equipment_changed.emit({'osc': osc})
 
-
-        # TODO: emit the data_changed signal with the initialized instruments
         
-
-    def load_s21_files(self):
-        self.load_s21_gen_sa('s21_gen_sa.trs')
-        self.load_s21_gen_det('s21_gen_det.trs')
 
     def offline_mode(self, mode):
         if mode:
@@ -94,91 +89,17 @@ class MeasurementModel(QObject):
         else:    
             self.initializer.offline_debug = False
 
-    def load_settings_from_file(self):
-        logger.debug('MeasModel: load settings from file')
-        settings = self.open_settings_file()
-        if not settings == {}:
-            self.settings = settings
-            self.settings_changed.emit(self.settings)
+    def load_settings(self):
+        self.file_manager.load_settings()
+        self.file_manager.load_s21_files()
 
-    def load_settings(self, default=False):
-        type = 'default ' if default else ''
-        logger.debug(f"MeasModel: load {type}settings")
-        settings =  dict()
-        path = f"{self.settings_folder}/{self.settings_filename}{'_default' if default else ''}.json"
-        try:
-            with open(path, 'r') as f:
-                settings = json.load(f)
-        except Exception as e:
-            logger.warning(f"Failed to load {type}settings from {path}: {e}")
 
-        if not settings == {}:
-            self.settings = settings
-            self.settings_changed.emit(self.settings) 
-
-    def load_default_settings(self):
-        self.load_settings(default=True)
- 
-
-    def open_settings_file(self):
-        path, _ = QFileDialog.getOpenFileName(
-            caption="Load settings file",
-            directory=self.settings_folder,
-            filter="JSON files (*.json)"
-        )
-        settings =  dict()
-        if path:
-            try:
-                with open(path, 'r') as f:
-                    settings = json.load(f)
-            except Exception as e:
-                logger.warning(f"Failed to load settings from {path}: {e}")
-        else:
-            logger.warning(f"No file selected")
-        
-        return settings
-    
-    def save_settings(self):
-        with open(f"{self.settings_folder}/{self.settings_filename}.json", 'w') as f:
-            json.dump(self.settings, f, indent=4)
-            self.settings_changed.emit(self.settings)
-
-    def load_s21_gen_sa(self, filename=None):
-        try:
-            # filename = 's21_gen_sa.trs'
-            if filename is None:
-                path = open_file(self.s21_folder, "S21 files (*.trs)")
-                filename = os.path.basename(path)  
-            self.s21_gen_sa = self.parse_s21_file(filename)
-            self.s21_file_changed.emit({'s21_gen_sa' : filename})
-        except Exception as e:
-            logger.warning(f"Failed to load S21 file: {e}")
-
-    def load_s21_gen_det(self, filename=None):
-        try:
-            if filename is None:
-                path = open_file(self.s21_folder, "S21 files (*.trs)")
-                filename = os.path.basename(path)  
-            self.s21_gen_det = self.parse_s21_file(filename)
-            print(filename)
-            self.s21_file_changed.emit({'s21_gen_det' : filename})
-        except Exception as e:
-            logger.warning(f"Failed to load S21 file: {e}")
-
-    def parse_s21_file(self, filename):
-        parser = RSA506N_S21_Parser(os.path.join(self.s21_folder, filename))
-        data = parser.parse_file()
-        return (data['frequency'], data['magnitude_db'])
-    
     def get_data_from_frequency(self, frequency):
         data = []
         for row in self.meas_data:
             if is_equal_frequencies(row[0], frequency):
                 data.append(row)
         return data
-
-    def equal_frequencies(self, frequency1, frequency2):
-        return abs(frequency1 - frequency2) < 0.01e6
     
     def start_measurement_process(self):
         abort = False
@@ -322,19 +243,6 @@ class MeasurementModel(QObject):
     def stop_measurement_process(self):
         self.stop_requested = True
 
-    def save_results(self):
-        filename, _ = QFileDialog.getSaveFileName(
-            caption="Save results",
-            directory=os.path.join('results.csv'),
-            filter="CSV files (*.csv)"
-        )
-        if filename:
-            file_header = 'Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V), S21 Gen-Sa (dB), S21 Gen-Det (dB), Det Level (dBm)'
-            np.savetxt(filename, self.meas_data, delimiter=',', header=file_header) # Frequency, Level, Value, Mean Osc Value
-            logger.info(f"Results saved to {filename}")
-        else:
-            logger.warning(f"No file selected")
-
     def recalc_data(self):
         """Recalculate data via measured S21 parameters"""
         recalc_data = []
@@ -438,7 +346,6 @@ class MeasurementModel(QObject):
         return False
 
    
-
     def meas_finish_handler(self):
         self.meas_status.emit('Finish')
         logger.info(f"Measurement finished")

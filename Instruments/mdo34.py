@@ -22,13 +22,8 @@ class MDO34(Instrument):
         super().__init__(ip)
 
         self._selected_channel = 1
-
         self.type = 'Oscilloscope'
-        # self.default_setup()
 
-        
-    def default_setup(self): 
-        pass
 
     @property
     def selected_channel(self):
@@ -43,7 +38,6 @@ class MDO34(Instrument):
         elif channel in reverse_map:
             self._selected_channel = reverse_map[channel]
     
-
 
     @Instrument.device_checking 
     def channel_on(self, channel=None):
@@ -90,25 +84,6 @@ class MDO34(Instrument):
             self.state_changed.emit({'select_ch': channel})
             return channel
         return 0
-    
-    # @Instrument.device_checking
-    # def get_active_channels(self) -> dict: # TODO: delete this function after debug
-    #     channel_state = dict()
-    #     for channel in self.channel_map.values():
-    #         channel_state[channel] = bool(int(self.is_channel_on(channel)))
-
-        
-    #     return channel_state
-    
-    @Instrument.device_checking
-    def get_active_channels(self) -> dict: # TODO: delete this function after debug
-        channel_state = dict()
-        response = self.send(f'SELECT?').split(';') # response: 1;0;0;0;...;CH2
-
-        for i, channel in enumerate(self.channel_map.values()):
-            channel_state[channel] = bool(int(response[i]))
-        return channel_state
-        
 
     @Instrument.device_checking    
     def set_coupling(self, coupling='DC'):
@@ -232,16 +207,6 @@ class MDO34(Instrument):
     def set_binary_data_format(self):
         self.send('DATA:WIDTH 2') # 2 bytes per point
         self.send('DATA:ENCDG RPBinary') # Signed integer binary
-
-    def parse_wfmoutpre_response(self, response):
-        """
-            Parce responce from WFMOUTPRE
-        """
-        parts = response.strip().split(';')
-        
-        #TODO fix this code
-
-        # Создаем словарь с параметрами
 
     @Instrument.device_checking
     def get_waveform_parameters(self):

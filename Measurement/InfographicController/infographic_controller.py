@@ -11,11 +11,13 @@ logger = get_logger(__name__)
 
 class InfographicController(QObject):
         
-    def __init__(self,  model, view,):
-        super().__init__(model, view)
+    def __init__(self,  model, view):
+        super().__init__()
         self.view = view.ig
         self.model = model
         self.connect_signals()
+
+        self.frequency = None
         
     def connect_signals(self): 
         elem =self.view.elem
@@ -23,14 +25,14 @@ class InfographicController(QObject):
         elem['btn_protocol'].clicked.connect(self.btn_protocol_click)
 
     def selector_handler(self):
-        selected_freq = self.view.get_current_frequency()
+        selected_freq = self.get_current_frequency()
         if selected_freq is None:
             return
         data = self.model.get_data_from_frequency(selected_freq)
-        self.view.plot_data_from_frequency(data)
+        self.plot_data_from_frequency(data)
 
     def btn_protocol_click(self):
-        selected_frequency = self.view.get_current_frequency()
+        selected_frequency = self.get_current_frequency()
         if selected_frequency is None:
             return
         
@@ -45,3 +47,36 @@ class InfographicController(QObject):
         with open("Settings/meas_settings.json", "r") as file:
             settings = json.load(file)
             doc = MeasurementProtocol(data, settings)
+
+    def plot_data_from_frequency(self, data):
+        self.clear_plot()
+        for point in data:
+            self.view.figure1.add_point(point[1], point[3])
+            self.view.figure2.add_point(point[2], point[3])
+
+    def add_selector_point(self, frequency):
+        elem =  self.view.elem['freq_cobmo']
+        text = f'{frequency/1e6:.2f} MHz'
+        elem.addItem(text)
+        elem.setCurrentIndex(elem.count() - 1)
+
+    def get_current_frequency(self):
+        text = self.view.elem['freq_cobmo'].currentText()
+        if text == '':
+            return None
+        return float(text.replace(' MHz','')) * 1e6
+
+    def clear_selector(self):
+        self.view.elem['freq_cobmo'].clear()
+
+    def clear_plot(self):
+        self.view.figure1.clear_plot()
+        self.view.figure2.clear_plot()
+
+    def set_selector(self):
+        elem = self.view.elem['freq_cobmo']
+        for i in range(elem.count()): 
+            box_frequency = float(elem.itemText(i).replace(' MHz','')) * 1e6 if ' MHz' in elem.itemText(i) else None
+            if  abs(self.frequency - box_frequency) < 1e4:
+                elem.setCurrentIndex(i)
+                return

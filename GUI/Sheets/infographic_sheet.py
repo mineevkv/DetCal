@@ -28,7 +28,6 @@ class InfographicSheet(Sheet):
         super().__init__(main_layout)
         
         self.box.setTitle("Infografic")
-        self.frequency = None
 
         self.add_plot_sheet()
 
@@ -44,41 +43,6 @@ class InfographicSheet(Sheet):
         self.elem[key].setGeometry(QtCore.QRect(self.x_col[col], self.y_row[row], width, hight))
         return self.elem[key]
 
-    def add_selector_point(self, frequency):
-        elem =  self.elem['freq_cobmo']
-        text = f'{frequency/1e6:.2f} MHz'
-        elem.addItem(text)
-        elem.setCurrentIndex(elem.count() - 1)
-
-    def get_current_frequency(self):
-        text = self.elem['freq_cobmo'].currentText()
-        if text == '':
-            return None
-        return float(text.replace(' MHz','')) * 1e6
-
-    def clear_selector(self):
-        self.elem['freq_cobmo'].clear()
-
-    def clear_plot(self):
-        self.figure1.clear_plot()
-        self.figure2.clear_plot()
-
-    def set_selector(self):
-        elem = self.elem['freq_cobmo']
-        for i in range(elem.count()): 
-            box_frequency = float(elem.itemText(i).replace(' MHz','')) * 1e6 if ' MHz' in elem.itemText(i) else None
-            if  abs(self.frequency - box_frequency) < 1e4:
-                elem.setCurrentIndex(i)
-                return
-            
-    def plot_data_from_frequency(self, data):
-        self.clear_plot()
-        for point in data:
-            self.figure1.add_point(point[1], point[3])
-            self.figure2.add_point(point[2], point[3])
-        
-
-     
 
     def add_plot_sheet(self):  
         # Create a proper container for the plot

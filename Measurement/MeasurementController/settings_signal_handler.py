@@ -1,5 +1,6 @@
 from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view
 import numpy as np
+from .abstract_signal_handler import SignalHandler
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -16,6 +17,7 @@ class SettingsSignalHandler(SignalHandler):
         SettingsSignalHandler.sa_handler(*args)
         SettingsSignalHandler.osc_handler(*args)
         SettingsSignalHandler.recalc_handler(*args)
+        args = meas_controller.ig_controller, message
         SettingsSignalHandler.plot_handler(*args)
 
     @staticmethod
@@ -42,7 +44,7 @@ class SettingsSignalHandler(SignalHandler):
             if key in message:
                 meas_controller.update_osc_elem(message[key], param)
 
-        elem = meas_controller.view.meas.elem
+        elem = meas_controller.view.elem
         if "High_res" in message:
             elem['hight_res_box'].setChecked(message["High_res"])
         if "Impedance_50Ohm" in message:
@@ -62,16 +64,16 @@ class SettingsSignalHandler(SignalHandler):
              meas_controller.enable_recalc(message["Recalc_atten"])
 
     @staticmethod
-    def plot_handler(meas_controller, message):
+    def plot_handler(ig_controller, message):
         if "RF_levels" in message:
             level_min, level_max, _ = message["RF_levels"]
-            meas_controller.view.plot.figure1.clear_plot()
-            meas_controller.view.plot.figure1.ax.set_xlim(level_min, level_max)
-            meas_controller.view.plot.figure1.canvas.draw_idle()
+            ig_controller.clear_plot()
 
-            meas_controller.view.plot.figure2.clear_plot()
+            ig_controller.view.figure1.ax.set_xlim(level_min, level_max)
+            ig_controller.view.figure1.canvas.draw_idle()
+
             # meas_controller.view.plot.figure2.ax.set_xlim(level_min, level_max)
-            meas_controller.view.plot.figure2.canvas.draw_idle()
+            ig_controller.view.figure2.canvas.draw_idle()
         if "RF_frequencies" in message:
             freq_min, freq_max, points = message["RF_frequencies"]
             if freq_min == freq_max:
@@ -81,7 +83,7 @@ class SettingsSignalHandler(SignalHandler):
                 frequencies = np.linspace(freq_min, freq_max, points)
 
             for frequency in frequencies:
-                meas_controller.view.plot.add_selector_point(frequency)
+                ig_controller.add_selector_point(frequency)
 
 
             

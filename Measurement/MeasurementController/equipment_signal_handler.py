@@ -1,6 +1,6 @@
-from ..gen_controller import GenController
-from ..sa_controller import SAController
-from ..osc_controller import OscController
+from Measurement.InstrumentsControllers.gen_controller import GenController
+from Measurement.InstrumentsControllers.sa_controller import SAController
+from Measurement.InstrumentsControllers.osc_controller import OscController
 
 from .abstract_signal_handler import SignalHandler
 
@@ -26,6 +26,6 @@ class EquipmentSignalHandler(SignalHandler):
                     if hasattr(meas_controller.model, instr) and getattr(meas_controller.model, instr):
                         logger.debug(f'Create {controller.__name__}')
                         setattr(meas_controller, f'{instr}_controller',
-                                controller(getattr(meas_controller.model, instr), getattr(meas_controller.view, instr)))
+                                controller(getattr(meas_controller.model, instr), getattr(meas_controller.parent_view, instr)))
                 except AttributeError as e:
                     logger.error(f"Failed to set instrument controllers: {e}")

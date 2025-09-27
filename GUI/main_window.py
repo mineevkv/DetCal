@@ -31,7 +31,7 @@ class MainWindow(QWidget):
 
 
     def init_sheets(self):
-        self.sheet_param = {
+        self._sheet_param = {
             'left_width': 391,
             'right_width': 861,
         }
@@ -50,8 +50,9 @@ class MainWindow(QWidget):
         self._main_layout.addWidget(self.osc.get_widget(), 2, 0)
         # Right fields
         self._main_layout.addWidget(self.meas.get_widget(), 0, 1, 2, 1)
-        self.meas.get_widget().setFixedWidth(self.sheet_param['right_width'])
         self._main_layout.addWidget(self.ig.get_widget(), 2, 1)
+        # Right fields dimensions
+        self.meas.get_widget().setFixedWidth(self._sheet_param['right_width'])
 
     def init_fonts(self):
         default_font = 'Sergo UI'

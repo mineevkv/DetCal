@@ -1,7 +1,6 @@
 from PyQt6.QtCore import QObject, QTimer
 from PyQt6.QtWidgets import QLineEdit, QCheckBox, QRadioButton
-from ..MeasurementModel.meas_model import MeasurementModel
-from GUI.main_window import MainWindow
+
 
 from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view, is_equal_frequencies
 from .status_bar_controller import StatusBarController
@@ -9,8 +8,9 @@ from .write_settings import WriteSettings
 from .data_signal_handler import DataSignalHandler
 from .settings_signal_handler import SettingsSignalHandler
 from .equipment_signal_handler import EquipmentSignalHandler
+from .spar_signal_handler import SparSignalHandler
 
-from InfographicController.infographic_controller import InfographicController
+from Measurement.InfographicController.infographic_controller import InfographicController
 
 import csv
 import json
@@ -48,19 +48,21 @@ class MeasurementController(QObject):
             'HOR_scale' : ('hor_scale', 'ms')
         }
 
-    def __init__(self):
+    def __init__(self, model, view):
         super().__init__()
 
-        self.model = MeasurementModel()
-        self.view = MainWindow()
+        self.model = model
+        self.view = view.meas
+        self.parent_view = view
+        #Infographic
+        self.ig_controller = InfographicController(model, view)
 
         self.init_connect_signals() # Must be before initialization
         self.init_view_handlers()
 
-        self.model.offline_mode(0) # Set to True for offline testing without instruments
-        self.model.start_initialization()
+         # Set to True for offline testing without instruments
+        self.model.instr_initialization()
         self.model.load_settings()
-        self.model.load_s21_files()
 
 
     def init_connect_signals(self):
@@ -70,7 +72,7 @@ class MeasurementController(QObject):
 
 
     def init_view_handlers(self):
-        self.status_bar = StatusBarController(self.view.meas.elem['status_bar_label'])
+        self.status_bar = StatusBarController(self.view.elem['status_bar_label'])
 
     def init_timers_signals(self):
         self.settings_timer = QTimer()
@@ -91,7 +93,7 @@ class MeasurementController(QObject):
 
     def init_view_signals(self):
         #Measurement sheet
-        elem =self.view.meas.elem
+        elem =self.view.elem
         keys = ('save_settings',
                 'load_settings',
                 'set_default',
@@ -118,33 +120,28 @@ class MeasurementController(QObject):
             elif isinstance(element, QCheckBox):
                 element.toggled.connect(lambda _, object=element: self.radiocheck_changed(object))
 
-        #Infographic
-        self.ig_controller = InfographicController(self.model, self.view)
+  
    
-
-
-
     #Line edit handlers
     def line_edit_changed(self, object_name):
         object_name.setProperty('class', 'line_changed')
         refresh_obj_view(object_name)
         self.lock_start_btn()
 
-
     def lock_start_btn(self):
-        elem = self.view.meas.elem
+        elem = self.view.elem
         elem['btn_apply'].setEnabled(True)
         elem['btn_start'].setEnabled(False)
         self.status_bar.warning('Submit input parameters')
 
     def unlock_start_btn(self):
-        elem = self.view.meas.elem
+        elem = self.view.elem
         elem['btn_apply'].setEnabled(False)
         elem['btn_start'].setEnabled(True)
         self.status_bar.info('Ready to measurement')
 
     def radiocheck_changed(self, object_name):
-        elem = self.view.meas.elem
+        elem = self.view.elem
         if object_name is elem ['unlock_stop']:
             return
         object_name.setProperty('class', 'radiocheck_changed')
@@ -152,7 +149,7 @@ class MeasurementController(QObject):
         self.lock_start_btn()
         
     def set_elements_unchanged(self):
-        elem =self.view.meas.elem
+        elem =self.view.elem
         for element in elem.values():
             if isinstance(element, QLineEdit) or isinstance(element, QCheckBox) or isinstance(element, QRadioButton):
                 element.setProperty('class', '')
@@ -161,7 +158,7 @@ class MeasurementController(QObject):
 
     def btn_clicked_connect(self,btn_name, btn_handler):
         if btn_handler is not None:
-            self.view.meas.elem[f'btn_{btn_name}'].clicked.connect(btn_handler)
+            self.view.elem[f'btn_{btn_name}'].clicked.connect(btn_handler)
 
     def btn_save_settings_click(self):
         WriteSettings.view_to_model(self)
@@ -236,7 +233,6 @@ class MeasurementController(QObject):
             self.status_bar.error(f"Error applying settings: {e}")
 
 
-
     def data_signals_handler(self, message):
         DataSignalHandler.handler(self, message)
 
@@ -247,7 +243,7 @@ class MeasurementController(QObject):
              dev = self.units[unit]
 
         value_min, value_max, points = message.get(f'{mes_key}', (None, None, None))
-        elem = self.view.meas.elem
+        elem = self.view.elem
         elem[f'{elem_key}_min_line'].setText(remove_zeros(value_min/dev))
         elem[f'{elem_key}_max_line'].setText(remove_zeros(value_max/dev))
         elem[f'{elem_key}_points_line'].setText(remove_zeros(points))
@@ -256,7 +252,7 @@ class MeasurementController(QObject):
         elem_key, unit = param
         if unit in self.units:
              dev = self.units[unit]
-        self.view.meas.elem[f'{elem_key}_line'].setText(remove_zeros(value/dev))
+        self.view.elem[f'{elem_key}_line'].setText(remove_zeros(value/dev))
 
     def update_osc_elem(self, value, param):
         self.update_sa_elem(value, param)
@@ -264,15 +260,15 @@ class MeasurementController(QObject):
     
     def change_state_precise(self):
         """Precise checkbox handler"""
-        is_checked = self.view.meas.elem['precise_enabled'].isChecked()
+        is_checked = self.view.elem['precise_enabled'].isChecked()
         self.enable_precise(is_checked)
 
     def change_state_recalc(self):
-        is_checked = self.view.meas.elem['recalc_att'].isChecked()
+        is_checked = self.view.elem['recalc_att'].isChecked()
         self.enable_recalc(is_checked)
 
     def enable_precise(self, state):
-        elem = self.view.meas.elem
+        elem = self.view.elem
         elem['precise_enabled'].setChecked(state)
         keys = ('span_precise_label', 'span_precise_line',
                 'rbw_precise_label', 'rbw_precise_line',
@@ -281,7 +277,7 @@ class MeasurementController(QObject):
             elem[key].setEnabled(state)
 
     def enable_recalc(self, state):
-        elem = self.view.meas.elem
+        elem = self.view.elem
         elem['recalc_att'].setChecked(state)
         keys = ('s21_gen_sa_label', 's21_gen_sa_file_label',
                 's21_gen_det_label', 's21_gen_det_file_label',
@@ -296,7 +292,6 @@ class MeasurementController(QObject):
             return False
         return True
 
-
     def unlock_stop_btn(self):
         elem = self.view.meas.elem
         is_checked = elem['unlock_stop'].isChecked()
@@ -309,16 +304,7 @@ class MeasurementController(QObject):
         elem['progress'].setValue(message)
 
     def s21_signals_handler(self, message):
-        if 's21_gen_sa' in message:
-            elem = self.view.meas.elem['s21_gen_sa_file_label']
-            elem.setText(message['s21_gen_sa'])
-            elem.setProperty('class', 's21_label_file')
-            refresh_obj_view(elem)
-        if 's21_gen_det' in message:
-            elem = self.view.meas.elem['s21_gen_det_file_label']
-            elem.setText(message['s21_gen_det'])
-            elem.setProperty('class', 's21_label_file')
-            refresh_obj_view(elem)
+        SparSignalHandler.handler(self, message)
 
 
     def equipment_signals_handler(self, message):
@@ -364,7 +350,3 @@ class MeasurementController(QObject):
         elem = self.view.ig.elem
         elem['freq_cobmo'].setEnabled(True)
         elem['btn_protocol'].setEnabled(True)
-
-    def run(self):
-        logger.debug('GUI running')
-        self.view.show()
