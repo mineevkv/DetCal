@@ -102,7 +102,7 @@ class FileManager():
         )
         if filename:
             file_header = 'Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V), S21 Gen-Sa (dB), S21 Gen-Det (dB), Det Level (dBm)'
-            np.savetxt(filename, self.model.meas_data, delimiter=',', header=file_header) # Frequency, Level, Value, Mean Osc Value
+            np.savetxt(filename, self.model.meas_data, delimiter=',', header=file_header)
             logger.info(f"Results saved to {filename}")
         else:
             logger.warning(f"No file selected")

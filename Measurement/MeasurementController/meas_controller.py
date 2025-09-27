@@ -4,11 +4,7 @@ from PyQt6.QtWidgets import QLineEdit, QCheckBox, QRadioButton
 from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view, is_equal_frequencies, load_units
 from .status_bar_controller import StatusBarController
 from .write_settings import WriteSettings
-from .data_signal_handler import DataSignalHandler
-from .settings_signal_handler import SettingsSignalHandler
-from .equipment_signal_handler import EquipmentSignalHandler
-from .spar_signal_handler import SparSignalHandler
-from .progress_signal_handler import ProgressSignalHandler
+from .model_signal_handler import ModelSignalHandler
 
 from Measurement.InfographicController.infographic_controller import InfographicController
 
@@ -50,11 +46,8 @@ class MeasurementController(QObject):
 
         self.general_view = view # General View
         self.model = model  # General Measurement Model
-
         self.view = view.meas # Measurement Sheet
-        
-     
-        self.ig_controller = InfographicController(model, view)
+        self.ig_controller = InfographicController(model, view) # Slave Sheet
 
         self.init_signals_handlers() # Must be before instrument initialization
         self.init_view_controllers()
@@ -64,7 +57,7 @@ class MeasurementController(QObject):
 
 
     def init_signals_handlers(self):
-        self.init_model_signals()
+        ModelSignalHandler.init(self)
         self.init_view_signals()
         self.init_timers_signals()
 
@@ -81,12 +74,6 @@ class MeasurementController(QObject):
         self.waiting_timer.setInterval(5000) # 5 second
         self.waiting_timer.timeout.connect(self.hide_waiting_status)
 
-    def init_model_signals(self):
-        self.model.data_changed.connect(lambda message: DataSignalHandler.handler(self, message))
-        self.model.equipment_changed.connect(lambda message: EquipmentSignalHandler.handler(self, message))
-        self.model.settings_changed.connect(lambda message: SettingsSignalHandler.handler(self, message))
-        self.model.progress_status.connect(lambda message: ProgressSignalHandler.handler(self, message))
-        self.model.s21_file_changed.connect(lambda message: SparSignalHandler.handler(self, message))
 
     def init_view_signals(self):
         elem =self.view.elem
@@ -115,8 +102,6 @@ class MeasurementController(QObject):
                 if isinstance(element, QCheckBox) and element is elem['unlock_stop']:
                     continue
                 element.toggled.connect(lambda _, object=element: self.element_changed(object))
-
-
 
     def element_changed(self, object):
         if isinstance(object, QLineEdit):
