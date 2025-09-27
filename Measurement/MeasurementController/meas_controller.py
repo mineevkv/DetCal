@@ -9,6 +9,8 @@ from .model_signal_handler import ModelSignalHandler
 from .status_bar_controller import StatusBarController
 from .view_signal_handler import ViewSignalHandler
 from .write_settings import WriteSettings
+from .settings_validator import SettingsValidator
+from functools import wraps
 
 from System.logger import get_logger
 
@@ -26,7 +28,7 @@ class MeasurementController(QObject):
     :param view: The View.
     """
 
-    def __init__(self, model, view):
+    def __init__(self, model: object, view: object) -> None:
         super().__init__()
 
         self.general_view = view  # General View
@@ -41,6 +43,7 @@ class MeasurementController(QObject):
 
         self.model.instr_initialization()
         self.model.load_settings()
+
 
     def init_signals_handlers(self) -> None:
         """
@@ -101,6 +104,8 @@ class MeasurementController(QObject):
 
         This function is called when the "Save settings" button is clicked.
         """
+        if not self.validate_settings():
+            return
         try:
             WriteSettings.view_to_model(self)
             if self.model.file_manager.save_settings():
@@ -172,6 +177,8 @@ class MeasurementController(QObject):
         This function is called when the "Start" button is clicked.
         It will check if the instruments are initialized and if the settings are valid, then start the measurement process.
         """
+        if not self.validate_settings():
+            return
         if self.model.start_measurement_process():
             self.view.elem["UNLOCK_STOP"].setChecked(False)
             self.lock_control_elem()
@@ -211,6 +218,8 @@ class MeasurementController(QObject):
         This function is called when the "Save result" button is clicked.
         It will save the measurement results to a file and update the progress label.
         """
+        if not self.validate_settings():
+                return
         logger.debug("Save result")
         try:
             self.model.file_manager.save_results()
@@ -254,7 +263,6 @@ class MeasurementController(QObject):
         logger.debug("Apply button clicked")
         try:
             if not self.validate_settings():
-                self.status_bar.error("Invalid settings")
                 return
             WriteSettings.view_to_model(self)
             self.ig_controller.clear_selector()
@@ -269,8 +277,11 @@ class MeasurementController(QObject):
         This function is called before applying the settings to the model.
         It will check if the settings are valid and return True if they are, False otherwise.
         """
-        # Validate settings TODO: make function
-        return True
+        validator = SettingsValidator(self.view)
+        result = validator.check()
+        if not result:
+            self.status_bar.error("Invalid settings")
+        return result
 
     def change_state_precise(self) -> None:
         """

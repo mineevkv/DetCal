@@ -1,8 +1,9 @@
-from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view
+from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view, is_equal_frequencies
 import numpy as np
 from .abstract_signal_handler import SignalHandler
 from .keys import Keys
 from PyQt6.QtWidgets import QCheckBox, QLineEdit, QRadioButton
+
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -81,14 +82,12 @@ class SettingsSignalHandler(SignalHandler):
             ig_controller.view.figure2.canvas.draw_idle()
         if "RF_FREQUENCIES" in message:
             freq_min, freq_max, points = message["RF_FREQUENCIES"]
-            if freq_min == freq_max:
-                points = 1
-                frequencies = freq_min
+            if is_equal_frequencies(freq_min, freq_max):
+                ig_controller.add_selector_point(freq_min)
             else:
                 frequencies = np.linspace(freq_min, freq_max, points)
-
-            for frequency in frequencies:
-                ig_controller.add_selector_point(frequency)
+                for frequency in frequencies:
+                    ig_controller.add_selector_point(frequency)
 
     @staticmethod
     def update_gen_elem(meas_controller, message, mes_key, param):
