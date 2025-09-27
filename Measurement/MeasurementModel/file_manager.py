@@ -106,3 +106,8 @@ class FileManager():
             logger.info(f"Results saved to {filename}")
         else:
             logger.warning(f"No file selected")
+
+    @staticmethod
+    def load_units():
+        with open('Settings/units.json', 'r') as f:
+            return json.load(f)

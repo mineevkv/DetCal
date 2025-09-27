@@ -87,6 +87,3 @@ def read_csv_file(folder, filename=None):
     else:
         logger.warning(f"No file selected")
 
-def load_units():
-    with open('Settings/units.json', 'r') as f:
-        return json.load(f)

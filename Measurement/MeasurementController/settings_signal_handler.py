@@ -1,6 +1,7 @@
 from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view
 import numpy as np
 from .abstract_signal_handler import SignalHandler
+from .keys import Keys
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -11,12 +12,14 @@ class SettingsSignalHandler(SignalHandler):
 
     @staticmethod
     def handler(meas_controller, message):
-        logger.debug(f"SettingsSignalHandler")
+        logger.debug(f"SettingsSignalHandler"
+                     )
         args = meas_controller, message
         SettingsSignalHandler.gen_handler(*args)
         SettingsSignalHandler.sa_handler(*args)
         SettingsSignalHandler.osc_handler(*args)
         SettingsSignalHandler.recalc_handler(*args)
+        
         args = meas_controller.ig_controller, message
         SettingsSignalHandler.plot_handler(*args)
 
@@ -25,14 +28,14 @@ class SettingsSignalHandler(SignalHandler):
     @staticmethod
     def gen_handler(meas_controller, message):
         # Gen settings
-        for key, param in meas_controller.gen_keys.items():
+        for key, param in Keys.gen.items():
             if key in message:
                 SettingsSignalHandler.update_gen_elem(meas_controller, message, key, param)
 
     @staticmethod
     def sa_handler(meas_controller, message):
         # SA settings
-        for key, param in meas_controller.sa_keys.items():
+        for key, param in Keys.sa.items():
             if key in message:
                 SettingsSignalHandler.update_sa_elem(meas_controller, message[key], param)
 
@@ -42,7 +45,7 @@ class SettingsSignalHandler(SignalHandler):
     @staticmethod
     def osc_handler(meas_controller, message):
         # Osc settings
-        for key, param in meas_controller.osc_keys.items():
+        for key, param in Keys.osc.items():
             if key in message:
                 SettingsSignalHandler.update_osc_elem(meas_controller, message[key], param)
 

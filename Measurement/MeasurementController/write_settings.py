@@ -1,3 +1,5 @@
+from .keys import Keys
+
 from System.logger import get_logger
 logger = get_logger(__name__)
 
@@ -11,16 +13,16 @@ class WriteSettings():
         settings = meas_controller.model.settings
         elem = meas_controller.view.elem
 
-        for key, param in meas_controller.gen_keys.items():
+        for key, param in Keys.gen.items():
             settings[key] = WriteSettings.write_gen_settings(meas_controller, param)
 
-        for key, param in meas_controller.sa_keys.items():
+        for key, param in Keys.sa.items():
             settings[key] = WriteSettings.write_sa_settings(meas_controller, param)
 
         settings['Precise'] = elem['precise_enabled'].isChecked()
         settings['Recalc_atten'] = elem['recalc_att'].isChecked()
         
-        for key, param in meas_controller.osc_keys.items():
+        for key, param in Keys.osc.items():
             settings[key] = WriteSettings.write_osc_settings(meas_controller, param)
 
         settings['High_res'] = elem['hight_res_box'].isChecked()

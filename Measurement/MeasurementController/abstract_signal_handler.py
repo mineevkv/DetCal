@@ -9,6 +9,10 @@ class SignalHandler(ABC):
         pass
 
     @abstractmethod
+    def init (self):
+        pass
+
+    @abstractmethod
     def handler(self, message):
         pass
 
