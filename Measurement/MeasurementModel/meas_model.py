@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QObject, pyqtSignal
-from Measurement.MeasurementModel.Initializer import InstrumentInitializer
+from Measurement.MeasurementModel.Initializer import Initializer
 from .file_manager import FileManager
 from ..helper_functions import get_s21, is_equal_frequencies
 from Measurement.MeasurementModel.measurement_thread import MeasurementThread
@@ -38,7 +38,7 @@ class MeasurementModel(QObject):
     settings_filename = "meas_settings"
     settings_folder = "Settings"
     s21_folder = "S21files"
-    
+
     _settings = dict()
     _s21_gen_det = None
     _s21_gen_sa = None
@@ -58,7 +58,7 @@ class MeasurementModel(QObject):
         self._stop_requested = False
         self._meas_thread = None
 
-        self.initializer = InstrumentInitializer()
+        self.initializer = Initializer()
         self.initializer.finished.connect(self.init_instruments)
         self.file_manager = FileManager(self)
 
