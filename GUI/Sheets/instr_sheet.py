@@ -18,7 +18,7 @@ class InstrumentSheet(Sheet):
 
         self.add_instrument_sheet()
         self.add_ip_field()
-        self.add_animate_progress_bar()
+        self.add_animated_progress_bar()
 
 
     def add_instrument_sheet(self):
@@ -35,7 +35,7 @@ class InstrumentSheet(Sheet):
         self.add_btn(key, 13, self.ip_row, "Connect")
         self.add_label(f'{key}_STATUS', 20, self.ip_row, "", 100)
 
-    def add_animate_progress_bar(self):
+    def add_animated_progress_bar(self):
         bar = self.add_progress_bar('PROGRESS', self.zero_col, 8, 391 - 2*self.margin_left, self.elem_hight)
         self.shift_position(bar, shift_x=0, shift_y=-3)
         bar.setProperty('class', 'instr_progress_bar')

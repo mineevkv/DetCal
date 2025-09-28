@@ -1,3 +1,4 @@
+from abc import ABC
 from PyQt6.QtWidgets import (
     QWidget, QPushButton, QApplication, QCheckBox, QProgressBar, QRadioButton,
     QGridLayout, QLabel, QLineEdit, QGroupBox)
@@ -10,7 +11,7 @@ from GUI.QtCustomWidgets.custom_widgets import *
 from System.logger import get_logger
 logger = get_logger(__name__)
 
-class Sheet:    
+class Sheet(ABC):    
     def __init__(self, main_window): 
         self.layout = main_window.get_layout()
         self._margin_top = 10
