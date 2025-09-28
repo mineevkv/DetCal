@@ -15,14 +15,30 @@ logger = get_logger(__name__)
 
 
 class MeasurementModel(QObject):
+    """
+    Main model for the measurement process.
+
+    This class is responsible for controlling the measurement process and
+    providing data to the GUI.
+
+    Signals:
+        data_changed(dict): Notifies that measurement data has changed.
+        equipment_changed(dict): Notifies that instruments are being initialized.
+        settings_changed(dict): Notifies that measurement settings have changed.
+        s21_file_changed(dict): Notifies that an S21 file has been uploaded.
+        progress_status(dict): Notifies about the measurement progress status.
+    """
+
     data_changed = pyqtSignal(dict)  # Signal to notify data changes
     equipment_changed = pyqtSignal(dict)  # Signal to notify initializing instruments
     settings_changed = pyqtSignal(dict)  # Signal to notify settings changes
     s21_file_changed = pyqtSignal(dict)  # Signal to notify S21 file uploading
     progress_status = pyqtSignal(dict)  # Signal to notify measurement progress status
+
     settings_filename = "meas_settings"
     settings_folder = "Settings"
     s21_folder = "S21files"
+    
     _settings = dict()
     _s21_gen_det = None
     _s21_gen_sa = None
@@ -59,8 +75,6 @@ class MeasurementModel(QObject):
 
         If stop is requested, emit 'STOP' status and return True.
         """
-        return self._stop_requested
-
         if self._stop_requested:
             self.progress_status.emit("STOP")
             return True
@@ -120,7 +134,6 @@ class MeasurementModel(QObject):
         """
         Load the main settings and the S21 parameters from the settings
         files and store them in the MeasurementModel.
-.
         """
 
         self.file_manager.load_settings()
@@ -145,7 +158,7 @@ class MeasurementModel(QObject):
                 abort = True
 
         if abort:
-            logger.warning(f"Measurement aborted")
+            logger.warning("Measurement aborted")
             return False
 
         self._meas_thread = MeasurementThread(self)
@@ -170,7 +183,7 @@ class MeasurementModel(QObject):
 
         This method can be interrupted until the measurement is finished.
         """
-        logger.info(f"Starting measurement")
+        logger.info("Starting measurement")
         self.progress_status.emit("START")
 
         self._meas_data = []
@@ -268,10 +281,20 @@ class MeasurementModel(QObject):
         except StopIteration:
             self.progress_status.emit({"PROGRESS": 100})
 
-    def stop_measurement_process(self):
+    def stop_measurement_process(self) -> None:
+        """
+        External interruption of the measurement process.
+
+        This method is used to stop the measurement process from outside the measurement loop.
+        """
         self._stop_requested = True
 
-    def single_measurement(self):
+    def single_measurement(self) -> tuple:
+        """
+        This method is used to perform a single measurement.
+
+        :return: Spectrum Analyzer data and Oscilloscope data
+        """
         # Start measurement
         self.osc.ready_for_acquisition()
         time.sleep(0.2)
@@ -288,7 +311,14 @@ class MeasurementModel(QObject):
         _, osc_data = self.osc.get_waveform_data()
         return spectrum_data, osc_data
 
-    def osc_voltage_refinement(self, osc_data):
+    def osc_voltage_refinement(self, osc_data: list) -> float:
+        """
+        Method for refining the Oscilloscope voltage range (Y-scale)
+        to ensure the measured voltage is within the optimal range of the Oscilloscope.
+
+        :param osc_data: The measured Oscilloscope data
+        :return: The refined mean Oscilloscope voltage
+        """
         mean_osc_value = np.mean(osc_data)
 
         while self.check_osc_range(mean_osc_value):
@@ -309,7 +339,16 @@ class MeasurementModel(QObject):
 
         return mean_osc_value
 
-    def sa_level_checking(self, spectrum_data):
+    def sa_level_checking(self, spectrum_data: list) -> float:
+        """
+        Method for checking the level of the measured Spectrum Analyzer data.
+
+        If the maximum measured value is greater than the mean value plus the tolerance,
+        the maximum value is returned. Otherwise, 0 is returned.
+
+        :param spectrum_data: The measured Spectrum Analyzer data
+        :return: The maximum measured value or 0 if within tolerance
+        """
         max_value = max(spectrum_data)
         mean_value = np.mean(spectrum_data)
         limit = mean_value + self.SA_TOLERANCE  # +6 dBm
@@ -319,29 +358,62 @@ class MeasurementModel(QObject):
         else:
             return 0
 
-    def gen_on(self):
+    def gen_on(self) -> None:
+        """
+        Turns the generator output power on.
+
+        This method is used to turn the generator on before starting a measurement.
+        """
         self.gen.rf_on()
         time.sleep(0.1)
 
-    def gen_off(self):
+    def gen_off(self) -> None:
+        """
+        Turns the generator output power off.
+
+        This method is used to turn the generator off after a measurement is finished.
+        """
         self.gen.rf_off()
         self.gen.set_min_level()
 
-    def gen_set_max_level(self, levels):
+    def gen_set_max_level(self, levels: list) -> None:
+        """
+        Sets the output level of the generator to the maximum value in the given list.
+
+        :param levels: A list of output levels in dBm
+        """
         self.gen.set_level(max(levels))
         time.sleep(0.1)  # wait for frequency to be set
 
-    def sa_set_center_freq(self, frequency):
+    def sa_set_center_freq(self, frequency: float) -> None:
+        """
+        Sets the center frequency of the Spectrum Analyzer to the given value.
+
+        :param frequency: The center frequency in Hz
+        """
         self.sa.set_center_freq(frequency)
         time.sleep(0.1)  # wait for frequency to be set
 
-    def sa_start_measurement(self):
+    def sa_start_measurement(self) -> None:
+        """
+        Starts a single measurement on the Spectrum Analyzer.
+
+        If the measurement process is stopped externally, this method will do nothing.
+        """
         if self.is_stop():
             return
         self.sa.start_single_measurement()
         self.sa.delay_after_start()
 
-    def sa_set_precise_mode(self):
+    def sa_set_precise_mode(self) -> None:
+        """
+        Sets the Spectrum Analyzer to precise mode.
+
+        In precise mode, the Spectrum Analyzer is set to the peak frequency of the previous measurement.
+        The narrow band settings are used in this mode.
+
+        If the measurement process is stopped externally, this method will do nothing.
+        """
         if self.is_stop():
             return
         self.sa.find_peak_max()
@@ -349,8 +421,18 @@ class MeasurementModel(QObject):
         self.set_sa_narrow_band()
         time.sleep(0.1)  # wait for frequency to be set
 
-    def recalc_data(self):
-        """Recalculate data via measured S21 parameters"""
+    def recalc_data(self) -> list:
+        """
+        Recalculate data via measured S21 parameters.
+
+        This function recalculates the measurement data using the measured S21 parameters.
+        The recalculated data is stored in the form of a list of tuples, where each tuple
+        contains the frequency (Hz), the output power level (dBm), the level (dBm) measured by the Spectrum Analyzer,
+        and the voltage measured by the oscilloscope.
+
+        :return: A list of tuples containing the recalculated data
+        :rtype: list
+        """
         recalc_data = []
         for point in self._meas_data:
             frequency, level, sa_level, osc_voltage = point
@@ -372,17 +454,30 @@ class MeasurementModel(QObject):
         self.data_changed.emit({"RECALC_DATA": recalc_data})
         self._meas_data = recalc_data
 
-    def set_sa_wide_band(self):
+    def set_sa_wide_band(self) -> None:
+        """
+        Sets the Spectrum Analyzer to wide band mode.
+
+        The span, resolution bandwidth (RBW), and video bandwidth (VBW) are set to the values
+        specified in the measurement settings.
+
+        :return: None
+        """
         self.sa.set_span(self._settings["SPAN_WIDE"])
         self.sa.set_rbw(self._settings["RBW_WIDE"])
         self.sa.set_vbw(self._settings["VBW_WIDE"])
 
-    def set_sa_narrow_band(self):
-        self.sa.set_span(self._settings["SPAN_NARROW"])
-        self.sa.set_rbw(self._settings["RBW_NARROW"])
-        self.sa.set_vbw(self._settings["VBW_NARROW"])
+    def set_sa_narrow_band(self) -> None:
+        """
+        Sets the Spectrum Analyzer to narrow band mode.
 
-    def check_osc_range(self, value):
+        The span, resolution bandwidth (RBW), and video bandwidth (VBW) are set to the values
+        specified in the measurement settings.
+
+        :return: None
+        """
+
+    def check_osc_range(self, value: float) -> bool:
         """
         Check if oscilloscope vertical scale needs adjustment based on measured value.
         Returns True if scale was changed, False otherwise.
@@ -413,5 +508,10 @@ class MeasurementModel(QObject):
         return False
 
     def meas_finish_handler(self):
+        """
+        Handles the finish of a measurement.
+
+        Called when the measurement is finished.
+        """
         self.progress_status.emit("FINISH")
-        logger.info(f"Measurement finished")
+        logger.info("Measurement finished")
