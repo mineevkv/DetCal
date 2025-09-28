@@ -237,13 +237,8 @@ class MeasurementModel(QObject):
         frequencies = np.linspace(freq_min, freq_max, freq_points)
         levels = np.linspace(level_min, level_max, level_points)
 
-        kwargs = {
-            "gen": self.gen,
-            "sa": self.sa,
-            "osc": self.osc,
-            "settings": self._settings,
-        }
-        DevicesSetup.setup(**kwargs)
+        devices = self.gen, self.sa, self.osc, self._settings
+        DevicesSetup.setup(*devices)
         self.measurement_loop(frequencies, levels)
         self.data_changed.emit({"DATA": self._meas_data})
 

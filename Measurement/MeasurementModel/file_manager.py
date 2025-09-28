@@ -17,6 +17,7 @@ class FileManager:
     This class provides functions to load settings from a file and to load S21 files.
 
     """
+
     def __init__(self, meas_model: object) -> None:
         self.model = meas_model
 
@@ -152,7 +153,7 @@ class FileManager:
                 path = open_file(self.model.s21_folder, "S21 files (*.trs)")
                 filename = os.path.basename(path)
             self.model.s21_gen_sa = self.parse_s21_file(filename)
-            self.model.s21_file_changed.emit({'S21_GEN_SA_FILENAME': filename})
+            self.model.s21_file_changed.emit({"S21_GEN_SA_FILENAME": filename})
             return True
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
@@ -175,7 +176,7 @@ class FileManager:
                 path = open_file(self.model.s21_folder, "S21 files (*.trs)")
                 filename = os.path.basename(path)
             self.model.s21_gen_det = self.parse_s21_file(filename)
-            self.model.s21_file_changed.emit({'S21_GEN_DET_FILENAME': filename})
+            self.model.s21_file_changed.emit({"S21_GEN_DET_FILENAME": filename})
             return True
         except Exception as e:
             logger.warning(f"Failed to load S21 file: {e}")
