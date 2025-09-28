@@ -62,6 +62,50 @@ class MeasurementModel(QObject):
         self.initializer.finished.connect(self.init_instruments)
         self.file_manager = FileManager(self)
 
+    @property
+    def settings(self) -> dict:
+        """Getter for measurement settings."""
+        return self._settings
+
+    @settings.setter
+    def settings(self, value: dict) -> None:
+        """Setter for measurement settings."""
+        self._settings = value
+        self.settings_changed.emit(self._settings)
+
+    @property
+    def meas_data(self) -> list:
+        """Getter for measurement data."""
+        return self._meas_data
+
+    @meas_data.setter
+    def meas_data(self, value: list) -> None:
+        """Setter for measurement data."""
+        self._meas_data = value
+        self.data_changed.emit(self._meas_data)
+
+    @property
+    def s21_gen_det(self) -> dict:
+        """Getter for S21 parameters from generator to detector."""
+        return self._s21_gen_det
+
+    @s21_gen_det.setter
+    def s21_gen_det(self, value: dict) -> None:
+        """Setter for S21 parameters from generator to detector."""
+        self._s21_gen_det = value
+        self.s21_file_changed.emit({"S21_GEN_DET": value})
+
+    @property
+    def s21_gen_sa(self) -> dict:
+        """Getter for S21 parameters from generator to spectrum analyzer."""
+        return self._s21_gen_sa
+
+    @s21_gen_sa.setter
+    def s21_gen_sa(self, value: dict) -> None:
+        """Setter for S21 parameters from generator to spectrum analyzer."""
+        self._s21_gen_sa = value
+        self.s21_file_changed.emit({"S21_GEN_SA": value})
+
     def stop_decorator(func):  # TODO: use this
         def wrapper(self, *args, **kwargs):
             if self.is_stop():

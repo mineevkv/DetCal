@@ -28,11 +28,11 @@ class RSA506N_S21_Parser:
         self._extract_trace_data()
         
         return {
-            'parameters': params,
-            'frequency': self.frequency,
-            's21_complex': self.s21_complex,
-            'magnitude_db': self.magnitude_db,
-            'phase_degrees': self.phase_degrees
+            'PARAMETERS': params,
+            'FREQUENCY': self.frequency,
+            'S21_COMPLEX': self.s21_complex,
+            'MAGNITUDE_DB': self.magnitude_db,
+            'PHASE_DEGREES': self.phase_degrees
         }
     
     def _extract_parameters(self) -> Dict[str, Any]:

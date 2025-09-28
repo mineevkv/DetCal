@@ -34,7 +34,7 @@ class MeasurementController(QObject):
         self.view = view.meas  # Measurement Sheet
         self.ig_controller = InfographicController(model, view)  # Slave Sheet
 
-        self.units = FileManager.load_units()
+        self.units = FileManager.load_units(self.model.settings_folder)
 
         self.init_signals_handlers()  # Must be before instrument initialization
         self.init_view_controllers()
