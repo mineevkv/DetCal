@@ -93,7 +93,6 @@ class MeasurementModel(QObject):
     def s21_gen_det(self, value: dict) -> None:
         """Setter for S21 parameters from generator to detector."""
         self._s21_gen_det = value
-        self.s21_file_changed.emit({"S21_GEN_DET": value})
 
     @property
     def s21_gen_sa(self) -> dict:
@@ -104,7 +103,6 @@ class MeasurementModel(QObject):
     def s21_gen_sa(self, value: dict) -> None:
         """Setter for S21 parameters from generator to spectrum analyzer."""
         self._s21_gen_sa = value
-        self.s21_file_changed.emit({"S21_GEN_SA": value})
 
     def stop_decorator(func):  # TODO: use this
         def wrapper(self, *args, **kwargs):
