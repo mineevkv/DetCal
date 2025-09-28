@@ -7,7 +7,7 @@ class GenController(InstrumentController):
     def __init__(self, instr, instr_sheet):
         super().__init__(instr, instr_sheet)
 
-        self.instr.connect()
+        self.instr.connect() # TODO move to parent class
         
     def connect_signals(self): 
         super().connect_signals()

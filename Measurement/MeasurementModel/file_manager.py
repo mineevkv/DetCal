@@ -258,7 +258,7 @@ class FileManager:
             logger.warning(f"No file selected")
 
     @staticmethod
-    def load_units(folder: str) -> dict:
+    def load_units(folder: str='Settings') -> dict:
         """
         Load units from a file.
 

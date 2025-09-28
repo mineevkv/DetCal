@@ -36,9 +36,9 @@ def remove_zeros(input_string: str | float) -> str | None:
         input_list[1] = input_list[1].rstrip("0")
         if input_list[1] == "":
             return input_list[0]
-        input_list = ".".join(input_list)
+        input_string = ".".join(input_list)
 
-    return input_list
+    return input_string
 
 
 def str_to_bool(value: str) -> bool:
@@ -58,7 +58,6 @@ def str_to_bool(value: str) -> bool:
         elif value == "false":
             return False
     return bool(value)
-
 
 def refresh_obj_view(QObject_name: str) -> None:
     """
@@ -161,3 +160,20 @@ def read_csv_file(folder: str, filename: str = None) -> tuple[list, str] | None:
     else:
         logger.warning(f"No file selected")
         return None
+
+def btn_clicked_connect(controller: object, btn_name: str, btn_handler: callable) -> None:
+    """
+    Connect a button to a handler function.
+
+    Parameters:
+        controller (object): The controller to connect the button to
+        btn_name (str): The name of the button to connect
+        btn_handler (callable): The function to call when the button is clicked
+
+    Returns:
+        None
+    """
+    if btn_handler is not None:
+        controller.view.elem[f"BTN_{btn_name.upper()}"].clicked.connect(btn_handler)
+    else:
+        logger.warning(f"UI element not found: BTN_{btn_name.upper()}")

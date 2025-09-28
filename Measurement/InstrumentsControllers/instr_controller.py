@@ -1,12 +1,15 @@
 from PyQt6.QtCore import QObject, QTimer
 from abc import ABC, abstractmethod
+from Measurement.MeasurementModel.file_manager import FileManager
+
+from Measurement.abstract_controller import Controller
 
 from GUI.palette import *
 
 from System.logger import get_logger
 logger = get_logger(__name__)
 
-class InstrumentController(QObject):
+class InstrumentController(Controller):
     def __init__(self, instr, instr_sheet):
         super().__init__()
         self.instr = instr
@@ -16,7 +19,6 @@ class InstrumentController(QObject):
         self.set_connection_field()
         self.init_progress_timer()
         
-        # self.ip_btn_connect.clicked.connect(self.ip_btn_connect_click)
 
         
     #Controller
@@ -136,21 +138,5 @@ class InstrumentController(QObject):
 
     def read_line(self, line_edit):
         return self.view.elem[f'{line_edit}_LINE'].text()
-    
-
-    def remove_zeros(self, input_string):
-        """Remove trailing zeros from a string containing a decimal point"""
-        if input_string is None:
-            return
-        
-        input_string = str(input_string)
-        if '.' in input_string:
-            input_list = input_string.split('.')
-            input_list[1] = input_list[1].rstrip('0')
-            if input_list[1] == '':
-                return input_list[0]
-            input_string = '.'.join(input_list)
-            
-        return input_string
     
     

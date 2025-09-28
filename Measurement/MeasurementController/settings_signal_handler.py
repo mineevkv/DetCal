@@ -92,13 +92,11 @@ class SettingsSignalHandler(SignalHandler):
     @staticmethod
     def update_gen_elem(meas_controller, message, mes_key, param):
         elem_key, unit = param
-        if unit in meas_controller.units:
-             dev = meas_controller.units[unit]
 
         value_min, value_max, points = message.get(f'{mes_key}', (None, None, None))
         elem = meas_controller.view.elem
-        elem[f'{elem_key}_MIN_LINE'].setText(remove_zeros(value_min/dev))
-        elem[f'{elem_key}_MAX_LINE'].setText(remove_zeros(value_max/dev))
+        elem[f'{elem_key}_MIN_LINE'].setText(meas_controller.value_to_str(value_min, unit))
+        elem[f'{elem_key}_MAX_LINE'].setText(meas_controller.value_to_str(value_max, unit))
         elem[f'{elem_key}_POINTS_LINE'].setText(remove_zeros(points))
 
     @staticmethod

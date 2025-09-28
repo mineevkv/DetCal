@@ -2,7 +2,7 @@
 from PyQt6.QtWidgets import QLineEdit, QCheckBox, QRadioButton
 from .abstract_signal_handler import SignalHandler
 
-from ..helper_functions import refresh_obj_view
+from ..helper_functions import refresh_obj_view, btn_clicked_connect
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -25,7 +25,7 @@ class ViewSignalHandler(SignalHandler):
         )
         
         for key in keys:
-                ViewSignalHandler.btn_clicked_connect(meas_controller, key, getattr(meas_controller, f'btn_{key.lower()}_click', None))
+                btn_clicked_connect(meas_controller, key, getattr(meas_controller, f'btn_{key.lower()}_click', None))
 
         elem['PRECISE_ENABLED'].stateChanged.connect(meas_controller.change_state_precise)
         elem['UNLOCK_STOP'].stateChanged.connect(meas_controller.unlock_stop_btn)
@@ -48,8 +48,3 @@ class ViewSignalHandler(SignalHandler):
         refresh_obj_view(object)
         meas_controller.lock_start_btn()
 
-    def btn_clicked_connect(meas_controller, btn_name, btn_handler):
-        if btn_handler is not None:
-            meas_controller.view.elem[f"BTN_{btn_name.upper()}"].clicked.connect(btn_handler)
-        else:
-            logger.warning(f"UI element not found: BTN_{btn_name.upper()}")

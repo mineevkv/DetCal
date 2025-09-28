@@ -3,19 +3,20 @@ from GUI.palette import *
 from Measurement.InfographicController.infographic_controller import (
     InfographicController,
 )
-from Measurement.MeasurementModel.file_manager import FileManager
+
 from .model_signal_handler import ModelSignalHandler
 from .status_bar_controller import StatusBarController
 from .view_signal_handler import ViewSignalHandler
 from .write_settings import WriteSettings
 from .settings_validator import SettingsValidator
+from Measurement.abstract_controller import Controller
 
 from System.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-class MeasurementController(QObject):
+class MeasurementController(Controller):
     """
     Measurement Controller class.
 
@@ -34,7 +35,7 @@ class MeasurementController(QObject):
         self.view = view.meas  # Measurement Sheet
         self.ig_controller = InfographicController(model, view)  # Slave Sheet
 
-        self.units = FileManager.load_units(self.model.settings_folder)
+        
 
         self.init_signals_handlers()  # Must be before instrument initialization
         self.init_view_controllers()
