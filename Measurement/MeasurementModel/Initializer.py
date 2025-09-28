@@ -18,7 +18,7 @@ class InstrumentInitializer(QThread):
     
     def __init__(self):
         super().__init__()
-        self.offline_debug =  False # Set to True to simulate offline mode
+
 
         self.load_instr_ip_settings()
 
@@ -36,10 +36,7 @@ class InstrumentInitializer(QThread):
             logger.warning(f"Failed to load instrument IPs from {filename}: {e}")
             return {}
 
-    def run(self):
-        if self.offline_debug:
-            logger.info("Offline debug mode")
-            return     
+    def run(self):  
         try:
             instr = {
                 'gen': DSG830(self.ip_DSG830),
@@ -50,3 +47,5 @@ class InstrumentInitializer(QThread):
         except Exception as e:
             self.finished.emit(None, None, None, e)
             logger.error(f"Failed to initialize instruments objects: {e}")
+
+

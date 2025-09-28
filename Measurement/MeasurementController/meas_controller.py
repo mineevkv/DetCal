@@ -42,7 +42,6 @@ class MeasurementController(QObject):
         self.model.instr_initialization()
         self.model.load_settings()
 
-
     def init_signals_handlers(self) -> None:
         """
         Initialize the Signal Handlers.
