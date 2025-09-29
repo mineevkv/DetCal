@@ -21,4 +21,4 @@ class ProgressSignalHandler(SignalHandler):
             meas_controller.progress_label_text('Stopped')
 
         if 'PROGRESS' in message:
-           meas_controller.view.elem['PROGRESS'].setValue(int(message))
+           meas_controller.view.elem['PROGRESS'].setValue(int(message['PROGRESS']))

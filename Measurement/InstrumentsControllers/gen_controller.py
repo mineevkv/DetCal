@@ -37,9 +37,9 @@ class GenController(InstrumentController):
         super().signal_handler(message)
         elem = self.view.elem
         if 'LEVEL' in message:
-           elem['LEVEL_LINE'].setText(str(self.remove_zeros(round(message['LEVEL'], 2))))
+           elem['LEVEL_LINE'].setText(self.value_to_str(round(message['LEVEL'], 2), 'dBm'))
         if 'FREQUENCY' in message:
-            elem['FREQ_LINE'].setText(str(self.remove_zeros(round(message['FREQUENCY']/1e6, 2))))
+            elem['FREQ_LINE'].setText(self.value_to_str(round(message['FREQUENCY'], 2), 'MHz'))
         if 'RF_STATE' in message:
             elem['BTN_RF_ON'].setDown(message['RF_STATE'])
         if 'MODULATION' in message:

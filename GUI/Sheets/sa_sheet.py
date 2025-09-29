@@ -17,7 +17,6 @@ class SpectrumAnalyzerSheet(InstrumentSheet):
 
     def __init__(self, main_layout):
         super().__init__(main_layout)
-        # self.box.setTitle("Spectrum Analyzer")
         
         center_freq_row = self.ip_row + 2
         span_row = center_freq_row + 1
@@ -38,11 +37,3 @@ class SpectrumAnalyzerSheet(InstrumentSheet):
         self.add_control_elem('VBW', vbw_col, vbw_row, 'VBW, kHz:', '10', rbw_label_width, edit_line_width_small)
 
         self.add_big_btn('SINGLE', 31, single_row, 'SINGLE')
-        
-        # # Controller
-        
-        # self.btn_single.clicked.connect(self.btn_single_click)
-        # self.elem['btn_center_freq_set'].clicked.connect(self.btn_center_freq_set_click)
-        # self.elem['btn_span_set'].clicked.connect(self.btn_span_set_click)
-        # self.elem['btn_rbw_set'].clicked.connect(self.btn_rbw_set_click)
-        # self.elem['btn_vbw_set'].clicked.connect(self.btn_vbw_set_click)

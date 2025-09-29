@@ -44,7 +44,7 @@ class OscController(InstrumentController):
 
     def bth_ch_handler(self, channel): # TODO: fix switching
         self.instr.selected_channel = channel
-        btn = self.view.elem[f'BTN_{channel.lower()}']
+        btn = self.view.elem[f'BTN_{channel.upper()}']
         if not btn.isChecked():
             self.instr.channel_off()
             btn.setChecked(False)

@@ -25,7 +25,7 @@ class DSG830(Instrument):
     @Instrument.device_checking
     def set_frequency(self, frequency):
         self.send(f":FREQuency {frequency}")
-        self.state_changed.emit({'frequency': frequency})
+        self.state_changed.emit({'FREQUENCY': frequency})
         
     @Instrument.device_checking
     def get_frequency(self):
@@ -42,7 +42,7 @@ class DSG830(Instrument):
 
         if level <=self.max_level and level >= self.min_level:
             self.send(f":LEV {level}dBm")
-            self.state_changed.emit({'level': level})
+            self.state_changed.emit({'LEVEL': level})
         else:
             logger.warning("Output level out of range")
 
@@ -65,12 +65,12 @@ class DSG830(Instrument):
     @Instrument.device_checking
     def rf_on(self):
         self.send(":OUTPut ON")
-        self.state_changed.emit({'rf_state': True})
+        self.state_changed.emit({'RF_STATE': True})
 
     @Instrument.device_checking
     def rf_off(self):
         self.send(":OUTPut OFF")
-        self.state_changed.emit({'rf_state': False})
+        self.state_changed.emit({'RF_STATE': False})
 
     # Turn Modulation ON/OFF of the output signal (Mod/on)
     @Instrument.device_checking

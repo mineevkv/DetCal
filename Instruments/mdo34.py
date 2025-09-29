@@ -70,7 +70,16 @@ class MDO34(Instrument):
             raise ValueError(f"Unknown channel: {channel}")
 
         self.send(f'SELECT:CH{self._selected_channel}')
-        self.state_changed.emit({'select_ch': self._selected_channel})
+        self.state_changed.emit({'SELECT_CH': self._selected_channel})
+
+    @Instrument.device_checking
+    def get_active_channels(self) -> dict:
+        channel_state = dict()
+        response = self.send(f'SELECT?').split(';') # response: 1;0;0;0;...;CH2
+
+        for i, channel in enumerate(self.channel_map.values()):
+            channel_state[channel] = bool(int(response[i]))
+        return channel_state
 
     @Instrument.device_checking 
     def is_channel_on(self, channel):
@@ -81,20 +90,20 @@ class MDO34(Instrument):
         response = self.send(f'SELECT:CONTROl?')
         if response is not None and response.startswith('CH'):
             channel = int(response[2:])
-            self.state_changed.emit({'select_ch': channel})
+            self.state_changed.emit({'SELECT_CH': channel})
             return channel
         return 0
 
     @Instrument.device_checking    
     def set_coupling(self, coupling='DC'):
         self.send(f'CH{self._selected_channel}:COUP {coupling}')
-        self.state_changed.emit({'coupling': coupling})
+        self.state_changed.emit({'COUPLING': coupling})
 
     @Instrument.device_checking
     def set_vertical_scale(self, scale=1):
         """Vertical scale in voltages"""
         self.send(f'CH{self._selected_channel}:SCALE {scale}')
-        self.state_changed.emit({'vert_scale' : scale})
+        self.state_changed.emit({'VERT_SCALE' : scale})
 
     @Instrument.device_checking
     def get_channel_parameters(self):
@@ -109,7 +118,7 @@ class MDO34(Instrument):
     def set_vertical_position(self, offset=0):
         """Vertical offset in voltages"""
         self.send(f'CH{self._selected_channel}:OFFSET {offset}')
-        self.state_changed.emit({'vert_pos' : offset})
+        self.state_changed.emit({'VERT_POS' : offset})
 
     @Instrument.device_checking
     def get_vertical_position(self):
@@ -124,7 +133,7 @@ class MDO34(Instrument):
     def set_horizontal_scale(self, scale='1s'):
         """Horizontal scale in seconds"""
         self.send(f'HORIZONTAL:SCALE {scale}')
-        self.state_changed.emit({'hor_scale' : scale})
+        self.state_changed.emit({'HOR_SCALE' : scale})
 
     @Instrument.device_checking
     def get_horizontal_scale(self):
@@ -133,7 +142,7 @@ class MDO34(Instrument):
     @Instrument.device_checking
     def set_horizontal_position(self, position=0):
         self.send(f'HORIZONTAL:POSITION {position}')
-        self.state_changed.emit({'hor_pos' : position})
+        self.state_changed.emit({'HOR_POS' : position})
 
     @Instrument.device_checking
     def get_horizontal_position(self):
@@ -253,7 +262,7 @@ class MDO34(Instrument):
     @Instrument.device_checking
     def set_high_res_mode(self):
         self.send('ACQuire:MODe HIRes')
-        self.state_changed.emit({'acquire_mode' : 'HIRES'})
+        self.state_changed.emit({'ACQUIRE_MODE' : 'HIRES'})
 
     @Instrument.device_checking
     def get_aquire_mode(self):
@@ -262,17 +271,17 @@ class MDO34(Instrument):
     @Instrument.device_checking
     def set_sample_mode(self):
         self.send('ACQuire:MODe SAMple')
-        self.state_changed.emit({'acquire_mode': 'SAMPLE'})
+        self.state_changed.emit({'ACQUIRE_MODE': 'SAMPLE'})
     
     @Instrument.device_checking
     def get_settings_from_device(self):
         message = {
-            'vert_scale': self.get_vertical_scale(),
-            'vert_pos': self.get_vertical_position(),
-            'hor_scale': self.get_horizontal_scale(),
-            'hor_pos': self.get_horizontal_position(),
-            'acquire_mode': self.get_aquire_mode(),
-            'select_ch': self.get_selected_channel(),
+            'VERT_SCALE': self.get_vertical_scale(),
+            'VERT_POS': self.get_vertical_position(),
+            'HOR_SCALE': self.get_horizontal_scale(),
+            'HOR_POS': self.get_horizontal_position(),
+            'ACQUIRE_MODE': self.get_aquire_mode(),
+            'SELECT_CH': self.get_selected_channel(),
             }
         
         message = {**message, **self.get_active_channels()} #TODO: add selected channel

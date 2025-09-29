@@ -40,11 +40,11 @@ class ConnectThread(QThread):
             self.parent.model = 'None'
         finally:
             self.parent.state_changed.emit({
-                'ip': self.parent.ip,
-                'connected': self.parent.initialized,
-                'model': self.parent.model,
-                'type': self.parent.get_type(),
-                'thread': self.parent.connect_thread
+                'IP': self.parent.ip,
+                'CONNECTED': self.parent.initialized,
+                'MODEL': self.parent.model,
+                'TYPE': self.parent.get_type(),
+                'THREAD': self.parent.connect_thread
             })
             self.parent.progress_changed.emit(80)
             self.parent.get_settings_from_device()

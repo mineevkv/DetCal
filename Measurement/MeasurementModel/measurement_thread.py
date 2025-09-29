@@ -31,7 +31,7 @@ class MeasurementThread(QThread):
         """
         try:
             logger.debug("Starting measurement thread")
-            self.model.start_measurement()
+            self.model.start_measurement_thread()
         except Exception as e:
             logger.error(f"Measurement process failed: {e}")
         finally:

@@ -118,7 +118,7 @@ class MeasurementModel(QObject):
         If stop is requested, emit 'STOP' status and return True.
         """
         if self._stop_requested:
-            self.progress_status.emit("STOP")
+            self.progress_status.emit({"STOP": True})
             return True
         return False
 
@@ -126,7 +126,7 @@ class MeasurementModel(QObject):
         "Offline mode: Instruments are not initialized"
         if mode:
             self._offline_debug = True
-            self.progress_status.emit("OFFLINE")
+            self.progress_status.emit({"OFFLINE": True})
         else:
             self._offline_debug = False
 
@@ -226,7 +226,7 @@ class MeasurementModel(QObject):
         This method can be interrupted until the measurement is finished.
         """
         logger.info("Starting measurement")
-        self.progress_status.emit("START")
+        self.progress_status.emit({"START": True})
 
         self._meas_data = []
         self._stop_requested = False
@@ -301,7 +301,7 @@ class MeasurementModel(QObject):
                         )
         except Exception as e:
             logger.error(f"Measurement loop error: {e}")
-            self.progress_status.emit("ERROR")
+            self.progress_status.emit({"ERROR": True})
         finally:
             self.gen_off()
             self.emit_progress(100)
@@ -513,6 +513,9 @@ class MeasurementModel(QObject):
 
         :return: None
         """
+        self.sa.set_span(self._settings["SPAN_NARROW"])
+        self.sa.set_rbw(self._settings["RBW_NARROW"])
+        self.sa.set_vbw(self._settings["VBW_NARROW"])
 
     def check_osc_range(self, value: float) -> bool:
         """
@@ -550,5 +553,5 @@ class MeasurementModel(QObject):
 
         Called when the measurement is finished.
         """
-        self.progress_status.emit("FINISH")
+        self.progress_status.emit({"FINISH": True})
         logger.info("Measurement finished")

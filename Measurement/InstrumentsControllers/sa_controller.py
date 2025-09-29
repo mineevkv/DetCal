@@ -14,11 +14,11 @@ class SAController(InstrumentController):
     def connect_signals(self):
         super().connect_signals()
         keys = (
-            "BTN_CENTER_FREQ",
-            "BTN_SPAN",
-            "BTN_RBW",
-            "BTN_VBW",
-            "BTN_SINGLE",
+            "CENTER_FREQ",
+            "SPAN",
+            "RBW",
+            "VBW",
+            "SINGLE",
         )
 
         for key in keys:
@@ -85,7 +85,7 @@ class SAController(InstrumentController):
 
     def btn_span_click(self):
         self.freq_line_edit_handler(
-            self.view.elem["SPAN_LINE"], self.instr.set_span, self.instr.get_span, "kHz"
+            self.view.elem["SPAN_LINE"], self.instr.set_span, self.instr.get_span, "MHz"
         )
 
     def btn_rbw_click(self):

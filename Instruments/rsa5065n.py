@@ -28,7 +28,7 @@ class RSA5065N(Instrument):
     @Instrument.device_checking
     def set_center_freq(self, freq):  
         self.send(f":SENSE:FREQUENCY:CENTER {freq}")
-        self.state_changed.emit({'center_freq': freq})
+        self.state_changed.emit({'CENTER_FREQ': freq})
 
     @Instrument.device_checking
     def get_center_freq(self):
@@ -46,7 +46,7 @@ class RSA5065N(Instrument):
     @Instrument.device_checking
     def set_span(self, span):
         self.send(f":SENSE:FREQUENCY:SPAN {span}")
-        self.state_changed.emit({'span': span})
+        self.state_changed.emit({'SPAN': span})
 
     @Instrument.device_checking
     def get_span(self):
@@ -56,24 +56,24 @@ class RSA5065N(Instrument):
     @Instrument.device_checking
     def set_ref_level(self, ref_level=0):
         self.send(f":DISPlay:WINDow:TRACe:Y:SCALe:RLEVel {ref_level}")
-        self.state_changed.emit({'ref_level': ref_level})
+        self.state_changed.emit({'REF_LEVEL': ref_level})
 
     # Bandwidth (BW)
     @Instrument.device_checking
     def set_rbw(self, rbw):
         self.send(f":SENSE:BANDWIDTH:RESOLUTION {rbw}")
-        self.state_changed.emit({'rbw': rbw})
+        self.state_changed.emit({'RBW': rbw})
 
     @Instrument.device_checking
     def set_vbw(self, vbw):
         self.send(f":SENSE:BANDWIDTH:VIDEO {vbw}")
-        self.state_changed.emit({'vbw': vbw})
+        self.state_changed.emit({'VBW': vbw})
 
     # Trace (Trace)
     @Instrument.device_checking
     def set_trace_format(self, trace_format):
         self.send(f":FORMat:TRACe:DATA {trace_format}")
-        self.state_changed.emit({'trace_format': trace_format})
+        self.state_changed.emit({'TRACE_FORMAT': trace_format})
 
     @Instrument.device_checking
     def trace_clear_all(self):
@@ -83,7 +83,7 @@ class RSA5065N(Instrument):
     @Instrument.device_checking
     def set_sweep_time(self, sweep_time):
         self.send(f":SENSE:SWEEP:TIME {sweep_time}")
-        self.state_changed.emit({'sweep_time': sweep_time})
+        self.state_changed.emit({'SWEEP_TIME': sweep_time})
 
     @Instrument.device_checking
     def get_sweep_time(self):
@@ -92,7 +92,7 @@ class RSA5065N(Instrument):
     @Instrument.device_checking
     def set_sweep_points(self, sweep_points):
         self.send(f":SENSE:SWEEP:POINTS {sweep_points}")
-        self.state_changed.emit({'sweep_points': sweep_points})
+        self.state_changed.emit({'SWEEP_POINTS': sweep_points})
 
     @Instrument.device_checking
     def get_sweep_points(self):
@@ -101,12 +101,12 @@ class RSA5065N(Instrument):
     @Instrument.device_checking
     def set_single_sweep(self):
         self.send(":INITiate:CONTinuous OFF")
-        self.state_changed.emit({'single_sweep': True, 'continuous_sweep': False})
+        self.state_changed.emit({'SINGLE_SWEEP': True, 'CONTINUOUS_SWEEP': False})
 
     @Instrument.device_checking
     def set_continuous_sweep(self):
         self.send(":INITiate:CONTinuous ON")
-        self.state_changed.emit({'single_sweep': False, 'continuous_sweep': True})
+        self.state_changed.emit({'SINGLE_SWEEP': False, 'CONTINUOUS_SWEEP': True})
 
     # Single measurement (Single)
     @Instrument.device_checking
@@ -140,7 +140,7 @@ class RSA5065N(Instrument):
 
         self.send(":FORMat:TRACe:DATA REAL,32")
         self.send(":FORMat:BORDer NORMal")
-        self.state_changed.emit({'trace format': 'REAL 32'})
+        self.state_changed.emit({'TRACE_FORMAT': 'REAL 32'})
 
     # Configure
     @Instrument.device_checking
@@ -157,7 +157,7 @@ class RSA5065N(Instrument):
         """
         if 'SAN' not in self.get_configure():
             self.send(":CONFigure:SANalyzer")
-            self.state_changed.emit({'configure': 'Spectrum Analyzer'}) 
+            self.state_changed.emit({'CONFIGURE': 'Spectrum Analyzer'}) 
 
     @Instrument.device_checking
     def delay_after_start(self, delay_time=None):
