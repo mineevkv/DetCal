@@ -107,13 +107,34 @@ QLabel {
     qproperty-alignment: 'AlignCenter| AlignBottom';
 }
 
-.osc_label {
+.osc_label,
+.osc_vert_label1,
+.osc_vert_label2,
+.osc_vert_label3,
+.osc_vert_label4 {
     color: #90969b;
     font-size: 12px;
     font-weight: bold;
     qproperty-alignment: 'AlignBottom';
     
 }
+
+.osc_vert_label1 {
+    color: #f1c40f;
+}
+
+.osc_vert_label2 {
+    color: #82c9ff;
+}
+
+.osc_vert_label3 {
+    color: #ff5436;
+}
+
+.osc_vert_label4 {
+    color: #a5c53c;
+}
+
 
 .settings_status_label {
     color: #50e3c2;

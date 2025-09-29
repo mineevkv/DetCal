@@ -184,6 +184,17 @@ class MDO34(Instrument):
     def set_termination(self, termination):
         """FIFty|MEG"""
         self.send(f'CH{self._selected_channel}:TERMINATION {termination}')
+        self.state_changed.emit({'TERMINATION': termination})
+
+    @Instrument.device_checking
+    def get_termination(self):
+        return self.send(f'CH{self._selected_channel}:TERMINATION?')
+    
+    def get_all_terminations(self):
+        terminations = {}
+        for channel in self.channel_map.values():
+            terminations[channel] = self.send(f'{channel}:TERMINATION?')
+        return terminations
 
     @Instrument.device_checking
     def stop_after_sequence(self):
@@ -282,6 +293,7 @@ class MDO34(Instrument):
             'HOR_POS': self.get_horizontal_position(),
             'ACQUIRE_MODE': self.get_aquire_mode(),
             'SELECT_CH': self.get_selected_channel(),
+            'TERMINATIONS': self.get_all_terminations(),
             }
         
         message = {**message, **self.get_active_channels()} #TODO: add selected channel

@@ -7,6 +7,7 @@ from PyQt6.QtCore import QThread
 from PyQt6.QtCore import pyqtSignal, QObject, Qt
 from PyQt6.QtCore import QMutex
 from abc import ABC, abstractmethod
+import time
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -92,7 +93,10 @@ class Instrument(VisaCom, QObject):
         pass
     
     def get_idn(self):
-        return self.send("*IDN?")
+        idn = self.send("*IDN?")
+        time.sleep(0.2)
+        return idn
+        
     
     def reset(self):
         self.send("*RST")
