@@ -11,6 +11,7 @@ class OscController(InstrumentController):
     def connect_signals(self): 
         super().connect_signals()
 
+        # TODO : refactor this part
         self.btn_clicked('VERT_SCALE', self.btn_vert_scale_click)
         self.btn_clicked('VERT_POS', self.btn_vert_pos_click)
 
