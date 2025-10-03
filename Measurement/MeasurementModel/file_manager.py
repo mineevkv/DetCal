@@ -237,11 +237,12 @@ class FileManager:
         - Detector input power level (dBm) - Recalculated via S21 parameters
         """
         try:
-            filename, _ = QFileDialog.getSaveFileName(
-                caption="Save results",
-                directory=os.path.join("results.csv"),
-                filter="CSV files (*.csv)",
-            )
+            # filename, _ = QFileDialog.getSaveFileName(
+            #     caption="Save results",
+            #     directory=os.path.join(f"results.csv"),
+            #     filter="CSV files (*.csv)",
+            # )
+            filename = os.path.join(f"results.csv")
         except Exception as e:
             logger.warning(f"Failed to open file dialog: {e}")
 

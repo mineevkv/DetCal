@@ -33,10 +33,13 @@ class InfographicSheet(Sheet):
 
         width_combo = 120
         row_combo = 2
-        row_btn = row_combo + 1
+        row_detname =row_combo + 2
+        row_btn = row_detname + 2
 
         self.add_frequency_selector('FREQ_COBMO',self.zero_col, row_combo, width_combo, self.elem_hight)
+        self.add_line_edit('DET_NAME', self.zero_col, row_detname, 'rf_det_name', width_combo).setProperty('class', 'det_name_line')
         self.add_custom_btn('PROTOCOL', self.zero_col, row_btn , 'Generate Protocol', width_combo, 45, 'btn_protocol')
+
 
     def add_frequency_selector(self, key, col, row, width, hight):
         self.elem[key] = QtWidgets.QComboBox(parent=self.box)

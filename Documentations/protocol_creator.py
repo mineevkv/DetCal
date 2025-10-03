@@ -37,6 +37,7 @@ class MeasurementProtocol(ProtocolCreator):
 
     def fill_document(self):
     
+        self.add_sapmle_section()
         self.add_equipments_section()
         self.add_settings_section()
         
@@ -44,7 +45,12 @@ class MeasurementProtocol(ProtocolCreator):
 
         self.create_pdf()
         
-
+    def add_sapmle_section(self):
+        self.doc.add_section("Sample", "")
+        filename = self.meas_settings['FILENAME']
+        filename = filename.replace("_", " ")
+        filename = filename.rstrip()
+        self.doc.add_bullet_list([r'\texttt{' + filename + r'}'])
 
     def add_equipments_section(self):
         self.doc.add_section("Measurement equipment", "")
@@ -58,12 +64,13 @@ class MeasurementProtocol(ProtocolCreator):
                    "Parameters from DetCal application settings file.")
         table_data = self.parse_settings()
         # table_data = [[str(key),  str(value)] for key, value in self.meas_settings.items()]
-        table_data = [[f'{key.replace("_", " ")}', str(value)] for key, value in self.meas_settings.items()]
+        table_data = [[f'{key.replace("_", " ")}', str(value)] for key, value in table_data.items()]
         self.doc.add_table(table_data, caption="Measurement parameters", label="params")
 
 
     def parse_settings(self):
-        settings = self.meas_settings
+        settings = self.meas_settings.copy()
+        del settings['FILENAME']
 
         freq_start, freq_stop, points = settings['RF_FREQUENCIES']
         freq_start = f"{(float(freq_start)/1e6):.2f}"

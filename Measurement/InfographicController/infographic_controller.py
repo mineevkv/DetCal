@@ -3,6 +3,7 @@ import csv
 import json
 from Documentations.protocol_creator import MeasurementProtocol
 
+from Measurement.MeasurementController.write_settings import WriteSettings
 from Measurement.helper_functions import is_equal_frequencies
 
 
@@ -23,6 +24,7 @@ class InfographicController(QObject):
         elem =self.view.elem
         elem['FREQ_COBMO'].currentTextChanged.connect(self.selector_handler)
         elem['BTN_PROTOCOL'].clicked.connect(self.btn_protocol_click)
+        elem['DET_NAME_LINE'].textChanged.connect(self.det_name_handler)
 
     def selector_handler(self):
         selected_freq = self.get_current_frequency()
@@ -80,6 +82,16 @@ class InfographicController(QObject):
             if  abs(self.frequency - box_frequency) < 1e4:
                 elem.setCurrentIndex(i)
                 return
+            
+    def set_det_name(self, name):
+        if name is not None:
+            name = name.replace('_', ' ')
+            name = name.rstrip()
+            self.view.elem['DET_NAME_LINE'].setText(name)
+
+    def det_name_handler(self):
+        name = self.view.elem['DET_NAME_LINE'].text()
+        WriteSettings.write_det_name(self.model, name)
             
     def lock_control_elem(self):
         elem = self.view.elem

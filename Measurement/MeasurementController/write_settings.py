@@ -60,4 +60,8 @@ class WriteSettings():
     def write_osc_settings(meas_controller, param):
         return WriteSettings.write_sa_settings(meas_controller, param)
     
-        
+    @staticmethod
+    def write_det_name(model, det_name):
+        det_name = det_name.rstrip()
+        det_name = det_name.replace(" ", "_")
+        model.settings["FILENAME"] = det_name

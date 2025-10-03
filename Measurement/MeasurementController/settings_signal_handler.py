@@ -23,7 +23,6 @@ class SettingsSignalHandler(SignalHandler):
         
         args = meas_controller.ig_controller, message
         SettingsSignalHandler.plot_handler(*args)
-
         SettingsSignalHandler.set_elements_unchanged(meas_controller)
 
     @staticmethod
@@ -91,6 +90,8 @@ class SettingsSignalHandler(SignalHandler):
                 frequencies = np.linspace(freq_min, freq_max, points)
                 for frequency in frequencies:
                     ig_controller.add_selector_point(frequency)
+        if "FILENAME" in message:
+            ig_controller.set_det_name(message["FILENAME"])
 
     @staticmethod
     def update_gen_elem(meas_controller, message, mes_key, param):

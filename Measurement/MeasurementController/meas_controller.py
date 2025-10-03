@@ -35,8 +35,6 @@ class MeasurementController(Controller):
         self.view = view.meas  # Measurement Sheet
         self.ig_controller = InfographicController(model, view)  # Slave Sheet
 
-        
-
         self.init_signals_handlers()  # Must be before instrument initialization
         self.init_view_controllers()
 

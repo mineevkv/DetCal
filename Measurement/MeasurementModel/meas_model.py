@@ -579,5 +579,6 @@ class MeasurementModel(QObject):
 
         Called when the measurement is finished.
         """
+        self.file_manager.save_results()
         self.progress_status.emit({"FINISH": True})
         logger.info("Measurement finished")
