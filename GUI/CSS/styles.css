@@ -91,7 +91,8 @@ QLabel {
     qproperty-alignment: 'AlignCenter'
 }
 
-.s21_label_nofile {
+.s21_label_nofile,
+.det_level_label {
     color: #ff5436;
 }
 
@@ -133,6 +134,12 @@ QLabel {
 
 .osc_vert_label4 {
     color: #a5c53c;
+}
+
+.det_level_label {
+    color: #f1c40f;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 

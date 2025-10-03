@@ -33,6 +33,9 @@ class SettingsSignalHandler(SignalHandler):
             if key in message:
                 SettingsSignalHandler.update_gen_elem(meas_controller, message, key, param)
 
+        SettingsSignalHandler.update_max_det_level(meas_controller)
+        
+
     @staticmethod
     def sa_handler(meas_controller, message):
         # SA settings
@@ -121,5 +124,13 @@ class SettingsSignalHandler(SignalHandler):
                 element.setProperty("class", "")
                 refresh_obj_view(element)
         meas_controller.unlock_start_btn()
+
+    def update_max_det_level(meas_controller):
+        model = meas_controller.model
+        elem = meas_controller.view.elem
+        if model.is_spar() and model.settings:
+            max_level = round(model.calc_max_det_level(), 2) # .:2f
+            elem['MAX_DET_LEVEL_VALUE_LABEL'].setText(meas_controller.value_to_str(max_level, 'dBm'))          
+
 
             

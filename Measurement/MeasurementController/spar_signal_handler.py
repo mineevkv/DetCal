@@ -1,5 +1,6 @@
 from ..helper_functions import refresh_obj_view
 from .abstract_signal_handler import SignalHandler
+from .settings_signal_handler import SettingsSignalHandler
 
 from System.logger import get_logger
 
@@ -22,3 +23,4 @@ class SparSignalHandler(SignalHandler):
             elem.setText(message["S21_GEN_DET_FILENAME"])
             elem.setProperty("class", "s21_label_file")
             refresh_obj_view(elem)
+            SettingsSignalHandler.update_max_det_level(meas_controller)
