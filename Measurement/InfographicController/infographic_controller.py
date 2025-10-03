@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QObject
 import csv
 import json
-from Documentations.protocol_creator import MeasurementProtocol
+from ProtocolCreator.protocol_creator import MeasurementProtocol
 
 from Measurement.MeasurementController.write_settings import WriteSettings
 from Measurement.helper_functions import is_equal_frequencies
@@ -12,10 +12,11 @@ logger = get_logger(__name__)
 
 class InfographicController(QObject):
         
-    def __init__(self,  model, view):
+    def __init__(self,  meas_controller, view):
         super().__init__()
         self.view = view.ig
-        self.model = model
+        self.model = meas_controller.model
+        self.meas_controller = meas_controller
         self.connect_signals()
 
         self.frequency = None
@@ -45,9 +46,7 @@ class InfographicController(QObject):
             for row in result_file:
                 if is_equal_frequencies(row[0], selected_frequency):
                     data.append(row)
-
-        with open("Settings/meas_settings.json", "r") as file:
-            settings = json.load(file)
+            settings = WriteSettings.view_to_dict(self.meas_controller)
             doc = MeasurementProtocol(data, settings)
 
     def plot_data_from_frequency(self, data):
@@ -90,8 +89,7 @@ class InfographicController(QObject):
             self.view.elem['DET_NAME_LINE'].setText(name)
 
     def det_name_handler(self):
-        name = self.view.elem['DET_NAME_LINE'].text()
-        WriteSettings.write_det_name(self.model, name)
+        WriteSettings.write_det_name_to_model(self.meas_controller)
             
     def lock_control_elem(self):
         elem = self.view.elem

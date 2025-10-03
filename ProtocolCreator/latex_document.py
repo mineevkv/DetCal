@@ -13,6 +13,7 @@ class LatexDocument:
                  document_class_options: Optional[List[str]] = None,
                  title: str = "Document",
                  author: str = "Author",
+                 filename: str = "Document",
                  packages: Optional[List[str]] = None):
         """
         Initialize a LaTeX document.
@@ -29,6 +30,7 @@ class LatexDocument:
         self.title = title
         self.author = author
         self.packages = packages or ["amsmath", "graphicx", "hyperref"]
+        self.filename = filename
         
         self.content = []
         self.sections = []
@@ -280,6 +282,7 @@ class LatexDocument:
         Raises:
             RuntimeError: If LaTeX compilation fails
         """
+       
         if tex_code is None:
             tex_code = self.generate_tex()
         
@@ -291,14 +294,14 @@ class LatexDocument:
             Path(output_dir).mkdir(parents=True, exist_ok=True)
         
         # Write LaTeX file
-        tex_file = Path(output_dir) / "results.tex"
+        tex_file = Path(output_dir) / f"{self.filename}.tex"
         with open(tex_file, 'w', encoding='utf-8') as f:
             f.write(tex_code)
-        
+            
         try:
             # Compile using pdflatex
             result = subprocess.run(
-                ["pdflatex", "-interaction=nonstopmode", str(tex_file)],
+                ["pdflatex", "-interaction=nonstopmode", str(tex_file.absolute())],
                 cwd=output_dir,
                 capture_output=True,
                 text=True
@@ -307,20 +310,20 @@ class LatexDocument:
             if result.returncode != 0:
                 raise RuntimeError(f"LaTeX compilation failed:\n{result.stderr}")
             
-            # Run twice to resolve references
+            # Run twice to resolve references (Two passes - Standard practice for most documents)
             subprocess.run(
-                ["pdflatex", "-interaction=nonstopmode", str(tex_file)],
+                ["pdflatex", "-interaction=nonstopmode", str(tex_file.absolute())],
                 cwd=output_dir,
                 capture_output=True
             )
             
             # pdf_path = os.getcwd() + "\\results.pdf"
-            pdf_path = Path(output_dir) / "document.pdf"
+            pdf_path = Path(output_dir) / f"{self.filename}.pdf"
             
             # Clean up intermediate files
             if clean_up:
-                for ext in ['.aux', '.log', '.out']:
-                    cleanup_file = Path(output_dir) / f"document{ext}"
+                for ext in ['.aux', '.log', '.out', '.tex']:
+                    cleanup_file = Path(output_dir) / f"{self.filename}{ext}"
                     if cleanup_file.exists():
                         cleanup_file.unlink()
             
