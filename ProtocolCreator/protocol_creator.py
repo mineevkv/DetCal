@@ -56,7 +56,6 @@ class MeasurementProtocol(ProtocolCreator):
             
 
     def fill_document(self):
-
         self.add_sapmle_section()
         self.add_equipments_section()
         self.add_settings_section()

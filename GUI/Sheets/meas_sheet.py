@@ -69,7 +69,9 @@ class MeasurementSheet(Sheet):
         s21_file_col = s21_col + 12
         s21_btn_col = s21_file_col + 20
         det_col = s21_col + 20
+        recalc_col = s21_col + 16
         self.add_check_box('RECALC_ATT', s21_col, points_row, 'Recalc attenuation')
+        self.add_custom_btn('RECALC_EXTERNAL', recalc_col, points_row, 'Recalc results', 120, self.elem_hight)
         self.add_label('S21_GEN_SA', s21_col, span_row, 'S21 Gen-SA file:', 120).setProperty('class', 's21_label')
         self.add_label('S21_GEN_SA_FILE', s21_file_col, span_row, 'No S21 file', 200).setProperty('class', 's21_label_nofile')
         self.add_custom_btn('LOAD_S21_GEN_SA', s21_btn_col, span_row, 'Load', 60, self.elem_hight)
