@@ -38,6 +38,7 @@ class MeasurementModel(QObject):
     settings_filename = "meas_settings"
     settings_folder = "Settings"
     s21_folder = "S21files"
+    output_dir = "Output"
 
     _settings = dict()
     _s21_gen_det = None

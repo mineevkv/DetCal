@@ -159,7 +159,7 @@ class FileManager:
             logger.warning(f"Failed to load S21 file: {e}")
             return False
 
-    def load_s21_gen_det(self, filename=None) -> bool:
+    def load_s21_gen_det(self, filename: str = None) -> bool:
         """
         Load S21 parameters file for the line from generator to detector.
 
@@ -220,11 +220,9 @@ class FileManager:
         data = parser.parse_file()
         return (data["FREQUENCY"], data["MAGNITUDE_DB"])
 
-    def save_results(self) -> None:
+    def save_results(self, mode: str = None) -> None:
         """
-        Save the measurement results to a CSV file.
-
-        This function will save the measurement results to a CSV file. The filename will be selected by the user through a file dialog.
+        Saves the measurement results to a CSV file.
 
         The CSV file will contain the following columns:
 
@@ -235,26 +233,30 @@ class FileManager:
         - S21 parameter from generator to spectrum analyzer (dB)
         - S21 parameter from generator to detector (dB)
         - Detector input power level (dBm) - Recalculated via S21 parameters
+
+        In mode=open', the filename will be selected by the user through a file dialog.
         """
         try:
-            # filename, _ = QFileDialog.getSaveFileName(
-            #     caption="Save results",
-            #     directory=os.path.join(f"results.csv"),
-            #     filter="CSV files (*.csv)",
-            # )
-            filename = os.path.join(f"results.csv")
+            if mode == "open":
+                path, _ = QFileDialog.getSaveFileName(
+                caption="Save results",
+                directory=os.path.join(f"{self.model.settings['FILENAME']}.csv"),
+                filter="CSV files (*.csv)",
+            )
+            else:
+                path = os.path.join(self.model.output_dir, f"{self.model.settings['FILENAME']}.csv")
         except Exception as e:
             logger.warning(f"Failed to open file dialog: {e}")
 
-        if filename:
+        if path:
             try:
                 file_header = "Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V), S21 Gen-Sa (dB), S21 Gen-Det (dB), Det Level (dBm)"
                 np.savetxt(
-                    filename, self.model.meas_data, delimiter=",", header=file_header
+                    path, self.model.meas_data, delimiter=",", header=file_header
                 )
-                logger.info(f"Results saved to {filename}")
+                logger.info(f"Results saved to {path}")
             except Exception as e:
-                logger.error(f"Failed to save results to {filename}: {e}")
+                logger.error(f"Failed to save results to {path}: {e}")
         else:
             logger.warning(f"No file selected")
 

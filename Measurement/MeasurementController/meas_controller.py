@@ -33,7 +33,7 @@ class MeasurementController(Controller):
         self.general_view = view  # General View
         self.model = model  # General Measurement Model
         self.view = view.meas  # Measurement Sheet
-        self.ig_controller = InfographicController(model, view)  # Slave Sheet
+        self.ig_controller = InfographicController(self, view)  # Slave Sheet
 
         self.init_signals_handlers()  # Must be before instrument initialization
         self.init_view_controllers()
@@ -216,7 +216,7 @@ class MeasurementController(Controller):
         """
         logger.debug("Save result")
         try:
-            self.model.file_manager.save_results()
+            self.model.file_manager.save_results('open')
             self.progress_label_text("Saved")
         except Exception as e:
             self.status_bar.error(f"Save result error: {e}")
