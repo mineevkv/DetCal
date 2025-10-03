@@ -176,6 +176,13 @@ QLineEdit:disabled{
     color: #50e3c2;
 }
 
+.det_name_line {
+    border: none;
+    font-weight: bold;
+    color: #f1c40f;
+    qproperty-alignment: 'AlignCenter';
+}
+
 QTextBrowser{
     background-color: transparent;
     border: none;

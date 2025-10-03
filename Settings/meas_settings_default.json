@@ -24,5 +24,6 @@
     "IMPEDANCE_50OHM": true,
     "COUPLING_DC": true,
     "CHANNEL": 1,
-    "RECALC_ATTEN": true
+    "RECALC_ATTEN": true,
+    "FILENAME": "RF_detector"
 }
