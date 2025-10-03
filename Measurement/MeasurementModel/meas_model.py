@@ -177,9 +177,10 @@ class MeasurementModel(QObject):
         Load the main settings and the S21 parameters from the settings
         files and store them in the MeasurementModel.
         """
-
+        self.file_manager.load_s21_files() # must be first fo calculation detector power level
         self.file_manager.load_settings()
-        self.file_manager.load_s21_files()
+        
+
 
     def get_data_from_frequency(self, frequency):
         data = []
@@ -307,11 +308,11 @@ class MeasurementModel(QObject):
             self.emit_progress(100)
 
     @dispatch(int)
-    def emit_progress(self, value):
+    def emit_progress(self, value)  -> None: # TODO: add doc
         self.progress_status.emit({"PROGRESS": value})
 
     @dispatch(object, int)
-    def emit_progress(self, iter_obj, max_len):
+    def emit_progress(self, iter_obj, max_len) -> None: # TODO: add doc
         try:
             value = int((next(iter_obj) / max_len) * 100)
             self.progress_status.emit({"PROGRESS": value})
@@ -490,6 +491,31 @@ class MeasurementModel(QObject):
 
         self.data_changed.emit({"RECALC_DATA": recalc_data})
         self._meas_data = recalc_data
+
+    def recalc_det_level(self, frequency: float, gen_level: float) -> float: #TODO: add documentation
+        s21_gen_sa = get_s21(frequency, self._s21_gen_sa)
+        s21_gen_det = get_s21(frequency, self._s21_gen_det)
+        det_level = gen_level + s21_gen_det
+        return det_level
+    
+    def calc_max_det_level(self) -> float: #TODO: add documentation
+        freq_min, freq_max, freq_points = self._settings["RF_FREQUENCIES"]
+        level_min, level_max, level_points = self._settings["RF_LEVELS"]
+
+        frequencies = np.linspace(freq_min, freq_max, freq_points)
+        levels = []
+        for frequency in frequencies:
+            levels.append (self.recalc_det_level(frequency, level_max))
+
+        return max(levels)
+    
+    def is_spar(self) -> bool:
+        if self._s21_gen_sa is None or self._s21_gen_det is None:
+            return False
+        else:
+            return True
+            
+
 
     def set_sa_wide_band(self) -> None:
         """

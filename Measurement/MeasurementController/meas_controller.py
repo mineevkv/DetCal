@@ -335,6 +335,8 @@ class MeasurementController(Controller):
             "S21_GEN_DET_FILE_LABEL",
             "BTN_LOAD_S21_GEN_SA",
             "BTN_LOAD_S21_GEN_DET",
+            "MAX_DET_LEVEL_LABEL",
+            "MAX_DET_LEVEL_VALUE_LABEL",
         )
         for key in keys:
             elem[key].setEnabled(state)

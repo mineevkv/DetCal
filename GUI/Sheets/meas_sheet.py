@@ -68,6 +68,7 @@ class MeasurementSheet(Sheet):
         s21_col = precise_col + 20
         s21_file_col = s21_col + 12
         s21_btn_col = s21_file_col + 20
+        det_col = s21_col + 20
         self.add_check_box('RECALC_ATT', s21_col, points_row, 'Recalc attenuation')
         self.add_label('S21_GEN_SA', s21_col, span_row, 'S21 Gen-SA file:', 120).setProperty('class', 's21_label')
         self.add_label('S21_GEN_SA_FILE', s21_file_col, span_row, 'No S21 file', 200).setProperty('class', 's21_label_nofile')
@@ -75,6 +76,8 @@ class MeasurementSheet(Sheet):
         self.add_label('S21_GEN_DET', s21_col, rbw_row, 'S21 Gen-Det file:', 120).setProperty('class', 's21_label')
         self.add_label('S21_GEN_DET_FILE', s21_file_col, rbw_row, 'No S21 file', 200).setProperty('class', 's21_label_nofile')
         self.add_custom_btn('LOAD_S21_GEN_DET', s21_btn_col, rbw_row, 'Load', 60, self.elem_hight)
+        self.add_label('MAX_DET_LEVEL', s21_col, vbw_row, 'Detector Max level, dBm:', 200).setProperty('class', 'meas_label_sa')
+        self.add_label('MAX_DET_LEVEL_VALUE', det_col, vbw_row, '-110', 60).setProperty('class', 'det_level_label')
 
         
         # Oscilloscope fields
