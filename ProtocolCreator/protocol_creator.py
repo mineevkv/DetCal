@@ -5,6 +5,7 @@ from Measurement.helper_functions import remove_zeros
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from GUI.palette import *
+from PyQt6.QtCore import pyqtSignal, QThread
 import numpy as np
 
 from System.logger import get_logger
@@ -12,14 +13,26 @@ from System.logger import get_logger
 logger = get_logger(__name__)
 
 
-class ProtocolCreator:
+class ProtocolCreator(QThread):
     output_dir = "Output"
+    finished_signal = pyqtSignal()
 
     def __init__(self):
-        pass
-
+        super().__init__()
+        self._should_stop = False
+        
+    def stop(self) -> None:
+        """Safely stop the protocol thread."""
+        self._should_stop = True
+        self.requestInterruption()  # QThread built-in method
+        self.quit()  # Ensure the event loop exits
+        if not self.wait(3000):  # Wait up to 3 seconds
+            # Force termination if graceful shutdown fails
+            self.terminate()
+            self.wait()
 
 class MeasurementProtocol(ProtocolCreator):
+
     def __init__(self, data_file, settings):
         super().__init__()
 
@@ -39,7 +52,19 @@ class MeasurementProtocol(ProtocolCreator):
 
         self.doc = LatexDocument(**kwargs)
 
-        self.fill_document()
+
+    def run(self):
+        try:
+            if self.isInterruptionRequested() or self._should_stop:
+                return
+                
+            self.fill_document()
+            
+            if not self.isInterruptionRequested() and not self._should_stop:
+                self.finished_signal.emit()
+            
+        except Exception as e:
+            logger.error(f"Error in protocol thread: {e}")
 
     def get_frequency(self):
         try: 
@@ -63,6 +88,7 @@ class MeasurementProtocol(ProtocolCreator):
         if self.add_plot_section():
             self.create_pdf()
             self.clean_up()
+            
         else:
             logger.warning(
                 "Protocol cannot be created! Check the data file and settings!"
@@ -316,3 +342,4 @@ class MeasurementProtocol(ProtocolCreator):
         png_files = [f for f in os.listdir(self.output_dir) if f.endswith(".png") and "measurement_data_" in f]
         for f in png_files:
             os.remove(os.path.join(self.output_dir, f))
+
