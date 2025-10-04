@@ -10,6 +10,7 @@ from .view_signal_handler import ViewSignalHandler
 from .write_settings import WriteSettings
 from .settings_validator import SettingsValidator
 from Measurement.abstract_controller import Controller
+from Measurement.MeasurementModel.recalc_results import RecalcResults
 
 from System.logger import get_logger
 
@@ -264,6 +265,13 @@ class MeasurementController(Controller):
         except Exception as e:
             self.status_bar.error(f"Error applying settings: {e}")
 
+    def btn_recalc_external_click(self) -> None:
+        if RecalcResults.from_external_file(self.model):
+           self.status_bar.info("Recalculation completed")
+        else:
+            self.status_bar.error("Recalculation failed")
+    
+
     def validate_settings(self) -> bool:
         """
         Validate the settings.
@@ -335,6 +343,7 @@ class MeasurementController(Controller):
             "BTN_LOAD_S21_GEN_DET",
             "MAX_DET_LEVEL_LABEL",
             "MAX_DET_LEVEL_VALUE_LABEL",
+            "BTN_RECALC_EXTERNAL"
         )
         for key in keys:
             elem[key].setEnabled(state)

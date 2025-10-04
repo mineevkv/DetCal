@@ -70,17 +70,20 @@ def refresh_obj_view(QObject_name: str) -> None:
     QObject_name.style().polish(QObject_name)
 
 
-def open_file(folder: str, type_filter: str = None) -> str | None:
+def open_file(folder: str = None, type_filter: str = None) -> str | None:
     """
     Open a file dialog to open a file in the given folder.
 
     Parameters:
-        folder (str): Folder to open the file dialog in
+        folder (str): Folder to open the file dialog (optional)
         filter (str): File filter to apply (optional)
 
     Returns:
         str: Path of the opened file. If not path: None
     """
+    if folder is None:
+        folder = os.getcwd()
+
     try:
         path, _ = QFileDialog.getOpenFileName(
             caption="Open file", directory=folder, filter=type_filter
@@ -150,6 +153,7 @@ def read_csv_file(folder: str, filename: str = None) -> tuple[list, str] | None:
     if path:
         try:
             with open(path, "r") as f:
+                next(csv.reader(f))  # Skip header
                 return list(csv.reader(f)), path
         except FileNotFoundError:
             logger.warning(f"Failed to read CSV file from {path}: file not found")

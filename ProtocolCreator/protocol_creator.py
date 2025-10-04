@@ -65,7 +65,7 @@ class MeasurementProtocol(ProtocolCreator):
             self.clean_up()
         else:
             logger.warning(
-                "Protocol can't be created! Check the data file and settings!"
+                "Protocol cannot be created! Check the data file and settings!"
             )
 
     def add_sapmle_section(self):

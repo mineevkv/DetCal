@@ -237,28 +237,35 @@ class FileManager:
         In mode=open', the filename will be selected by the user through a file dialog.
         """
         try:
+            filename = f"{self.model.settings['FILENAME']}_results.csv"
             if mode == "open":
                 path, _ = QFileDialog.getSaveFileName(
                 caption="Save results",
-                directory=os.path.join(f"{self.model.settings['FILENAME']}.csv"),
+                directory=os.path.join(filename),
                 filter="CSV files (*.csv)",
             )
             else:
-                path = os.path.join(self.model.output_dir, f"{self.model.settings['FILENAME']}.csv")
+                path = os.path.join(self.model.output_dir, filename)
         except Exception as e:
             logger.warning(f"Failed to open file dialog: {e}")
 
+        FileManager.save_results_to_file(self.model.meas_data, path)
+
+    @staticmethod
+    def save_results_to_file(data, path):
         if path:
             try:
                 file_header = "Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V), S21 Gen-Sa (dB), S21 Gen-Det (dB), Det Level (dBm)"
                 np.savetxt(
-                    path, self.model.meas_data, delimiter=",", header=file_header
+                    path, data, delimiter=",", header=file_header
                 )
                 logger.info(f"Results saved to {path}")
+                return True
             except Exception as e:
                 logger.error(f"Failed to save results to {path}: {e}")
         else:
             logger.warning(f"No file selected")
+            return False
 
     @staticmethod
     def load_units(folder: str='Settings') -> dict:

@@ -2,6 +2,8 @@ from PyQt6.QtCore import QObject
 import csv
 import json
 from ProtocolCreator.protocol_creator import MeasurementProtocol
+import os
+from Measurement.abstract_controller import Controller
 
 from Measurement.MeasurementController.write_settings import WriteSettings
 from Measurement.helper_functions import is_equal_frequencies
@@ -10,7 +12,7 @@ from Measurement.helper_functions import is_equal_frequencies
 from System.logger import get_logger
 logger = get_logger(__name__)
 
-class InfographicController(QObject):
+class InfographicController(Controller):
         
     def __init__(self,  meas_controller, view):
         super().__init__()
@@ -39,15 +41,38 @@ class InfographicController(QObject):
         if selected_frequency is None:
             return
         
-        with open("results.csv", "r") as file:
-            next(file) # skip header
-            result_file = list(csv.reader(file))
-            data = []
-            for row in result_file:
-                if is_equal_frequencies(row[0], selected_frequency):
-                    data.append(row)
+        path = os.path.join(self.model.output_dir, f"{self.model.settings['FILENAME']}_results.csv")
+        if not os.path.exists(path):
+            logger.warning(f"Protocol for {self.model.settings['FILENAME']} cannot be created")
+            error_msg = f"File not found: {path}" 
+            logger.error(error_msg)
+            self.meas_controller.status_bar.error(error_msg)
+            return
+        
+        try:
+            det_name = self.view.elem["DET_NAME_LINE"].text()
+            str_freq = self.value_to_str(selected_frequency, "MHz")
+            self.meas_controller.status_bar.warning(f'Creating protocol for "{det_name}" at {str_freq} MHz')
+            with open(path, "r") as file:
+                logger.info(f"Loading data from: {path}")
+                next(file) # skip header
+                result_file = list(csv.reader(file))
+            data = self.sorting_data_from_frequency(result_file, selected_frequency)
             settings = WriteSettings.view_to_dict(self.meas_controller)
-            doc = MeasurementProtocol(data, settings)
+            _ = MeasurementProtocol(data, settings)
+            finish_msg = f'Protocol for "{det_name}" at {str_freq} MHz created successfully'
+            self.meas_controller.status_bar.info(finish_msg)
+        except Exception as e:
+            logger.error(f"Error creating protocol: {e}")
+            
+
+    def sorting_data_from_frequency(self, data_file, selected_frequency):
+        data = []
+        for row in data_file:
+            if is_equal_frequencies(row[0], selected_frequency):
+                data.append(row)
+        return data
+
 
     def plot_data_from_frequency(self, data):
         self.clear_plot()
