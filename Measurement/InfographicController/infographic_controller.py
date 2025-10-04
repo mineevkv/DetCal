@@ -49,6 +49,8 @@ class InfographicController(Controller):
             self.meas_controller.status_bar.error(error_msg)
             return
         
+        self.view.elem['BTN_PROTOCOL'].setEnabled(False)
+        
         try:
             det_name = self.view.elem["DET_NAME_LINE"].text()
             str_freq = self.value_to_str(selected_frequency, "MHz")
@@ -59,12 +61,19 @@ class InfographicController(Controller):
                 result_file = list(csv.reader(file))
             data = self.sorting_data_from_frequency(result_file, selected_frequency)
             settings = WriteSettings.view_to_dict(self.meas_controller)
-            _ = MeasurementProtocol(data, settings)
-            finish_msg = f'Protocol for "{det_name}" at {str_freq} MHz created successfully'
-            self.meas_controller.status_bar.info(finish_msg)
+            
+            self.protocol = MeasurementProtocol(data, settings)
+            args = (det_name, str_freq)
+            self.protocol.finished_signal.connect(lambda: self.protocol_finish_handler(*args))
+            self.protocol.start()
+
         except Exception as e:
             logger.error(f"Error creating protocol: {e}")
             
+    def protocol_finish_handler(self, det_name, str_freq):
+        finish_msg = f'Protocol for "{det_name}" at {str_freq} MHz created successfully'
+        self.meas_controller.status_bar.info(finish_msg)
+        self.view.elem['BTN_PROTOCOL'].setEnabled(True)
 
     def sorting_data_from_frequency(self, data_file, selected_frequency):
         data = []
