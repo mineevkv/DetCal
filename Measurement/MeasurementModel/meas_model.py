@@ -4,6 +4,7 @@ from .file_manager import FileManager
 from ..helper_functions import get_s21, is_equal_frequencies
 from Measurement.MeasurementModel.measurement_thread import MeasurementThread
 from Measurement.MeasurementModel.devices_setup import DevicesSetup
+from Measurement.MeasurementModel.recalc_results import RecalcResults
 
 from multipledispatch import dispatch
 import numpy as np
@@ -468,28 +469,8 @@ class MeasurementModel(QObject):
         The recalculated data is stored in the form of a list of tuples, where each tuple
         contains the frequency (Hz), the output power level (dBm), the level (dBm) measured by the Spectrum Analyzer,
         and the voltage measured by the oscilloscope.
-
-        :return: A list of tuples containing the recalculated data
-        :rtype: list
         """
-        recalc_data = []
-        for point in self._meas_data:
-            frequency, level, sa_level, osc_voltage = point
-            s21_gen_sa = get_s21(frequency, self._s21_gen_sa)
-            s21_gen_det = get_s21(frequency, self._s21_gen_det)
-            det_level = (sa_level + s21_gen_sa) - s21_gen_det
-
-            recalc_point = [
-                frequency,
-                level,
-                sa_level,
-                osc_voltage,
-                s21_gen_sa,
-                s21_gen_det,
-                det_level,
-            ]
-            recalc_data.append(recalc_point)
-
+        recalc_data = RecalcResults.recalc_data(self.meas_data, self.s21_gen_sa, self.s21_gen_det)
         self.data_changed.emit({"RECALC_DATA": recalc_data})
         self._meas_data = recalc_data
 

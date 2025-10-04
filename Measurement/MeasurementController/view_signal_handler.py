@@ -21,7 +21,8 @@ class ViewSignalHandler(SignalHandler):
                 'SAVE_RESULT',
                 'LOAD_S21_GEN_SA',
                 'LOAD_S21_GEN_DET',
-                'APPLY'
+                'APPLY',
+                "RECALC_EXTERNAL"
         )
         
         for key in keys:
