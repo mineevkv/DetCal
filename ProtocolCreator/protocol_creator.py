@@ -20,7 +20,7 @@ class ProtocolCreator(QThread):
     def __init__(self):
         super().__init__()
         self._should_stop = False
-        
+
     def stop(self) -> None:
         """Safely stop the protocol thread."""
         self._should_stop = True
@@ -31,6 +31,7 @@ class ProtocolCreator(QThread):
             self.terminate()
             self.wait()
 
+
 class MeasurementProtocol(ProtocolCreator):
 
     def __init__(self, data_file, settings):
@@ -39,7 +40,6 @@ class MeasurementProtocol(ProtocolCreator):
         self.meas_data = data_file
         self.meas_settings = settings
         self.frequency = self.get_frequency()
-
 
         kwargs = dict(
             document_class="article",
@@ -52,33 +52,33 @@ class MeasurementProtocol(ProtocolCreator):
 
         self.doc = LatexDocument(**kwargs)
 
-
     def run(self):
         try:
             if self.isInterruptionRequested() or self._should_stop:
                 return
-                
+
             self.fill_document()
-            
+
             if not self.isInterruptionRequested() and not self._should_stop:
                 self.finished_signal.emit()
-            
+
         except Exception as e:
             logger.error(f"Error in protocol thread: {e}")
 
     def get_frequency(self):
-        try: 
+        try:
             frequency = float(self.meas_data[1][0]) / 1e6
             return round(frequency, 2)
         except Exception as e:
             logger.error(f"Error getting frequency: {e}")
             return None
-            
+
     def make_filename(self):
         filename = self.meas_settings["FILENAME"]
-        filename = filename + "_" + remove_zeros(self.frequency).replace(".", "P") + "MHz"
+        filename = (
+            filename + "_" + remove_zeros(self.frequency).replace(".", "p") + "MHz"
+        )
         return filename
-            
 
     def fill_document(self):
         self.add_sapmle_section()
@@ -88,7 +88,7 @@ class MeasurementProtocol(ProtocolCreator):
         if self.add_plot_section():
             self.create_pdf()
             self.clean_up()
-            
+
         else:
             logger.warning(
                 "Protocol cannot be created! Check the data file and settings!"
@@ -170,14 +170,9 @@ class MeasurementProtocol(ProtocolCreator):
         self.doc.add_section("Results", "")
 
         try:
-            
 
             if self.meas_data:
-                if (
-                    self.meas_settings["RECALC_ATTEN"]
-                    and len(self.meas_data) > 6
-                    and self.meas_data[6] is not None
-                ):
+                if self.is_detector():
                     power_input = "Detector"
                 else:
                     power_input = "Spectrum Analyzer"
@@ -244,6 +239,17 @@ class MeasurementProtocol(ProtocolCreator):
         path = os.path.join(self.output_dir, f"measurement_data_{unit}.png")
         self.figure.savefig(path, dpi=600, bbox_inches="tight", pad_inches=0)
 
+    def is_detector(self):
+        meas_data_row = self.meas_data[0]
+        if (
+            self.meas_settings["RECALC_ATTEN"]
+            and len(meas_data_row) > 6
+            and meas_data_row[6] is not None
+        ):
+            return True
+        else:
+            return False
+
     def extract_and_plot_data(self, unit="mW"):
         """Extract measurement data and plot it"""
         try:
@@ -252,19 +258,11 @@ class MeasurementProtocol(ProtocolCreator):
                 return False
 
             # Extract data
-            if (
-                self.meas_settings["RECALC_ATTEN"]
-                and len(self.meas_data) > 6
-                and self.meas_data[6] is not None
-            ):
-                level_dBm = [
-                    float(meas_data[6]) for meas_data in self.meas_data
-                ]  # meas_data[1] - Gen level, meas_data[6] - Det level
+            if self.is_detector():
+                level_dBm = [float(data_row[6]) for data_row in self.meas_data]
                 logger.info("Using recalculated Detector level")
             else:
-                level_dBm = [
-                    float(meas_data[2]) for meas_data in self.meas_data
-                ]  # meas_data[1] - Gen level, meas_data[6] - Det level
+                level_dBm = [float(data_row[2]) for data_row in self.meas_data]
                 logger.warning("Using Spectrum Analyzer level")
 
             voltage = [float(meas_data[3]) for meas_data in self.meas_data]
@@ -339,7 +337,10 @@ class MeasurementProtocol(ProtocolCreator):
         # self.protocol.add_section("Measurement Settings", self.meas_settings)
 
     def clean_up(self):
-        png_files = [f for f in os.listdir(self.output_dir) if f.endswith(".png") and "measurement_data_" in f]
+        png_files = [
+            f
+            for f in os.listdir(self.output_dir)
+            if f.endswith(".png") and "measurement_data_" in f
+        ]
         for f in png_files:
             os.remove(os.path.join(self.output_dir, f))
-
