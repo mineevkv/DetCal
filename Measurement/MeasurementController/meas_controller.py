@@ -295,6 +295,16 @@ class MeasurementController(Controller):
         is_checked = self.view.elem["PRECISE_ENABLED"].isChecked()
         self.enable_precise(is_checked)
 
+    def change_state_ref_line(self) -> None:
+        """
+        Reference level line checkbox handler.
+
+        This function is called when the "Ref level" checkbox is changed.
+        It will update the state of the reference level fields in the view.
+        """
+        is_checked = self.view.elem["REF_LEVEL_ENABLED"].isChecked()
+        self.enable_ref_line(is_checked)
+
     def change_state_recalc(self) -> None:
         """
         Recalc attenuation checkbox handler.
@@ -360,6 +370,17 @@ class MeasurementController(Controller):
         if self.model.s21_gen_det is None or self.model.s21_gen_sa is None:
             return False
         return True
+    
+    def enable_ref_line(self, state: bool) -> None:
+        """
+        Enable or disable the reference level line edit.
+
+        Args:
+            state (bool): The state of the reference level line.
+        """
+        elem = self.view.elem
+        elem["REF_LEVEL_ENABLED"].setChecked(state)
+        elem['REF_LEVEL_LINE'].setReadOnly(not state)
 
     def unlock_stop_btn(self) -> None:
         """

@@ -31,6 +31,7 @@ class ViewSignalHandler(SignalHandler):
         elem['PRECISE_ENABLED'].stateChanged.connect(meas_controller.change_state_precise)
         elem['UNLOCK_STOP'].stateChanged.connect(meas_controller.unlock_stop_btn)
         elem['RECALC_ATT'].stateChanged.connect(meas_controller.change_state_recalc)
+        elem['REF_LEVEL_ENABLED'].stateChanged.connect(meas_controller.change_state_ref_line)
 
         for element in elem.values():
             if isinstance(element, QLineEdit):

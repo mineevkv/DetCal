@@ -44,6 +44,9 @@ class SettingsSignalHandler(SignalHandler):
 
         if 'PRECISE' in message:
             meas_controller.enable_precise(str_to_bool(message['PRECISE']))
+        if 'REF_MANUAL' in message:
+            meas_controller.enable_ref_line(str_to_bool(message['REF_MANUAL']))
+
 
     @staticmethod
     def osc_handler(meas_controller, message):
