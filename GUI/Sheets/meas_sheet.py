@@ -57,6 +57,7 @@ class MeasurementSheet(Sheet):
         self.add_sa_elem('RBW', self.zero_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')
         self.add_sa_elem('VBW', self.zero_col, vbw_row, edit_line_width, 'VBW, kHz:', '0')
         self.add_sa_elem('REF_LEVEL', self.zero_col, ref_level_row, edit_line_width, 'Ref level, dB:', '0')
+        self.elem['REF_LEVEL_LINE'].setReadOnly(True)
 
         precise_col = self.zero_col + 20
         self.add_check_box('PRECISE_ENABLED', precise_col, points_row, 'Precise measurement')
