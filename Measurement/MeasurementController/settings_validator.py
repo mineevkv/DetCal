@@ -22,8 +22,6 @@ class SettingsValidator():
             return False
         if not self.check_ref_level():
             return False
-        if not self.check_recalc_attenuation():
-            return False
         if not self.check_horizontal_scale():
             return False
         return True

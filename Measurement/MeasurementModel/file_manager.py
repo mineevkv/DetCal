@@ -131,7 +131,8 @@ class FileManager:
         try:
             folder = self.model.settings_folder
             filename = self.model.settings_filename
-            os.makedirs(folder, exist_ok=True)  # Ensure directory exists
+            if not os.path.exists(folder):
+                os.makedirs(folder)
             path = os.path.join(folder, f"{filename}.json")
             with open(path, "w") as f:
                 json.dump(self.model.settings, f, indent=4)
@@ -253,6 +254,9 @@ class FileManager:
                 path = os.path.join(self.model.output_dir, filename)
         except Exception as e:
             logger.warning(f"Failed to open file dialog: {e}")
+
+        if not os.path.exists(self.model.output_dir):
+            os.makedirs(self.model.output_dir)
 
         FileManager.save_results_to_file(self.model.meas_data, path)
 

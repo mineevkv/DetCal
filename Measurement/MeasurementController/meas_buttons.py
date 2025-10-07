@@ -31,7 +31,7 @@ class ButtonsMC():
         if not self.mc.validate_settings():
             return
         try:
-            WriteSettings.view_to_model(self)
+            WriteSettings.view_to_model(self.mc)
             if self.mc.model.file_manager.save_settings():
                 self.mc.change_settings_status("Settings saved")
             else:
