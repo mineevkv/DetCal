@@ -180,7 +180,7 @@ class MeasurementModel(QObject):
         files and store them in the MeasurementModel.
         """
         self.file_manager.load_s21_files() # must be first fo calculation detector power level
-        self.file_manager.load_settings()
+        self.file_manager.load_start_settings()
         
 
 

@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QLineEdit, QCheckBox, QRadioButton
 from .abstract_signal_handler import SignalHandler
 
 from ..helper_functions import refresh_obj_view, btn_clicked_connect
+from Measurement.MeasurementController.meas_buttons import ButtonsMC
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -26,7 +27,7 @@ class ViewSignalHandler(SignalHandler):
         )
         
         for key in keys:
-                btn_clicked_connect(meas_controller, key, getattr(meas_controller, f'btn_{key.lower()}_click', None))
+                btn_clicked_connect(meas_controller, key, getattr(meas_controller.buttons, f'btn_{key.lower()}_click', None))
 
         elem['PRECISE_ENABLED'].stateChanged.connect(meas_controller.change_state_precise)
         elem['UNLOCK_STOP'].stateChanged.connect(meas_controller.unlock_stop_btn)
