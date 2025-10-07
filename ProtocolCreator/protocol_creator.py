@@ -128,6 +128,7 @@ class MeasurementProtocol(ProtocolCreator):
     def parse_settings(self):
         settings = self.meas_settings.copy()
         del settings["FILENAME"]
+        del settings["REF_MANUAL"]
 
         freq_start, freq_stop, points = settings["RF_FREQUENCIES"]
         freq_start = f"{(float(freq_start)/1e6):.2f}"

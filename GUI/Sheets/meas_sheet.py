@@ -52,14 +52,18 @@ class MeasurementSheet(Sheet):
         rbw_row = span_row + 1
         vbw_row = rbw_row + 1
         ref_level_row = vbw_row + 1
+
+        precise_col = self.zero_col + 20
+
         self.add_sa_elem('SWEEP_POINTS', self.zero_col, points_row, edit_line_width, 'Sweep points:', '0')
         self.add_sa_elem('SPAN', self.zero_col, span_row, edit_line_width, 'SPAN, MHz:', '0')
         self.add_sa_elem('RBW', self.zero_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')
         self.add_sa_elem('VBW', self.zero_col, vbw_row, edit_line_width, 'VBW, kHz:', '0')
         self.add_sa_elem('REF_LEVEL', self.zero_col, ref_level_row, edit_line_width, 'Ref level, dB:', '0')
-        self.elem['REF_LEVEL_LINE'].setReadOnly(True)
+        self.add_check_box('REF_LEVEL_ENABLED', precise_col, ref_level_row, 'Set Ref level manually')
+        
 
-        precise_col = self.zero_col + 20
+        
         self.add_check_box('PRECISE_ENABLED', precise_col, points_row, 'Precise measurement')
         self.add_sa_elem('SPAN_PRECISE', precise_col, span_row, edit_line_width, 'SPAN, MHz:', '0')
         self.add_sa_elem('RBW_PRECISE', precise_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')

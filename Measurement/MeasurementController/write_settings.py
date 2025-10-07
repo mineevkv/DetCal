@@ -22,12 +22,13 @@ class WriteSettings():
             settings[key] = WriteSettings.write_gen_settings(meas_controller, param)
 
         for key, param in Keys.sa.items():
-            if key == 'REF_LEVEL':
+            if key == 'REF_LEVEL' and not elem['REF_LEVEL_ENABLED'].isChecked():
                 param = ('LEVEL_MAX', 'dBm')
             settings[key] = WriteSettings.write_sa_settings(meas_controller, param)
 
         settings['PRECISE'] = elem['PRECISE_ENABLED'].isChecked()
         settings['RECALC_ATTEN'] = elem['RECALC_ATT'].isChecked()
+        settings['REF_MANUAL'] = elem['REF_LEVEL_ENABLED'].isChecked()
         
         for key, param in Keys.osc.items():
             settings[key] = WriteSettings.write_osc_settings(meas_controller, param)
