@@ -134,9 +134,12 @@ class MeasurementProtocol(ProtocolCreator):
         freq_start = f"{(float(freq_start)/1e6):.2f}"
         freq_stop = f"{(float(freq_stop)/1e6):.2f}"
         points = int(points)
-        settings["RF_FREQUENCIES"] = (
-            f"{remove_zeros(freq_start)} to {remove_zeros(freq_stop)} MHz [{points}]"
-        )
+        if points > 1:
+            settings["RF_FREQUENCIES"] = (
+                f"{remove_zeros(freq_start)} to {remove_zeros(freq_stop)} MHz [{points}]"
+            )
+        else:
+            settings["RF_FREQUENCIES"] = (f"{remove_zeros(freq_start)} MHz")
 
         level_start, level_stop, points = settings["RF_LEVELS"]
         settings["RF_LEVELS"] = f"{level_start} to {level_stop} dBm [{points}]"

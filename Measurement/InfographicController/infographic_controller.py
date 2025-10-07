@@ -6,7 +6,7 @@ import os
 from Measurement.abstract_controller import Controller
 
 from Measurement.MeasurementController.write_settings import WriteSettings
-from Measurement.helper_functions import is_equal_frequencies
+from Measurement.helper_functions import is_equal
 
 
 from System.logger import get_logger
@@ -90,7 +90,7 @@ class InfographicController(Controller):
     def sorting_data_from_frequency(self, data_file, selected_frequency):
         data = []
         for row in data_file:
-            if is_equal_frequencies(row[0], selected_frequency):
+            if is_equal(row[0], selected_frequency):
                 data.append(row)
         return data
 

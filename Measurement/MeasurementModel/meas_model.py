@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from Measurement.MeasurementModel.Initializer import Initializer
 from .file_manager import FileManager
-from ..helper_functions import get_s21, is_equal_frequencies
+from ..helper_functions import get_s21, is_equal
 from Measurement.MeasurementModel.measurement_thread import MeasurementThread
 from Measurement.MeasurementModel.devices_setup import DevicesSetup
 from Measurement.MeasurementModel.recalc_results import RecalcResults
@@ -187,7 +187,7 @@ class MeasurementModel(QObject):
     def get_data_from_frequency(self, frequency):
         data = []
         for row in self._meas_data:
-            if is_equal_frequencies(row[0], frequency):
+            if is_equal(row[0], frequency):
                 data.append(row)
         return data
 

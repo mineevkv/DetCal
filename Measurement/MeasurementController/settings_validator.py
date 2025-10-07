@@ -1,3 +1,4 @@
+from Measurement.helper_functions import is_equal
 
 from System.logger import get_logger
 logger = get_logger(__name__)
@@ -150,6 +151,30 @@ class SettingsValidator():
                 return False
             else:
                 return True
+            
+    def is_correct_freq_points(self):
+        return self.check_correct_points('FREQ_MIN_LINE', 'FREQ_MAX_LINE', 'FREQ_POINTS_LINE')
+    
+    def is_correct_level_points(self):
+        return self.check_correct_points('LEVEL_MIN_LINE', 'LEVEL_MAX_LINE', 'LEVEL_POINTS_LINE')
+
+    def check_correct_points(self, key_min: str, key_max: str, key_points: str) -> bool:
+        if not self.validate_float(key_min):
+            return False
+        if not self.validate_float(key_max):
+            return False
+        if not self.validate_positive_int(key_points):
+            return False
+        
+        points_value = self.get_value(key_points)
+        min_value = self.get_value(key_min)
+        max_value = self.get_value(key_max)
+
+        if points_value == 1 and not is_equal(max_value, min_value):
+            return False
+        elif points_value > 1 and is_equal(max_value, min_value):
+            return False
+        return True
 
 
     

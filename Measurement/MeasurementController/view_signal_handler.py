@@ -42,12 +42,55 @@ class ViewSignalHandler(SignalHandler):
                     continue
                 element.toggled.connect(lambda _, object=element: ViewSignalHandler.element_changed(meas_controller, object))
 
-    def element_changed(meas_controller, object):
-        if isinstance(object, QLineEdit):
-            object.setProperty('class', 'line_changed')
-        elif isinstance(object, (QCheckBox, QRadioButton)):
-            object.setProperty('class', 'radiocheck_changed')
+        points_lines = ('FREQ_POINTS_LINE', 'LEVEL_POINTS_LINE')
+        for key in points_lines:
+            elem[key].textChanged.connect(lambda _, object=key: ViewSignalHandler.points_line_changed(meas_controller, object))
 
-        refresh_obj_view(object)
+        min_lines = ('FREQ_MIN_LINE', 'LEVEL_MIN_LINE')
+        for key in min_lines:
+            elem[key].textChanged.connect(lambda _, object=key: ViewSignalHandler.min_line_changed(meas_controller, object))
+
+    @staticmethod
+    def element_changed(meas_controller, element):
+        if isinstance(element, QLineEdit):
+            element.setProperty('class', 'line_changed')
+        elif isinstance(element, (QCheckBox, QRadioButton)):
+            element.setProperty('class', 'radiocheck_changed')
+
+        refresh_obj_view(element)
         meas_controller.lock_start_btn()
+
+    @staticmethod
+    def points_line_changed(meas_controller, key):
+        elem = meas_controller.view.elem
+        if elem[key].text() == '1':
+            ViewSignalHandler.max_line_off(elem, key)
+        else:
+            ViewSignalHandler.max_line_on(elem, key)
+
+    def max_line_off(elem, key):
+        descriptor = key.split('_')[0]
+        min_line = elem[f'{descriptor}_MIN_LINE']
+        max_line = elem[f'{descriptor}_MAX_LINE']
+        max_line.setText(min_line.text())
+        max_line.setEnabled(False)
+
+        max_label = elem[f'{descriptor}_MAX_LABEL']
+        max_label.setEnabled(False)
+
+    def max_line_on(elem, key):
+        descriptor = key.split('_')[0]
+        max_line = elem[f'{descriptor}_MAX_LINE']
+        max_label = elem[f'{descriptor}_MAX_LABEL']
+        max_line.setEnabled(True)
+        max_label.setEnabled(True)
+
+    @staticmethod
+    def min_line_changed(meas_controller, key):
+        descriptor = key.split('_')[0]
+        if meas_controller.view.elem[f'{descriptor}_MAX_LINE'].isEnabled():
+            return
+        else:
+            ViewSignalHandler.points_line_changed(meas_controller, f'{descriptor}_POINTS_LINE')
+
 

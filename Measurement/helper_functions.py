@@ -110,21 +110,21 @@ def get_s21(target_frequency: float, s21: tuple[list[float], list[float]]) -> fl
     return np.interp(target_frequency, frequencies, magnitude_dB)
 
 
-def is_equal_frequencies(
-    frequency1: float, frequency2: float, tolerance: float = 1e4
+def is_equal(
+    value1: float, value2: float, tolerance: float = 1e-4
 ) -> bool:
     """
-    Check if two frequencies are equal within a given tolerance.
+    Check if two values are equal within a given tolerance.
 
     Parameters:
-        frequency1 (float): The first frequency (Hz) to compare
-        frequency2 (float): The second frequency (Hz) to compare
-        tolerance (float, optional): The tolerance within which the frequencies are considered equal. Defaults to 10kHz.
+        value1 (float): The first value to compare
+        value2 (float): The second value to compare
+        tolerance (float, optional): The tolerance within which the values are considered equal. Defaults to 1e-4.
 
     Returns:
-        bool: True if the frequencies are equal within the given tolerance, False otherwise
+        bool: True if the values are equal within the given tolerance, False otherwise
     """
-    return abs(float(frequency1) - float(frequency2)) < tolerance
+    return abs(float(value1) - float(value2)) < tolerance
 
 
 def read_csv_file(folder: str, filename: str = None) -> tuple[list, str] | None:
