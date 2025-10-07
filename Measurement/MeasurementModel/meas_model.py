@@ -475,7 +475,6 @@ class MeasurementModel(QObject):
         self._meas_data = recalc_data
 
     def recalc_det_level(self, frequency: float, gen_level: float) -> float: #TODO: add documentation
-        s21_gen_sa = get_s21(frequency, self._s21_gen_sa)
         s21_gen_det = get_s21(frequency, self._s21_gen_det)
         det_level = gen_level + s21_gen_det
         return det_level
@@ -492,7 +491,19 @@ class MeasurementModel(QObject):
         return max(levels)
     
     def is_spar(self) -> bool:
-        if self._s21_gen_sa is None or self._s21_gen_det is None:
+        if self.is_s21_gen_sa() and self.is_s21_gen_det():
+            return True
+        else:
+            return False
+        
+    def is_s21_gen_sa(self) -> bool:
+        if self._s21_gen_sa is None:
+            return False
+        else:
+            return True
+    
+    def is_s21_gen_det(self) -> bool:
+        if self._s21_gen_det is None:
             return False
         else:
             return True

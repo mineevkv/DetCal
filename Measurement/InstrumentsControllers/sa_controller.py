@@ -31,7 +31,7 @@ class SAController(InstrumentController):
         elem = self.view.elem
         if "CENTER_FREQ" in message:
             elem["CENTER_FREQ_LINE"].setText(
-                self.value_to_str(message["CENTER_FREQ"], "MHz")
+                self.value_to_str(round(message["CENTER_FREQ"], 2), "MHz")
             )
         if "SPAN" in message:
             elem["SPAN_LINE"].setText(self.value_to_str(message["SPAN"], "MHz"))

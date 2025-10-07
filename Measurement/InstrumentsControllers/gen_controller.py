@@ -41,9 +41,9 @@ class GenController(InstrumentController):
         if 'FREQUENCY' in message:
             elem['FREQ_LINE'].setText(self.value_to_str(round(message['FREQUENCY'], 2), 'MHz'))
         if 'RF_STATE' in message:
-            elem['BTN_RF_ON'].setDown(message['RF_STATE'])
+            elem['BTN_RF_ON'].setChecked(message['RF_STATE'])
         if 'MODULATION' in message:
-            elem['BTN_MOD_ON'].setDown(message['MOD_STATE'])
+            elem['BTN_MOD_ON'].setChecked(message['MOD_STATE'])
 
             
         

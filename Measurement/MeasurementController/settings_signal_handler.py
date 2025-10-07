@@ -132,7 +132,7 @@ class SettingsSignalHandler(SignalHandler):
     def update_max_det_level(meas_controller):
         model = meas_controller.model
         elem = meas_controller.view.elem
-        if model.is_spar() and model.settings:
+        if model.is_s21_gen_det() and model.settings:
             max_level = round(model.calc_max_det_level(), 2) # .:2f
             elem['MAX_DET_LEVEL_VALUE_LABEL'].setText(meas_controller.value_to_str(max_level, 'dBm'))          
 
