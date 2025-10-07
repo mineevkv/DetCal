@@ -22,6 +22,8 @@ class WriteSettings():
             settings[key] = WriteSettings.write_gen_settings(meas_controller, param)
 
         for key, param in Keys.sa.items():
+            if key == 'REF_LEVEL':
+                param = ('LEVEL_MAX', 'dBm')
             settings[key] = WriteSettings.write_sa_settings(meas_controller, param)
 
         settings['PRECISE'] = elem['PRECISE_ENABLED'].isChecked()
