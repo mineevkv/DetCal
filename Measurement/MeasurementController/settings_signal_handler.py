@@ -1,4 +1,4 @@
-from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view, is_equal_frequencies
+from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view, is_equal
 import numpy as np
 from .abstract_signal_handler import SignalHandler
 from .keys import Keys
@@ -87,7 +87,7 @@ class SettingsSignalHandler(SignalHandler):
             ig_controller.view.figure2.canvas.draw_idle()
         if "RF_FREQUENCIES" in message:
             freq_min, freq_max, points = message["RF_FREQUENCIES"]
-            if is_equal_frequencies(freq_min, freq_max):
+            if is_equal(freq_min, freq_max):
                 ig_controller.add_selector_point(freq_min)
             else:
                 frequencies = np.linspace(freq_min, freq_max, points)

@@ -150,10 +150,16 @@ class MeasurementController(Controller):
         It will check if the settings are valid and return True if they are, False otherwise.
         """
         validator = SettingsValidator(self.view)
-        result = validator.check()
-        if not result:
-            self.status_bar.error("Invalid settings")
-        return result
+        if not validator.check():
+            self.status_bar.error("Invalid settings: check values")
+            return False
+        if not validator.is_correct_freq_points():
+            self.status_bar.error("Invalid settings: check frequencies and points")
+            return False
+        if not validator.is_correct_level_points():
+            self.status_bar.error("Invalid settings: check levels and points")
+            return False
+        return True
 
     def change_state_precise(self) -> None:
         """
