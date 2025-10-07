@@ -37,38 +37,50 @@ class InfographicController(Controller):
         self.plot_data_from_frequency(data)
 
     def btn_protocol_click(self):
+        btn =  self.view.elem['BTN_PROTOCOL']
         selected_frequency = self.get_current_frequency()
         if selected_frequency is None:
             return
         
+        btn.setEnabled(False)
+        if not self.create_protocol(selected_frequency):
+            btn.setEnabled(True)
+        
+
+    def create_protocol(self, selected_frequency) -> bool:
         path = os.path.join(self.model.output_dir, f"{self.model.settings['FILENAME']}_results.csv")
         if not os.path.exists(path):
             logger.warning(f"Protocol for {self.model.settings['FILENAME']} cannot be created")
-            error_msg = f"File not found: {path}" 
-            logger.error(error_msg)
-            self.meas_controller.status_bar.error(error_msg)
-            return
-        
-        self.view.elem['BTN_PROTOCOL'].setEnabled(False)
-        
+            self.meas_controller.status_bar.error(f"File not found: {path}")
+            return False
+    
         try:
             det_name = self.view.elem["DET_NAME_LINE"].text()
             str_freq = self.value_to_str(selected_frequency, "MHz")
             self.meas_controller.status_bar.warning(f'Creating protocol for "{det_name}" at {str_freq} MHz')
-            with open(path, "r") as file:
-                logger.info(f"Loading data from: {path}")
-                next(file) # skip header
-                result_file = list(csv.reader(file))
+   
+            result_file = self.read_csv(path)
             data = self.sorting_data_from_frequency(result_file, selected_frequency)
-            settings = WriteSettings.view_to_dict(self.meas_controller)
+            if not data:
+                self.meas_controller.status_bar.error(f'Data for "{det_name}" at {str_freq} MHz was not found')
+                return False
             
-            self.protocol = MeasurementProtocol(data, settings)
-            args = (det_name, str_freq)
-            self.protocol.finished_signal.connect(lambda: self.protocol_finish_handler(*args))
-            self.protocol.start()
-
+            self.start_creating_protocol(data, det_name, str_freq)
+            return True
         except Exception as e:
             logger.error(f"Error creating protocol: {e}")
+
+    def start_creating_protocol(self, data, det_name, str_freq):
+            settings = WriteSettings.view_to_dict(self.meas_controller)
+            self.protocol = MeasurementProtocol(data, settings)
+            self.protocol.finished_signal.connect(lambda: self.protocol_finish_handler(det_name, str_freq))
+            self.protocol.start()
+
+    def read_csv(self, path):
+        with open(path, "r") as file:
+            logger.info(f"Loading data from: {path}")
+            next(file) # skip header
+            return list(csv.reader(file))
             
     def protocol_finish_handler(self, det_name, str_freq):
         finish_msg = f'Protocol for "{det_name}" at {str_freq} MHz created successfully'
@@ -81,7 +93,6 @@ class InfographicController(Controller):
             if is_equal_frequencies(row[0], selected_frequency):
                 data.append(row)
         return data
-
 
     def plot_data_from_frequency(self, data):
         self.clear_plot()

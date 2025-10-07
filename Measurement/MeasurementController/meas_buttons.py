@@ -95,7 +95,7 @@ class ButtonsMC():
         except Exception as e:
             self.mc.status_bar.error(f"Save result error: {e}")
 
-    @staticmethod
+    
     def btn_load_s21_gen_sa_click(self) -> None:
         """
         Load an S21 Gen-SA parameters from external file.
