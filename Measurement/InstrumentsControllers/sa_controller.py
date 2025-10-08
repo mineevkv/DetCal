@@ -1,5 +1,6 @@
 from .instr_controller import InstrumentController
 from Measurement.helper_functions import refresh_obj_view, btn_clicked_connect
+from Measurement.MeasurementController.values_validator import ValuesValidator as Val
 
 from System.logger import get_logger
 
@@ -28,68 +29,59 @@ class SAController(InstrumentController):
     def signal_handler(self, message):
         super().signal_handler(message)
         elem = self.view.elem
+        tolerance = 3
         if "CENTER_FREQ" in message:
-            elem["CENTER_FREQ_LINE"].setText(self.value_to_str(message['CENTER_FREQ'], "MHz", 2))
+            elem["CENTER_FREQ_LINE"].setText(self.value_to_str(message['CENTER_FREQ'], "MHz", tolerance))
         if "SPAN" in message:
-            elem["SPAN_LINE"].setText(self.value_to_str(message["SPAN"], "MHz", 2))
+            elem["SPAN_LINE"].setText(self.value_to_str(message["SPAN"], "MHz", tolerance))
         if "RBW" in message:
-            elem["RBW_LINE"].setText(self.value_to_str(message["RBW"], "kHz", 2))
+            elem["RBW_LINE"].setText(self.value_to_str(message["RBW"], "kHz", tolerance))
         if "VBW" in message:
-            elem["VBW_LINE"].setText(self.value_to_str(message["VBW"], "kHz", 2))
-
-        if "REFERENCE_LEVEL" in message:
-            pass
-        if "SWEEP_TIME" in message:
-            pass
-        if "SWEEP_POINTS" in message:
-            pass
-        if "TRACE_FORMAT" in message:
-            pass
-        if "SINGLE_SWEEP" in message:
-            pass
-        if "CONTINUOUS_SWEEP" in message:
-            pass
-        if "CONFIGURE" in message:
-            pass
+            elem["VBW_LINE"].setText(self.value_to_str(message["VBW"], "kHz", tolerance))
 
     def btn_center_freq_click(self):  # TODO: freq_line_edit_handler
         line_edit = self.view.elem["CENTER_FREQ_LINE"]
-        try:
-            freq = float(line_edit.text()) * 1e6
-            if not 1e3 <= freq <= 6.5e9:
-                raise ValueError("Center frequency must be between 1 kHz and 6.5 GHz")
-            self.instr.set_center_freq(freq)
-        except ValueError as e:
-            logger.error(f"Error setting center frequency: {e}")
-            freq = self.instr.get_center_freq()
-            if freq is not None:
-                line_edit.setText(str(freq / 1e6))
-
-    def freq_line_edit_handler(self, line_edit, setter, getter, units="Hz"):
-        multipliers = {"Hz": 1, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9}
-        multiplier = multipliers.get(units, 1)
-
-        try:
-            freq = float(line_edit.text()) * multiplier
-            if not 1e3 <= freq <= 6.5e9:
-                raise ValueError("Frequency must be between 1 kHz and 6.5 GHz")
-            setter(freq)
-        except ValueError as e:
-            logger.error(f"Error setting frequency: {e}")
-            freq = getter()
-            if freq is not None:
-                line_edit.setText(str(freq / multiplier))
+        setter = self.instr.set_center_freq
+        getter = self.instr.get_center_freq
+        unit = "MHz"
+        self.freq_line_edit_handler(line_edit, setter, getter, unit)
 
     def btn_span_click(self):
-        self.freq_line_edit_handler(
-            self.view.elem["SPAN_LINE"], self.instr.set_span, self.instr.get_span, "MHz"
-        )
+        line_edit = self.view.elem["SPAN_LINE"]
+        setter = self.instr.set_span
+        getter = self.instr.get_span
+        unit = "MHz"
+        self.freq_line_edit_handler(line_edit, setter, getter, unit)
+        
 
     def btn_rbw_click(self):
-        pass
+        line_edit = self.view.elem["RBW_LINE"]
+        setter = self.instr.set_rbw
+        getter = self.instr.get_rbw
+        unit = "kHz"
+        self.freq_line_edit_handler(line_edit, setter, getter, unit)
+        
 
     def btn_vbw_click(self):
-        pass
+        line_edit = self.view.elem["VBW_LINE"]
+        setter = self.instr.set_vbw
+        getter = self.instr.get_vbw
+        unit = "kHz"
+        self.freq_line_edit_handler(line_edit, setter, getter, unit)
 
     def btn_single_click(self):
-        pass
+        self.instr.start_single_measurement()
+
+
+    def freq_line_edit_handler(self, line_edit, setter, getter, unit):
+        if Val.is_float(line_edit.text()):
+            freq = float(line_edit.text()) * self.units[unit]
+            if not 0 < freq <= 6.5e9:
+                logger.warning(f"Value {line_edit.text()} is out of range")
+                return
+            setter(freq)
+            value = getter()
+            line_edit.setText(self.value_to_str(value, unit, 3))
+        else:
+            logger.error(f"Error value: {line_edit.text()}")
+            return
