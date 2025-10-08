@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt6.QtWidgets import QVBoxLayout, QWidget, QComboBox
+from PyQt6.QtWidgets import QVBoxLayout, QWidget, QComboBox, QGridLayout
 
 from GUI.palette import *
 
@@ -21,7 +21,7 @@ class InfographicSheet(Sheet):
     It contains a plot for the power levels vs output voltages from detector.
     """
 
-    def __init__(self, main_layout) -> None:
+    def __init__(self, main_layout: QGridLayout) -> None:
         super().__init__(main_layout)
 
         self.box.setTitle("Infographic")

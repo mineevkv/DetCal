@@ -42,7 +42,7 @@ class Sheet(ABC):
 
     """
 
-    def __init__(self, main_window) -> None:
+    def __init__(self, main_window: object) -> None:
         self.layout = main_window.get_layout()
         self._margin_top = 10
         self._margin_left = 11

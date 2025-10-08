@@ -1,17 +1,5 @@
 from .instr_sheet import InstrumentSheet
-
-from PyQt6.QtWidgets import QGroupBox
-from PyQt6 import QtCore
-from PyQt6.QtWidgets import (
-    QWidget,
-    QPushButton,
-    QApplication,
-    QGridLayout,
-    QLabel,
-    QLineEdit,
-    QGroupBox,
-)
-
+from PyQt6.QtWidgets import QGridLayout
 
 from GUI.palette import *
 from GUI.QtCustomWidgets.custom_widgets import *
@@ -29,7 +17,7 @@ class SpectrumAnalyzerSheet(InstrumentSheet):
     It contains controls for center frequency, span, resolution bandwidth, and video bandwidth.
     """
 
-    def __init__(self, main_layout) -> None:
+    def __init__(self, main_layout: QGridLayout) -> None:
         super().__init__(main_layout)
 
         center_freq_row = self.ip_row + 2

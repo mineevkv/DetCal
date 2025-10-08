@@ -1,6 +1,6 @@
 from .abstract_sheet import Sheet
 
-from PyQt6.QtWidgets import   QButtonGroup, QLabel, QLineEdit
+from PyQt6.QtWidgets import QButtonGroup, QLabel, QLineEdit, QGridLayout
 from PyQt6.QtCore import Qt
 
 from GUI.palette import *
@@ -17,7 +17,7 @@ class MeasurementSheet(Sheet):
 
     """
 
-    def __init__(self, main_layout) -> None:
+    def __init__(self, main_layout: QGridLayout) -> None:
         super().__init__(main_layout)
         self.box.setTitle("Measurement parameters")
 
