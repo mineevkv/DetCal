@@ -9,7 +9,6 @@ logger = get_logger(__name__)
 class SAController(InstrumentController):
     def __init__(self, instr, instr_sheet):
         super().__init__(instr, instr_sheet)
-        self.instr.connect()
 
     def connect_signals(self):
         super().connect_signals()
@@ -30,15 +29,13 @@ class SAController(InstrumentController):
         super().signal_handler(message)
         elem = self.view.elem
         if "CENTER_FREQ" in message:
-            elem["CENTER_FREQ_LINE"].setText(
-                self.value_to_str(round(message["CENTER_FREQ"], 2), "MHz")
-            )
+            elem["CENTER_FREQ_LINE"].setText(self.value_to_str(message['CENTER_FREQ'], "MHz", 2))
         if "SPAN" in message:
-            elem["SPAN_LINE"].setText(self.value_to_str(message["SPAN"], "MHz"))
+            elem["SPAN_LINE"].setText(self.value_to_str(message["SPAN"], "MHz", 2))
         if "RBW" in message:
-            elem["RBW_LINE"].setText(self.value_to_str(message["RBW"], "kHz"))
+            elem["RBW_LINE"].setText(self.value_to_str(message["RBW"], "kHz", 2))
         if "VBW" in message:
-            elem["VBW_LINE"].setText(self.value_to_str(message["VBW"], "kHz"))
+            elem["VBW_LINE"].setText(self.value_to_str(message["VBW"], "kHz", 2))
 
         if "REFERENCE_LEVEL" in message:
             pass

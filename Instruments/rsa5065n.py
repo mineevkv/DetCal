@@ -65,9 +65,17 @@ class RSA5065N(Instrument):
         self.state_changed.emit({'RBW': rbw})
 
     @Instrument.device_checking
+    def get_rbw(self):
+        return float(self.send(f":SENSe:BANDwidth:RESOLUTION?"))
+    
+    @Instrument.device_checking
     def set_vbw(self, vbw):
         self.send(f":SENSE:BANDWIDTH:VIDEO {vbw}")
         self.state_changed.emit({'VBW': vbw})
+
+    @Instrument.device_checking
+    def get_vbw(self):
+        return float(self.send(f":SENSe:BANDwidth:VIDEO?"))
 
     # Trace (Trace)
     @Instrument.device_checking
@@ -165,6 +173,16 @@ class RSA5065N(Instrument):
             delay_time = self.get_sweep_time()*2 + 0.3
         time.sleep(delay_time)
 
+    @Instrument.device_checking
+    def get_settings_from_device(self):
+        message = {
+            'CENTER_FREQ': self.get_center_freq(),
+            'SPAN': self.get_span(),
+            'RBW': self.get_rbw(),
+            'VBW': self.get_vbw(),
+            }
+
+        self.state_changed.emit(message)
 
 
     

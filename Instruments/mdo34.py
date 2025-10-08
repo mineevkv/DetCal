@@ -283,6 +283,15 @@ class MDO34(Instrument):
     def set_sample_mode(self):
         self.send('ACQuire:MODe SAMple')
         self.state_changed.emit({'ACQUIRE_MODE': 'SAMPLE'})
+
+    # Front panel buttons
+    @Instrument.device_checking
+    def press_runstop(self):
+        self.send('FPANEL:PRESS RUnstop')
+
+    @Instrument.device_checking
+    def press_singleseq(self):
+        self.send('FPANEL:PRESS SINGleseq')
     
     @Instrument.device_checking
     def get_settings_from_device(self):
