@@ -5,7 +5,6 @@ class OscController(InstrumentController):
     def __init__(self, instr, instr_sheet):
         super().__init__(instr, instr_sheet)
 
-        self.instr.connect()
         self.hide_channel_frames()
 
     def connect_signals(self): 
@@ -106,13 +105,13 @@ class OscController(InstrumentController):
 
 
     def btn_run_click(self):
-        pass
+        self.instr.press_runstop()
 
     def btn_single_click(self):
-        pass
+        self.instr.press_singleseq()
 
     def btn_trig_force_click(self):
-        pass
+        self.instr.trigger_force()
 
     def btn_hi_res_click(self):
         btn = self.view.elem[f'BTN_HI_RES']

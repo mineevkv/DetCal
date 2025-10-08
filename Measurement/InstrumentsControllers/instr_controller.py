@@ -19,6 +19,7 @@ class InstrumentController(Controller):
         self.set_connection_field()
         self.init_progress_timer()
         
+        self.instr.connect()
 
         
     #Controller
@@ -83,15 +84,17 @@ class InstrumentController(Controller):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.progress_update)
         self.timer.start(300)
-
-    def progress(self,value):
+    
+    def progress(self, value):
         self.view.elem['PROGRESS'].setValue(value)
-        if value == 100:
-            self.timer.timeout.connect(self.progress_hide)
+        if value > 99:
+            self.progress_hide()
+            self.check_initialization()
 
     def progress_update(self):
         value = self.view.elem['PROGRESS'].value()
-        self.progress(value + 1)
+        if value < 100:
+            self.progress(value + 1)
 
     def progress_hide(self):
         self.timer.stop()
@@ -117,21 +120,14 @@ class InstrumentController(Controller):
         else:
             self.disable_control_elem()
 
-    def enable_control_elem():
-        pass
-
-    def disable_control_elem():
-        pass
-
-
-
     def disable_control_elem(self):
-        for key in self.elem:
-            self.elem[key].setEnabled(False)
+        for key in self.view.elem.keys():
+            if key not in self.view.ip_keys:
+                self.view.elem[key].setEnabled(False)
  
     def enable_control_elem(self):
-        for key in self.elem:
-            self.elem[key].setEnabled(True)
+        for key in self.view.elem.keys():
+            self.view.elem[key].setEnabled(True)
 
     def btn_clicked(self,btn_name, btn_handler):
         self.view.elem[f'BTN_{btn_name}'].clicked.connect(btn_handler)
