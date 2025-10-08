@@ -2,6 +2,9 @@ from .instr_controller import InstrumentController
 from Measurement.helper_functions import refresh_obj_view
 
 class OscController(InstrumentController):
+    ready = None
+    sequence = None
+
     def __init__(self, instr, instr_sheet):
         super().__init__(instr, instr_sheet)
 
@@ -105,13 +108,58 @@ class OscController(InstrumentController):
 
 
     def btn_run_click(self):
-        self.instr.press_runstop()
+        if self.ready:
+            self.instr.stop_acquisition()
+            return
+        
+        self.instr.stop_after_runstop()
+        self.instr.ready_for_acquisition()
 
     def btn_single_click(self):
-        self.instr.press_singleseq()
+        self.instr.stop_after_sequence()
+        self.instr.ready_for_acquisition()
 
+    def indicate_runseq_mode(self):
+        if not self.ready:
+            self.make_red_runstop()
+            return
+             
+        if self.sequence:
+            self.make_green_singleseq()
+        else:
+            self.make_green_runstop()
+
+    def make_red_runstop(self):
+        self.ready = False
+        single = self.view.elem[f'BTN_SINGLE']
+        runstop = self.view.elem[f'BTN_RUN']
+        single.setChecked(False)
+        runstop.setChecked(True)
+        runstop.setProperty('class', 'btn_runstop_stop')
+        refresh_obj_view(runstop)
+
+    def make_green_runstop(self):
+        single = self.view.elem[f'BTN_SINGLE']
+        runstop = self.view.elem[f'BTN_RUN']
+        single.setChecked(False)
+        runstop.setChecked(True)
+        runstop.setProperty('class', 'btn_runstop_run')
+        refresh_obj_view(runstop)
+
+    def make_green_singleseq(self):
+        single = self.view.elem[f'BTN_SINGLE']
+        runstop = self.view.elem[f'BTN_RUN']
+        single.setChecked(True)
+        runstop.setChecked(False)
+        
     def btn_trig_force_click(self):
         self.instr.trigger_force()
+
+    def trugger_pulled(self):
+        if self.sequence:
+            if self.ready:
+                self.ready = False
+        self.indicate_runseq_mode()
 
     def btn_hi_res_click(self):
         btn = self.view.elem[f'BTN_HI_RES']
@@ -173,12 +221,22 @@ class OscController(InstrumentController):
             channel = self.instr.selected_channel
             elem[f'CH{channel}_IMP_LABEL'].setText(termination)
             
+        if 'ACQUIRE_STOPAFTER' in message:
+            response = message['ACQUIRE_STOPAFTER']
+            if response == 'SEQUENCE':
+                self.sequence = True
+            elif response == 'RUNSTOP':
+                self.sequence = False
+            self.indicate_runseq_mode()
 
-        if 'COUPLING' in message:
-            pass
+        if 'ACQUIRE_STATE' in message:
+            self.ready = message['ACQUIRE_STATE']
+            self.indicate_runseq_mode()
 
-        if 'RESET' in message:
-            pass
+        if 'TRIGGER' in message:
+            self.trugger_pulled()
+            
+  
             
     @staticmethod
     def ch_impedance(termination):

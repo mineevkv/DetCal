@@ -247,6 +247,14 @@ QPushButton:disabled {
     border: 1px solid #90969b;
 }
 
+.btn_runstop_run:checked, .btn_singleseq:checked {
+    background-color: #a5c53c;
+}
+
+.btn_runstop_stop:checked {
+    background-color: #ff5436;
+}
+
 .btn_start, .btn_save_result {
     color: #f1c40f;
     font-size: 20px;
