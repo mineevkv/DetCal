@@ -63,8 +63,8 @@ class OscilloscopeSheet(InstrumentSheet):
         self.add_label('CH3_IMP', self.zero_col + 2*dx, *param).setProperty('class', 'osc_imp_label')
         self.add_label('CH4_IMP', self.zero_col + 3*dx, *param).setProperty('class', 'osc_imp_label')
 
-        self.add_btn('RUN', 31, self.zero_row, 'Run/Stop').setCheckable(True)
-        self.add_btn('SINGLE', 31, self.zero_row+1, 'Single').setProperty('class', 'btn_singleseq')
+        self.add_btn('RUN', 24, self.zero_row, 'Run/Stop').setCheckable(True)
+        self.add_btn('SINGLE', 31, self.zero_row, 'Single').setProperty('class', 'btn_singleseq')
         self.elem['BTN_SINGLE'].setCheckable(True)
         
 

@@ -25,7 +25,7 @@ class InstrumentSheet(Sheet):
         """Initialize instrument sheet in the main window"""
         self.box = QGroupBox("Instrument type")
 
-        self.add_label("MODEL", 20, self.zero_row, "Model", 100).setStyleSheet(f"color: {YELLOW}; font-weight: bold")
+        self.add_label("MODEL", 16, self.zero_row, "Model", 100).setStyleSheet(f"color: {YELLOW}; font-weight: bold")
 
     def add_ip_field(self):
         self.ip_row = 2
@@ -38,7 +38,7 @@ class InstrumentSheet(Sheet):
         self.ip_keys = (f'{key}_LABEL', f'{key}_CLICKLINE', f'BTN_{key}', f'{key}_STATUS_LABEL')
 
     def add_animated_progress_bar(self):
-        bar = self.add_progress_bar('PROGRESS', self.zero_col, 8, 391 - 2*self.margin_left, self.elem_hight)
+        bar = self.add_progress_bar('PROGRESS', self.zero_col, self.zero_row + 1, 391 - 2*self.margin_left, self.elem_hight)
         self.shift_position(bar, shift_x=0, shift_y=-3)
         bar.setProperty('class', 'instr_progress_bar')
         bar.setRange(0, 100)

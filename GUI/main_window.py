@@ -24,7 +24,7 @@ class MainWindow(QWidget):
     def init_main_window(self):
         self.init_fonts()
         self.setWindowTitle("Detectors calibration")
-        self.setFixedSize(1280, 720)
+        self.setFixedSize(1280, 680)
 
         self._main_layout = QGridLayout()
         self.setLayout(self._main_layout)
