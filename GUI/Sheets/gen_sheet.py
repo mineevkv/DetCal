@@ -1,5 +1,5 @@
 from .instr_sheet import InstrumentSheet
-from PyQt6.QtWidgets import  QGroupBox
+from PyQt6.QtWidgets import  QGroupBox, QGridLayout
 
 from GUI.palette import *
 from GUI.QtCustomWidgets.custom_widgets import *
@@ -16,7 +16,7 @@ class GeneratorSheet(InstrumentSheet):
 
     """
 
-    def __init__(self, main_layout) -> None:
+    def __init__(self, main_layout: QGridLayout) -> None:
         super().__init__(main_layout)
     
 

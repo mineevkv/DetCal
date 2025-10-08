@@ -1,9 +1,8 @@
 
-from PyQt6.QtWidgets import QGroupBox, QPushButton
+from PyQt6.QtWidgets import QGroupBox, QPushButton, QGridLayout
 
 from .abstract_sheet import Sheet
 from GUI.palette import *
-from GUI.QtCustomWidgets.custom_widgets import ClickableLineEdit
 
 from System.logger import get_logger
 
@@ -18,7 +17,7 @@ class InstrumentSheet(Sheet):
     It contains the instrument type, IP address, and animated progress bar.
     """
 
-    def __init__(self, main_layout) -> None:
+    def __init__(self, main_layout: QGridLayout) -> None:
         super().__init__(main_layout)
         self.ip = "NoIP"
 

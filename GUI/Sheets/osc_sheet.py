@@ -1,11 +1,6 @@
 from .instr_sheet import InstrumentSheet
-
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
-from PyQt6.QtWidgets import QGroupBox, QFrame
-from PyQt6.QtGui import QPainter, QPen, QColor, QBrush
-
+from PyQt6.QtWidgets import QGridLayout 
 from GUI.palette import *
-from GUI.QtCustomWidgets.custom_widgets import *
 
 from System.logger import get_logger
 
@@ -22,7 +17,7 @@ class OscilloscopeSheet(InstrumentSheet):
 
     """
 
-    def __init__(self, main_layout) -> None:
+    def __init__(self, main_layout: QGridLayout) -> None:
         super().__init__(main_layout)
 
         scale_row = self.ip_row + 2
