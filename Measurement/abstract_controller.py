@@ -23,14 +23,15 @@ class Controller(QObject):
 
         self.units = FileManager.load_units()
 
-    def value_to_str(self, value: float | int, unit: str) -> str:
+    def value_to_str(self, value: float | int, unit: str, decimals: int = 0) -> str:
         if value is None:
             logger.warning(f"None type mustn't be converted to string")
             return ""
 
         if unit in self.units:
             dev = self.units[unit]
-            return str(remove_zeros(value / dev))
+            round_value = round(value / dev, decimals)
+            return str(remove_zeros(round_value))
         else:
             logger.warning(f"Unknown unit: {unit}")
             return str(value)

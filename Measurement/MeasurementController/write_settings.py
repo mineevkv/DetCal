@@ -9,18 +9,26 @@ class WriteSettings():
         pass
 
     @staticmethod
-    def view_to_model(meas_controller):
-        settings = meas_controller.model.settings
+    def view_to_model(meas_controller): 
+        settings = WriteSettings.view_to_dict(meas_controller)
+        for key, value in settings.items():
+            meas_controller.model.settings[key] = value
+
+    def view_to_dict(meas_controller):
+        settings = {}
         elem = meas_controller.view.elem
 
         for key, param in Keys.gen.items():
             settings[key] = WriteSettings.write_gen_settings(meas_controller, param)
 
         for key, param in Keys.sa.items():
+            if key == 'REF_LEVEL' and not elem['REF_LEVEL_ENABLED'].isChecked():
+                param = ('LEVEL_MAX', 'dBm')
             settings[key] = WriteSettings.write_sa_settings(meas_controller, param)
 
         settings['PRECISE'] = elem['PRECISE_ENABLED'].isChecked()
         settings['RECALC_ATTEN'] = elem['RECALC_ATT'].isChecked()
+        settings['REF_MANUAL'] = elem['REF_LEVEL_ENABLED'].isChecked()
         
         for key, param in Keys.osc.items():
             settings[key] = WriteSettings.write_osc_settings(meas_controller, param)
@@ -29,6 +37,10 @@ class WriteSettings():
         settings['IMPEDANCE_50OHM'] = elem['RB_50OHM'].isChecked()
         settings['COUPLING_DC'] = elem['RB_DC'].isChecked()
         settings['CHANNEL'] = next((i for i in [1, 2, 3, 4] if elem[f'RB_CH{i}'].isChecked()), None)
+
+        settings["FILENAME"] = WriteSettings.write_det_name(meas_controller)
+
+        return settings
 
 
         
@@ -60,4 +72,15 @@ class WriteSettings():
     def write_osc_settings(meas_controller, param):
         return WriteSettings.write_sa_settings(meas_controller, param)
     
-        
+    @staticmethod
+    def write_det_name(meas_controller):
+        elem = meas_controller.general_view.ig.elem     
+        det_name = elem["DET_NAME_LINE"].text()
+        det_name = det_name.rstrip()
+        det_name = det_name.replace(" ", "_")
+        return det_name
+    
+    @staticmethod
+    def write_det_name_to_model(meas_controller):
+        det_name = WriteSettings.write_det_name(meas_controller)
+        meas_controller.model.settings["FILENAME"] = det_name

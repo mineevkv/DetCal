@@ -1,4 +1,4 @@
-from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view, is_equal_frequencies
+from ..helper_functions import remove_zeros, str_to_bool, refresh_obj_view, is_equal
 import numpy as np
 from .abstract_signal_handler import SignalHandler
 from .keys import Keys
@@ -23,7 +23,6 @@ class SettingsSignalHandler(SignalHandler):
         
         args = meas_controller.ig_controller, message
         SettingsSignalHandler.plot_handler(*args)
-
         SettingsSignalHandler.set_elements_unchanged(meas_controller)
 
     @staticmethod
@@ -32,6 +31,9 @@ class SettingsSignalHandler(SignalHandler):
         for key, param in Keys.gen.items():
             if key in message:
                 SettingsSignalHandler.update_gen_elem(meas_controller, message, key, param)
+
+        SettingsSignalHandler.update_max_det_level(meas_controller)
+        
 
     @staticmethod
     def sa_handler(meas_controller, message):
@@ -42,6 +44,9 @@ class SettingsSignalHandler(SignalHandler):
 
         if 'PRECISE' in message:
             meas_controller.enable_precise(str_to_bool(message['PRECISE']))
+        if 'REF_MANUAL' in message:
+            meas_controller.enable_ref_line(str_to_bool(message['REF_MANUAL']))
+
 
     @staticmethod
     def osc_handler(meas_controller, message):
@@ -82,12 +87,14 @@ class SettingsSignalHandler(SignalHandler):
             ig_controller.view.figure2.canvas.draw_idle()
         if "RF_FREQUENCIES" in message:
             freq_min, freq_max, points = message["RF_FREQUENCIES"]
-            if is_equal_frequencies(freq_min, freq_max):
+            if is_equal(freq_min, freq_max):
                 ig_controller.add_selector_point(freq_min)
             else:
                 frequencies = np.linspace(freq_min, freq_max, points)
                 for frequency in frequencies:
                     ig_controller.add_selector_point(frequency)
+        if "FILENAME" in message:
+            ig_controller.set_det_name(message["FILENAME"])
 
     @staticmethod
     def update_gen_elem(meas_controller, message, mes_key, param):
@@ -121,5 +128,13 @@ class SettingsSignalHandler(SignalHandler):
                 element.setProperty("class", "")
                 refresh_obj_view(element)
         meas_controller.unlock_start_btn()
+
+    def update_max_det_level(meas_controller):
+        model = meas_controller.model
+        elem = meas_controller.view.elem
+        if model.is_s21_gen_det() and model.settings:
+            max_level = round(model.calc_max_det_level(), 2) # .:2f
+            elem['MAX_DET_LEVEL_VALUE_LABEL'].setText(meas_controller.value_to_str(max_level, 'dBm'))          
+
 
             

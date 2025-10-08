@@ -91,7 +91,8 @@ QLabel {
     qproperty-alignment: 'AlignCenter'
 }
 
-.s21_label_nofile {
+.s21_label_nofile,
+.det_level_label {
     color: #ff5436;
 }
 
@@ -135,6 +136,12 @@ QLabel {
     color: #a5c53c;
 }
 
+.det_level_label {
+    color: #f1c40f;
+    font-size: 14px;
+    font-weight: bold;
+}
+
 
 .settings_status_label {
     color: #50e3c2;
@@ -167,6 +174,13 @@ QLineEdit:disabled{
     border: 1px solid #50e3c2;
     font-weight: bold;
     color: #50e3c2;
+}
+
+.det_name_line {
+    border: none;
+    font-weight: bold;
+    color: #f1c40f;
+    qproperty-alignment: 'AlignCenter';
 }
 
 QTextBrowser{
@@ -231,6 +245,14 @@ QPushButton:disabled {
     background-color: rgba(84, 83, 83, 0.5);
     color: #aeaeae;
     border: 1px solid #90969b;
+}
+
+.btn_runstop_run:checked, .btn_singleseq:checked {
+    background-color: #a5c53c;
+}
+
+.btn_runstop_stop:checked {
+    background-color: #ff5436;
 }
 
 .btn_start, .btn_save_result {

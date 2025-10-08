@@ -3,6 +3,7 @@ from GUI.palette import *
 from Measurement.InfographicController.infographic_controller import (
     InfographicController,
 )
+from Measurement.MeasurementController.meas_buttons import ButtonsMC
 
 from .model_signal_handler import ModelSignalHandler
 from .status_bar_controller import StatusBarController
@@ -10,6 +11,7 @@ from .view_signal_handler import ViewSignalHandler
 from .write_settings import WriteSettings
 from .settings_validator import SettingsValidator
 from Measurement.abstract_controller import Controller
+
 
 from System.logger import get_logger
 
@@ -33,9 +35,8 @@ class MeasurementController(Controller):
         self.general_view = view  # General View
         self.model = model  # General Measurement Model
         self.view = view.meas  # Measurement Sheet
-        self.ig_controller = InfographicController(model, view)  # Slave Sheet
-
-        
+        self.ig_controller = InfographicController(self, view)  # Slave Sheet
+        self.buttons = ButtonsMC(self)
 
         self.init_signals_handlers()  # Must be before instrument initialization
         self.init_view_controllers()
@@ -96,23 +97,6 @@ class MeasurementController(Controller):
         elem["BTN_START"].setEnabled(True)
         self.status_bar.info("Ready for measurement")
 
-    def btn_save_settings_click(self) -> None:
-        """
-        Save the current settings to the settings file.
-
-        This function is called when the "Save settings" button is clicked.
-        """
-        if not self.validate_settings():
-            return
-        try:
-            WriteSettings.view_to_model(self)
-            if self.model.file_manager.save_settings():
-                self.change_settings_status("Settings saved")
-            else:
-                self.status_bar.error("Failed to save settings")
-        except Exception as e:
-            self.status_bar.error(f"Save error: {e}")
-
     def change_settings_status(self, text: str) -> None:
         """
         Change the status of the settings label.
@@ -146,45 +130,6 @@ class MeasurementController(Controller):
         self.meas_waiting_timer.stop()
         self.view.elem["PROGRESS_LABEL"].setText("")
 
-    def btn_load_settings_click(self) -> None:
-        """
-        Load settings from a file.
-
-        This function is called when the "Load settings" button is clicked.
-        It will load the settings from a file and update the model.
-        """
-        self.ig_controller.clear_selector()
-        self.model.file_manager.load_settings_from_file()
-        self.change_settings_status("Settings loaded")
-
-    def btn_set_default_click(self) -> None:
-        """
-        Set default settings.
-
-        This function is called when the "Default" button is clicked.
-        It will load the default settings from a file and update the model.
-        """
-        self.ig_controller.clear_selector()
-        self.model.file_manager.load_default_settings()
-        self.change_settings_status("Default settings")
-
-    def btn_start_click(self) -> None:
-        """
-        Start the measurement process.
-
-        This function is called when the "Start" button is clicked.
-        It will check if the instruments are initialized and if the settings are valid, then start the measurement process.
-        """
-        if not self.validate_settings():
-            return
-        if self.model.start_measurement_process():
-            self.view.elem["UNLOCK_STOP"].setChecked(False)
-            self.lock_control_elem()
-            self.progress_label_text("Waiting...")
-            self.status_bar.info("Measurement in progress...")
-        else:
-            self.status_bar.error("Check instruments")
-
     def progress_label_text(self, text: str) -> None:
         """
         Update the progress label text.
@@ -196,76 +141,7 @@ class MeasurementController(Controller):
         self.view.elem["PROGRESS_LABEL"].setText(text)
         self.meas_waiting_timer.start()
 
-    def btn_stop_click(self) -> None:
-        """
-        Stop the measurement process.
-
-        This function is called when the "Stop" button is clicked.
-        It will stop the measurement process and unlock the controls elements.
-        """
-        elem = self.view.elem
-        elem["BTN_STOP"].setEnabled(False)
-        elem["UNLOCK_STOP"].setChecked(False)
-        self.model.stop_measurement_process()
-        self.progress_label_text("Stopped")
-
-    def btn_save_result_click(self) -> None:
-        """
-        Save the measurement results to a file.
-
-        This function is called when the "Save result" button is clicked.
-        It will save the measurement results to a file and update the progress label.
-        """
-        logger.debug("Save result")
-        try:
-            self.model.file_manager.save_results()
-            self.progress_label_text("Saved")
-        except Exception as e:
-            self.status_bar.error(f"Save result error: {e}")
-
-    def btn_load_s21_gen_sa_click(self) -> None:
-        """
-        Load an S21 Gen-SA parameters from external file.
-
-        This function is called when the "Load S21 Gen-SA file" button is clicked.
-        It will load the S21 Gen-SA file and update the status bar.
-        """
-        logger.debug("Load S21 Gen-SA file")
-        if self.model.file_manager.load_s21_gen_sa():
-            self.status_bar.info("S21 Gen-SA file loaded successfully")
-        else:
-            self.status_bar.error("Failed to load S21 Gen-SA file")
-
-    def btn_load_s21_gen_det_click(self) -> None:
-        """
-        Load an S21 Gen-Det parameters from external file.
-
-        This function is called when the "Load S21 Gen-Det file" button is clicked.
-        It will load the S21 Gen-Det file and update the status bar.
-        """
-        logger.debug("Load S21 Gen-Det file")
-        if self.model.file_manager.load_s21_gen_det():
-            self.status_bar.info("S21 Gen-Det file loaded successfully")
-        else:
-            self.status_bar.error("Failed to load S21 Gen-Det file")
-
-    def btn_apply_click(self) -> None:
-        """
-        Apply the settings to the model.
-
-        This function is called when the "Apply" button is clicked.
-        It will validate the settings, then apply them to the model if they are valid.
-        """
-        logger.debug("Apply button clicked")
-        try:
-            if not self.validate_settings():
-                return
-            WriteSettings.view_to_model(self)
-            self.ig_controller.clear_selector()
-            self.model.settings_changed.emit(self.model.settings)
-        except Exception as e:
-            self.status_bar.error(f"Error applying settings: {e}")
-
+    
     def validate_settings(self) -> bool:
         """
         Validate the settings.
@@ -274,10 +150,16 @@ class MeasurementController(Controller):
         It will check if the settings are valid and return True if they are, False otherwise.
         """
         validator = SettingsValidator(self.view)
-        result = validator.check()
-        if not result:
-            self.status_bar.error("Invalid settings")
-        return result
+        if not validator.check():
+            self.status_bar.error("Invalid settings: check values")
+            return False
+        if not validator.is_correct_freq_points():
+            self.status_bar.error("Invalid settings: check frequencies and points")
+            return False
+        if not validator.is_correct_level_points():
+            self.status_bar.error("Invalid settings: check levels and points")
+            return False
+        return True
 
     def change_state_precise(self) -> None:
         """
@@ -288,6 +170,16 @@ class MeasurementController(Controller):
         """
         is_checked = self.view.elem["PRECISE_ENABLED"].isChecked()
         self.enable_precise(is_checked)
+
+    def change_state_ref_line(self) -> None:
+        """
+        Reference level line checkbox handler.
+
+        This function is called when the "Ref level" checkbox is changed.
+        It will update the state of the reference level fields in the view.
+        """
+        is_checked = self.view.elem["REF_LEVEL_ENABLED"].isChecked()
+        self.enable_ref_line(is_checked)
 
     def change_state_recalc(self) -> None:
         """
@@ -335,6 +227,9 @@ class MeasurementController(Controller):
             "S21_GEN_DET_FILE_LABEL",
             "BTN_LOAD_S21_GEN_SA",
             "BTN_LOAD_S21_GEN_DET",
+            "MAX_DET_LEVEL_LABEL",
+            "MAX_DET_LEVEL_VALUE_LABEL",
+            "BTN_RECALC_EXTERNAL"
         )
         for key in keys:
             elem[key].setEnabled(state)
@@ -351,6 +246,17 @@ class MeasurementController(Controller):
         if self.model.s21_gen_det is None or self.model.s21_gen_sa is None:
             return False
         return True
+    
+    def enable_ref_line(self, state: bool) -> None:
+        """
+        Enable or disable the reference level line edit.
+
+        Args:
+            state (bool): The state of the reference level line.
+        """
+        elem = self.view.elem
+        elem["REF_LEVEL_ENABLED"].setChecked(state)
+        elem['REF_LEVEL_LINE'].setReadOnly(not state)
 
     def unlock_stop_btn(self) -> None:
         """

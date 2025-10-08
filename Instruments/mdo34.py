@@ -198,15 +198,31 @@ class MDO34(Instrument):
 
     @Instrument.device_checking
     def stop_after_sequence(self):
-        self.send('ACQUIRE:STOPAFTER SEQUENCE')
+        self.send(':ACQUIRE:STOPAFTER SEQUENCE')
+        self.state_changed.emit({'ACQUIRE_STOPAFTER': 'SEQUENCE'})
+
+    @Instrument.device_checking
+    def stop_after_runstop(self):
+        self.send(':ACQUIRE:STOPAFTER RUNSTOP')
+        self.state_changed.emit({'ACQUIRE_STOPAFTER': 'RUNSTOP'})
+
+    @Instrument.device_checking
+    def get_stop_after_mode(self):
+        return self.send(':ACQuire:STOPAfter?')
 
     @Instrument.device_checking
     def ready_for_acquisition(self):
         self.send('ACQUIRE:STATE ON')
+        self.state_changed.emit({'ACQUIRE_STATE': True})
+
+    def stop_acquisition(self):
+        self.send('ACQUIRE:STATE OFF')
+        self.state_changed.emit({'ACQUIRE_STATE': False})
 
     @Instrument.device_checking
     def trigger_force(self):
         self.send('TRIGger FORCe')
+        self.state_changed.emit({'TRIGGER': True})
 
     @Instrument.device_checking
     def is_acquiring(self): 
@@ -283,6 +299,15 @@ class MDO34(Instrument):
     def set_sample_mode(self):
         self.send('ACQuire:MODe SAMple')
         self.state_changed.emit({'ACQUIRE_MODE': 'SAMPLE'})
+
+    # Front panel buttons
+    @Instrument.device_checking
+    def press_runstop(self):
+        self.send('FPANEL:PRESS RUnstop')
+
+    @Instrument.device_checking
+    def press_singleseq(self):
+        self.send('FPANEL:PRESS SINGleseq')
     
     @Instrument.device_checking
     def get_settings_from_device(self):
@@ -294,6 +319,8 @@ class MDO34(Instrument):
             'ACQUIRE_MODE': self.get_aquire_mode(),
             'SELECT_CH': self.get_selected_channel(),
             'TERMINATIONS': self.get_all_terminations(),
+            'ACQUIRE_STOPAFTER' : self.get_stop_after_mode(),
+            'ACQUIRE_STATE' : self.is_acquiring(),
             }
         
         message = {**message, **self.get_active_channels()} #TODO: add selected channel

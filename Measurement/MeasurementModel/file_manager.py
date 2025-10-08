@@ -21,45 +21,50 @@ class FileManager:
     def __init__(self, meas_model: object) -> None:
         self.model = meas_model
 
-    def load_settings_from_file(self) -> None:
+    def load_settings_from_file(self) -> bool:
         """
         Load settings from a opened file.
 
         This function will load the settings from a manual opened file and update the measurement model.
         """
         logger.debug("MeasModel: load settings from file")
-        settings = self.open_settings_file()
-        if settings:
-            self.model.settings = settings
+        try:
+            path = self.open_settings_file()
+            self.load_settings(path)
+            return True
+        except Exception as e:
+            logger.error(f"Failed to load settings from file: {e}")
+            return False
 
-    def load_settings(self, default: bool = False) -> None:
+    def is_settings(self, settings: dict) -> bool:
         """
-        Load settings from a file.
-
-        This function will load the settings from a file and update the measurement model.
+        Check if the settings dictionary is valid.
 
         Parameters:
-                default (bool): If True, load the default settings file. If False, load the user settings file.
+            settings (dict): A dictionary containing the settings.
+
+        Returns:
+            bool: True if the settings dictionary is valid, False otherwise.
         """
-        folder = self.model.settings_folder
-        filename = self.model.settings_filename
-        settings = {}
+        keys = [
+            "RF_FREQUENCIES",
+            "RF_LEVELS",
+            "SPAN_WIDE",
+            "RBW_WIDE",
+            "VBW_WIDE",
+            "REF_LEVEL",
+            "SWEEP_POINTS",
+            "HOR_SCALE",
+            "IMPEDANCE_50OHM",
+            "COUPLING_DC",
+        ]
 
-        if default:
-            logger.debug("FileManager: load default settings")
-            path = os.path.join(folder, f"{filename}_default.json")
-            if not os.path.exists(path):
-                error_msg = f"Default settings file not found: {path}"
-                logger.error(error_msg)
-                raise FileNotFoundError(error_msg)
-        else:
-            logger.debug("FileManager: load settings")
-            path = os.path.join(folder, f"{filename}.json")
-            if not os.path.exists(path):
-                error_msg = f"User settings file not found: {path}"
-                logger.error(error_msg)
-                raise FileNotFoundError(error_msg)
-
+        for key in keys:
+            if key not in settings.keys():
+                return False
+        return True
+    
+    def load_settings(self, path: str) -> None:
         try:
             with open(path, "r") as f:
                 settings = json.load(f)
@@ -67,23 +72,34 @@ class FileManager:
             logger.error(f"Failed to load settings from {path}: {e}")
             raise  # Re-raise the exception after logging
 
-        if settings:
+        if self.is_settings(settings):
             self.model.settings = settings
             logger.info(f"Settings loaded successfully from {path}")
+        else:
+            error_msg = f"Invalid settings file: {path}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+
+    def load_start_settings(self) -> None:
+        logger.debug("FileManager: load settings")
+        path = os.path.join(self.model.settings_folder, f"{self.model.settings_filename}.json")
+        if not os.path.exists(path):
+            error_msg = f"User settings file not found: {path}"
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
+        self.load_settings(path)
+
+
 
     def load_default_settings(self) -> None:
-        """
-        Load default settings from a file.
-
-        This function will load the default settings from a file and update the measurement model.
-
-        The default settings file is located in the settings folder and is named
-        `meas_settings_default.json`".
-
-        Raises:
-            FileNotFoundError: If the default settings file is not found.
-        """
-        self.load_settings(default=True)
+        logger.debug("FileManager: load default settings")
+        path = os.path.join(self.model.settings_folder, f"{self.model.settings_filename}_default.json")
+        if not os.path.exists(path):
+            error_msg = f"Default settings file not found: {path}"
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
+        self.load_settings(path)
 
     def open_settings_file(self) -> dict:
         """
@@ -98,20 +114,9 @@ class FileManager:
                 directory=self.model.settings_folder,
                 filter="JSON files (*.json)",
             )
+            return path
         except Exception as e:
             logger.warning(f"Failed to open file dialog: {e}")
-
-        settings = {}
-        if path:
-            try:
-                with open(path, "r") as f:
-                    settings = json.load(f)
-            except Exception as e:
-                logger.warning(f"Failed to load settings from {path}: {e}")
-        else:
-            logger.warning(f"No file selected")
-
-        return settings
 
     def save_settings(self) -> bool:
         """
@@ -126,7 +131,8 @@ class FileManager:
         try:
             folder = self.model.settings_folder
             filename = self.model.settings_filename
-            os.makedirs(folder, exist_ok=True)  # Ensure directory exists
+            if not os.path.exists(folder):
+                os.makedirs(folder)
             path = os.path.join(folder, f"{filename}.json")
             with open(path, "w") as f:
                 json.dump(self.model.settings, f, indent=4)
@@ -159,7 +165,7 @@ class FileManager:
             logger.warning(f"Failed to load S21 file: {e}")
             return False
 
-    def load_s21_gen_det(self, filename=None) -> bool:
+    def load_s21_gen_det(self, filename: str = None) -> bool:
         """
         Load S21 parameters file for the line from generator to detector.
 
@@ -220,11 +226,9 @@ class FileManager:
         data = parser.parse_file()
         return (data["FREQUENCY"], data["MAGNITUDE_DB"])
 
-    def save_results(self) -> None:
+    def save_results(self, mode: str = None) -> None:
         """
-        Save the measurement results to a CSV file.
-
-        This function will save the measurement results to a CSV file. The filename will be selected by the user through a file dialog.
+        Saves the measurement results to a CSV file.
 
         The CSV file will contain the following columns:
 
@@ -235,30 +239,43 @@ class FileManager:
         - S21 parameter from generator to spectrum analyzer (dB)
         - S21 parameter from generator to detector (dB)
         - Detector input power level (dBm) - Recalculated via S21 parameters
+
+        In mode=open', the filename will be selected by the user through a file dialog.
         """
         try:
-            filename, _ = QFileDialog.getSaveFileName(
-                caption="Save results",
-                directory=os.path.join("results.csv"),
-                filter="CSV files (*.csv)",
-            )
+            filename = f"{self.model.settings['FILENAME']}_results.csv"
+            if mode == "open":
+                path, _ = QFileDialog.getSaveFileName(
+                    caption="Save results",
+                    directory=os.path.join(filename),
+                    filter="CSV files (*.csv)",
+                )
+            else:
+                path = os.path.join(self.model.output_dir, filename)
         except Exception as e:
             logger.warning(f"Failed to open file dialog: {e}")
 
-        if filename:
-            try:
-                file_header = "Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V), S21 Gen-Sa (dB), S21 Gen-Det (dB), Det Level (dBm)"
-                np.savetxt(
-                    filename, self.model.meas_data, delimiter=",", header=file_header
-                )
-                logger.info(f"Results saved to {filename}")
-            except Exception as e:
-                logger.error(f"Failed to save results to {filename}: {e}")
-        else:
-            logger.warning(f"No file selected")
+        if not os.path.exists(self.model.output_dir):
+            os.makedirs(self.model.output_dir)
+
+        FileManager.save_results_to_file(self.model.meas_data, path)
 
     @staticmethod
-    def load_units(folder: str='Settings') -> dict:
+    def save_results_to_file(data, path):
+        if path:
+            try:
+                file_header = "Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V), S21 Gen-Sa (dB), S21 Gen-Det (dB), Det Level (dBm)"
+                np.savetxt(path, data, delimiter=",", header=file_header)
+                logger.info(f"Results saved to {path}")
+                return True
+            except Exception as e:
+                logger.error(f"Failed to save results to {path}: {e}")
+        else:
+            logger.warning(f"No file selected")
+            return False
+
+    @staticmethod
+    def load_units(folder: str = "Settings") -> dict:
         """
         Load units from a file.
 

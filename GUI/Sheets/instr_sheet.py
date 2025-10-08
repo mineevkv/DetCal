@@ -34,6 +34,8 @@ class InstrumentSheet(Sheet):
         self.add_clickable_line_edit(key, 3, self.ip_row, f"{self.ip}", 93)
         self.add_btn(key, 13, self.ip_row, "Connect")
         self.add_label(f'{key}_STATUS', 20, self.ip_row, "", 100)
+        
+        self.ip_keys = (f'{key}_LABEL', f'{key}_CLICKLINE', f'BTN_{key}', f'{key}_STATUS_LABEL')
 
     def add_animated_progress_bar(self):
         bar = self.add_progress_bar('PROGRESS', self.zero_col, 8, 391 - 2*self.margin_left, self.elem_hight)
@@ -53,9 +55,10 @@ class InstrumentSheet(Sheet):
 
     def add_big_btn(self, key, col, row, text, width=60):
         btn = self.add_btn(key, col, row, text, width)
-        # btn .setStyleSheet(f"font-weight: bold")
         btn .setFixedHeight(45)
         return btn
+    
+    
     
     
 

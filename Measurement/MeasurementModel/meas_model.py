@@ -1,9 +1,10 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from Measurement.MeasurementModel.Initializer import Initializer
 from .file_manager import FileManager
-from ..helper_functions import get_s21, is_equal_frequencies
+from ..helper_functions import get_s21, is_equal
 from Measurement.MeasurementModel.measurement_thread import MeasurementThread
 from Measurement.MeasurementModel.devices_setup import DevicesSetup
+from Measurement.MeasurementModel.recalc_results import RecalcResults
 
 from multipledispatch import dispatch
 import numpy as np
@@ -38,6 +39,7 @@ class MeasurementModel(QObject):
     settings_filename = "meas_settings"
     settings_folder = "Settings"
     s21_folder = "S21files"
+    output_dir = "Output"
 
     _settings = dict()
     _s21_gen_det = None
@@ -177,14 +179,15 @@ class MeasurementModel(QObject):
         Load the main settings and the S21 parameters from the settings
         files and store them in the MeasurementModel.
         """
+        self.file_manager.load_s21_files() # must be first fo calculation detector power level
+        self.file_manager.load_start_settings()
+        
 
-        self.file_manager.load_settings()
-        self.file_manager.load_s21_files()
 
     def get_data_from_frequency(self, frequency):
         data = []
         for row in self._meas_data:
-            if is_equal_frequencies(row[0], frequency):
+            if is_equal(row[0], frequency):
                 data.append(row)
         return data
 
@@ -307,11 +310,11 @@ class MeasurementModel(QObject):
             self.emit_progress(100)
 
     @dispatch(int)
-    def emit_progress(self, value):
+    def emit_progress(self, value)  -> None: # TODO: add doc
         self.progress_status.emit({"PROGRESS": value})
 
     @dispatch(object, int)
-    def emit_progress(self, iter_obj, max_len):
+    def emit_progress(self, iter_obj, max_len) -> None: # TODO: add doc
         try:
             value = int((next(iter_obj) / max_len) * 100)
             self.progress_status.emit({"PROGRESS": value})
@@ -466,30 +469,46 @@ class MeasurementModel(QObject):
         The recalculated data is stored in the form of a list of tuples, where each tuple
         contains the frequency (Hz), the output power level (dBm), the level (dBm) measured by the Spectrum Analyzer,
         and the voltage measured by the oscilloscope.
-
-        :return: A list of tuples containing the recalculated data
-        :rtype: list
         """
-        recalc_data = []
-        for point in self._meas_data:
-            frequency, level, sa_level, osc_voltage = point
-            s21_gen_sa = get_s21(frequency, self._s21_gen_sa)
-            s21_gen_det = get_s21(frequency, self._s21_gen_det)
-            det_level = (sa_level + s21_gen_sa) - s21_gen_det
-
-            recalc_point = [
-                frequency,
-                level,
-                sa_level,
-                osc_voltage,
-                s21_gen_sa,
-                s21_gen_det,
-                det_level,
-            ]
-            recalc_data.append(recalc_point)
-
+        recalc_data = RecalcResults.recalc_data(self.meas_data, self.s21_gen_sa, self.s21_gen_det)
         self.data_changed.emit({"RECALC_DATA": recalc_data})
         self._meas_data = recalc_data
+
+    def recalc_det_level(self, frequency: float, gen_level: float) -> float: #TODO: add documentation
+        s21_gen_det = get_s21(frequency, self._s21_gen_det)
+        det_level = gen_level + s21_gen_det
+        return det_level
+    
+    def calc_max_det_level(self) -> float: #TODO: add documentation
+        freq_min, freq_max, freq_points = self._settings["RF_FREQUENCIES"]
+        level_min, level_max, level_points = self._settings["RF_LEVELS"]
+
+        frequencies = np.linspace(freq_min, freq_max, freq_points)
+        levels = []
+        for frequency in frequencies:
+            levels.append (self.recalc_det_level(frequency, level_max))
+
+        return max(levels)
+    
+    def is_spar(self) -> bool:
+        if self.is_s21_gen_sa() and self.is_s21_gen_det():
+            return True
+        else:
+            return False
+        
+    def is_s21_gen_sa(self) -> bool:
+        if self._s21_gen_sa is None:
+            return False
+        else:
+            return True
+    
+    def is_s21_gen_det(self) -> bool:
+        if self._s21_gen_det is None:
+            return False
+        else:
+            return True
+            
+
 
     def set_sa_wide_band(self) -> None:
         """
@@ -553,5 +572,6 @@ class MeasurementModel(QObject):
 
         Called when the measurement is finished.
         """
+        self.file_manager.save_results()
         self.progress_status.emit({"FINISH": True})
         logger.info("Measurement finished")

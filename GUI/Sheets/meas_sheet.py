@@ -52,13 +52,18 @@ class MeasurementSheet(Sheet):
         rbw_row = span_row + 1
         vbw_row = rbw_row + 1
         ref_level_row = vbw_row + 1
+
+        precise_col = self.zero_col + 20
+
         self.add_sa_elem('SWEEP_POINTS', self.zero_col, points_row, edit_line_width, 'Sweep points:', '0')
         self.add_sa_elem('SPAN', self.zero_col, span_row, edit_line_width, 'SPAN, MHz:', '0')
         self.add_sa_elem('RBW', self.zero_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')
         self.add_sa_elem('VBW', self.zero_col, vbw_row, edit_line_width, 'VBW, kHz:', '0')
         self.add_sa_elem('REF_LEVEL', self.zero_col, ref_level_row, edit_line_width, 'Ref level, dB:', '0')
+        self.add_check_box('REF_LEVEL_ENABLED', precise_col, ref_level_row, 'Set Ref level manually')
+        
 
-        precise_col = self.zero_col + 20
+        
         self.add_check_box('PRECISE_ENABLED', precise_col, points_row, 'Precise measurement')
         self.add_sa_elem('SPAN_PRECISE', precise_col, span_row, edit_line_width, 'SPAN, MHz:', '0')
         self.add_sa_elem('RBW_PRECISE', precise_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')
@@ -68,13 +73,18 @@ class MeasurementSheet(Sheet):
         s21_col = precise_col + 20
         s21_file_col = s21_col + 12
         s21_btn_col = s21_file_col + 20
+        det_col = s21_col + 20
+        recalc_col = s21_col + 16
         self.add_check_box('RECALC_ATT', s21_col, points_row, 'Recalc attenuation')
+        self.add_custom_btn('RECALC_EXTERNAL', recalc_col, points_row, 'Recalc results file', 120, self.elem_hight)
         self.add_label('S21_GEN_SA', s21_col, span_row, 'S21 Gen-SA file:', 120).setProperty('class', 's21_label')
         self.add_label('S21_GEN_SA_FILE', s21_file_col, span_row, 'No S21 file', 200).setProperty('class', 's21_label_nofile')
         self.add_custom_btn('LOAD_S21_GEN_SA', s21_btn_col, span_row, 'Load', 60, self.elem_hight)
         self.add_label('S21_GEN_DET', s21_col, rbw_row, 'S21 Gen-Det file:', 120).setProperty('class', 's21_label')
         self.add_label('S21_GEN_DET_FILE', s21_file_col, rbw_row, 'No S21 file', 200).setProperty('class', 's21_label_nofile')
         self.add_custom_btn('LOAD_S21_GEN_DET', s21_btn_col, rbw_row, 'Load', 60, self.elem_hight)
+        self.add_label('MAX_DET_LEVEL', s21_col, vbw_row, 'Detector Max level, dBm:', 200).setProperty('class', 'meas_label_sa')
+        self.add_label('MAX_DET_LEVEL_VALUE', det_col, vbw_row, '-110', 60).setProperty('class', 'det_level_label')
 
         
         # Oscilloscope fields

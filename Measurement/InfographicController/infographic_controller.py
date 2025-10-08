@@ -1,20 +1,24 @@
 from PyQt6.QtCore import QObject
 import csv
 import json
-from Documentations.protocol_creator import MeasurementProtocol
+from ProtocolCreator.protocol_creator import MeasurementProtocol
+import os
+from Measurement.abstract_controller import Controller
 
-from Measurement.helper_functions import is_equal_frequencies
+from Measurement.MeasurementController.write_settings import WriteSettings
+from Measurement.helper_functions import is_equal
 
 
 from System.logger import get_logger
 logger = get_logger(__name__)
 
-class InfographicController(QObject):
+class InfographicController(Controller):
         
-    def __init__(self,  model, view):
+    def __init__(self,  meas_controller, view):
         super().__init__()
         self.view = view.ig
-        self.model = model
+        self.model = meas_controller.model
+        self.meas_controller = meas_controller
         self.connect_signals()
 
         self.frequency = None
@@ -23,6 +27,7 @@ class InfographicController(QObject):
         elem =self.view.elem
         elem['FREQ_COBMO'].currentTextChanged.connect(self.selector_handler)
         elem['BTN_PROTOCOL'].clicked.connect(self.btn_protocol_click)
+        elem['DET_NAME_LINE'].textChanged.connect(self.det_name_handler)
 
     def selector_handler(self):
         selected_freq = self.get_current_frequency()
@@ -32,21 +37,62 @@ class InfographicController(QObject):
         self.plot_data_from_frequency(data)
 
     def btn_protocol_click(self):
+        btn =  self.view.elem['BTN_PROTOCOL']
         selected_frequency = self.get_current_frequency()
         if selected_frequency is None:
             return
         
-        with open("results.csv", "r") as file:
-            next(file) # skip header
-            result_file = list(csv.reader(file))
-            data = []
-            for row in result_file:
-                if is_equal_frequencies(row[0], selected_frequency):
-                    data.append(row)
+        btn.setEnabled(False)
+        if not self.create_protocol(selected_frequency):
+            btn.setEnabled(True)
+        
 
-        with open("Settings/meas_settings.json", "r") as file:
-            settings = json.load(file)
-            doc = MeasurementProtocol(data, settings)
+    def create_protocol(self, selected_frequency) -> bool:
+        path = os.path.join(self.model.output_dir, f"{self.model.settings['FILENAME']}_results.csv")
+        if not os.path.exists(path):
+            logger.warning(f"Protocol for {self.model.settings['FILENAME']} cannot be created")
+            self.meas_controller.status_bar.error(f"File not found: {path}")
+            return False
+    
+        try:
+            det_name = self.view.elem["DET_NAME_LINE"].text()
+            str_freq = self.value_to_str(selected_frequency, "MHz")
+            self.meas_controller.status_bar.warning(f'Creating protocol for "{det_name}" at {str_freq} MHz')
+   
+            result_file = self.read_csv(path)
+            data = self.sorting_data_from_frequency(result_file, selected_frequency)
+            if not data:
+                self.meas_controller.status_bar.error(f'Data for "{det_name}" at {str_freq} MHz was not found')
+                return False
+            
+            self.start_creating_protocol(data, det_name, str_freq)
+            return True
+        except Exception as e:
+            logger.error(f"Error creating protocol: {e}")
+
+    def start_creating_protocol(self, data, det_name, str_freq):
+            settings = WriteSettings.view_to_dict(self.meas_controller)
+            self.protocol = MeasurementProtocol(data, settings)
+            self.protocol.finished_signal.connect(lambda: self.protocol_finish_handler(det_name, str_freq))
+            self.protocol.start()
+
+    def read_csv(self, path):
+        with open(path, "r") as file:
+            logger.info(f"Loading data from: {path}")
+            next(file) # skip header
+            return list(csv.reader(file))
+            
+    def protocol_finish_handler(self, det_name, str_freq):
+        finish_msg = f'Protocol for "{det_name}" at {str_freq} MHz created successfully'
+        self.meas_controller.status_bar.info(finish_msg)
+        self.view.elem['BTN_PROTOCOL'].setEnabled(True)
+
+    def sorting_data_from_frequency(self, data_file, selected_frequency):
+        data = []
+        for row in data_file:
+            if is_equal(row[0], selected_frequency):
+                data.append(row)
+        return data
 
     def plot_data_from_frequency(self, data):
         self.clear_plot()
@@ -80,6 +126,15 @@ class InfographicController(QObject):
             if  abs(self.frequency - box_frequency) < 1e4:
                 elem.setCurrentIndex(i)
                 return
+            
+    def set_det_name(self, name):
+        if name is not None:
+            name = name.replace('_', ' ')
+            name = name.rstrip()
+            self.view.elem['DET_NAME_LINE'].setText(name)
+
+    def det_name_handler(self):
+        WriteSettings.write_det_name_to_model(self.meas_controller)
             
     def lock_control_elem(self):
         elem = self.view.elem

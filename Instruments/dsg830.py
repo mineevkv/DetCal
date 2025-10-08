@@ -37,8 +37,6 @@ class DSG830(Instrument):
         """
         Set the output level in dBm
         """
-        if not self.is_initialized():
-            return
 
         if level <=self.max_level and level >= self.min_level:
             self.send(f":LEV {level}dBm")
@@ -75,14 +73,24 @@ class DSG830(Instrument):
     # Turn Modulation ON/OFF of the output signal (Mod/on)
     @Instrument.device_checking
     def get_modulation_state(self):
-        return int(self.send(":SOURce:MODulation:STATe?"))
+        return int(self.send(":MODulation:STATe?"))
+    
+    @Instrument.device_checking
+    def modulation_on(self):
+        self.send(":MODulation:STATe ON")
+        self.state_changed.emit({'MOD_STATE': True})
+
+    @Instrument.device_checking
+    def modulation_off(self):
+        self.send(":MODulation:STATe OFF")
+        self.state_changed.emit({'MOD_STATE': False})
     
     @Instrument.device_checking
     def get_settings_from_device(self):
 
         self.state_changed.emit({
-            'frequency': self.get_frequency(),
-            'level': self.get_level(),
-            'rf_state': self.get_output_state(),
-            'mod_state': self.get_modulation_state()
+            'FREQUENCY': self.get_frequency(),
+            'LEVEL': self.get_level(),
+            'RF_STATE': self.get_output_state(),
+            'MOD_STATE': self.get_modulation_state()
             })
