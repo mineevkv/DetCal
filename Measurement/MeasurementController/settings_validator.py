@@ -34,8 +34,10 @@ class SettingsValidator():
             return False
         if not self.validate_positive_int('FREQ_POINTS_LINE'):
             return False
-        if not self.check_min_max('FREQ_MIN_LINE', 'FREQ_MAX_LINE'):
-            return False
+        
+        if int(self.view.elem['FREQ_POINTS_LINE'].text()) > 1:
+            if not self.check_min_max('FREQ_MIN_LINE', 'FREQ_MAX_LINE'):
+                return False
         return True
 
     def check_levels(self) -> bool:
@@ -45,8 +47,10 @@ class SettingsValidator():
             return False
         if not self.validate_positive_int('LEVEL_POINTS_LINE'):
             return False
-        if not self.check_min_max('LEVEL_MIN_LINE', 'LEVEL_MAX_LINE'):
-            return False
+        
+        if int(self.view.elem['LEVEL_POINTS_LINE'].text()) > 1:
+            if not self.check_min_max('LEVEL_MIN_LINE', 'LEVEL_MAX_LINE'):
+                return False
         return True
 
     def check_sweep_points(self) -> bool:
@@ -170,10 +174,9 @@ class SettingsValidator():
         min_value = self.get_value(key_min)
         max_value = self.get_value(key_max)
 
-        if points_value == 1 and not is_equal(max_value, min_value):
+        if points_value > 1 and is_equal(max_value, min_value):
             return False
-        elif points_value > 1 and is_equal(max_value, min_value):
-            return False
+        
         return True
 
 
