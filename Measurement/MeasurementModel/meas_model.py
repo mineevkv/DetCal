@@ -542,7 +542,7 @@ class MeasurementModel(QObject):
         Returns True if scale was changed, False otherwise.
         """
         current_scale = self.osc.get_vertical_scale()
-        vertical_map = self.osc.vertical_map
+        vertical_map = self.osc.VERTICAL_MAP
         current_idx = vertical_map.index(current_scale)
 
         if value > 3 * current_scale:
