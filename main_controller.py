@@ -10,7 +10,7 @@ class MainController:
         self.model = MeasurementModel()
         self.view = MainWindow()
 
-        self.model.offline_mode(0)
+        self.model.offline_mode(1)
         self.meas_controller = MeasurementController(self.model, self.view)
         self.view.show()
        
