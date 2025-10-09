@@ -139,7 +139,7 @@ class MeasurementSheet(Sheet):
         self.add_custom_btn('APPLY', 44, imp_row, 'APPLY', 60, 69, 'btn_apply')
 
         # Status bar field
-        self.add_label('STATUS_BAR', self.zero_col, ch_row+3, '', 800)
+        self.add_label('STATUS_BAR', self.zero_col, ch_row+2, '', 800)
 
     def add_gen_elem(
         self,

@@ -70,12 +70,9 @@ class ViewSignalHandler(SignalHandler):
 
     def max_line_off(elem, key):
         descriptor = key.split('_')[0]
-        min_line = elem[f'{descriptor}_MIN_LINE']
         max_line = elem[f'{descriptor}_MAX_LINE']
-        max_line.setText(min_line.text())
-        max_line.setEnabled(False)
-
         max_label = elem[f'{descriptor}_MAX_LABEL']
+        max_line.setEnabled(False)
         max_label.setEnabled(False)
 
     def max_line_on(elem, key):
