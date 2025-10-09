@@ -14,7 +14,7 @@ class MDO34(Instrument):
     Tektronix MDO34 Digital Oscilloscope
     """
 
-    channel_map = {1: "CH1", 2: "CH2", 3: "CH3", 4: "CH4"}
+    CHANNEL_MAP = {1: "CH1", 2: "CH2", 3: "CH3", 4: "CH4"}
 
     VERTICAL_MAP = [1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2, 1e-1, 2e-1, 5e-1, 1]
 
@@ -30,9 +30,9 @@ class MDO34(Instrument):
 
     @selected_channel.setter
     def selected_channel(self, channel: int) -> None:
-        reverse_map = {v: k for k, v in self.channel_map.items()}
+        reverse_map = {v: k for k, v in self.CHANNEL_MAP.items()}
 
-        if channel in self.channel_map:
+        if channel in self.CHANNEL_MAP:
             self._selected_channel = channel
         elif channel in reverse_map:
             self._selected_channel = reverse_map[channel]
@@ -58,9 +58,9 @@ class MDO34(Instrument):
     @Instrument.device_checking
     def select_channel(self, channel: int | str = None) -> None:
         """Selects channel for further operations"""
-        reverse_map = {v: k for k, v in self.channel_map.items()}
+        reverse_map = {v: k for k, v in self.CHANNEL_MAP.items()}
 
-        if channel in self.channel_map:
+        if channel in self.CHANNEL_MAP:
             self._selected_channel = channel
         elif channel in reverse_map:
             self._selected_channel = reverse_map[channel]
@@ -77,7 +77,7 @@ class MDO34(Instrument):
         channel_state = dict()
         response = self.send(f"SELECT?").split(";")  # response: 1;0;0;0;...;CH2
 
-        for i, channel in enumerate(self.channel_map.values()):
+        for i, channel in enumerate(self.CHANNEL_MAP.values()):
             channel_state[channel] = bool(int(response[i]))
         return channel_state
 
@@ -211,7 +211,7 @@ class MDO34(Instrument):
     def get_all_terminations(self) -> dict:
         """Get termination for all channels"""
         terminations = {}
-        for channel in self.channel_map.values():
+        for channel in self.CHANNEL_MAP.values():
             terminations[channel] = self.send(f"{channel}:TERMINATION?")
         return terminations
 
@@ -363,15 +363,6 @@ class MDO34(Instrument):
         message = {
             **message,
             **self.get_active_channels(),
-        }  # TODO: add selected channel
+        }
 
         self.state_changed.emit(message)
-
-    def __str__(self) -> str:
-        """String representation of the instrument."""
-        return f"MDO34 Oscilloscope at {self.ip}"
-
-    def __repr__(self) -> str:
-        """Detailed string representation."""
-        selected_ch = getattr(self, '_selected_channel', 'Unknown')
-        return f"MDO34(ip='{self.ip}', connected={self.is_connected()}, selected_channel={selected_ch})"
