@@ -1,8 +1,5 @@
 from Instruments.scpi_instr import Instrument
 
-import time
-import numpy as np
-
 from System.logger import get_logger
 
 logger = get_logger(__name__)
@@ -18,7 +15,6 @@ class DSG830(Instrument):
 
     MAX_FREQUENCY = 3e9
     MIN_FREQUENCY = 9e3
-    
 
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
@@ -115,11 +111,3 @@ class DSG830(Instrument):
                 "MOD_STATE": self.get_modulation_state(),
             }
         )
-
-    def __str__(self) -> str:
-        """String representation of the instrument."""
-        return f"DSG830 Microwave Generator at {self.ip}"
-
-    def __repr__(self) -> str:
-        """Detailed string representation."""
-        return f"DSG830(ip='{self.ip}', connected={self.is_connected()})"
