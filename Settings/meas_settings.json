@@ -1,8 +1,8 @@
 {
     "RF_FREQUENCIES": [
-        1000000.0,
+        1000000000.0,
         3000000000.0,
-        30
+        7
     ],
     "RF_LEVELS": [
         -5.0,
@@ -26,5 +26,5 @@
     "COUPLING_DC": true,
     "CHANNEL": 4,
     "RECALC_ATTEN": true,
-    "FILENAME": "RF_detector_1"
+    "FILENAME": "RF_detector_3"
 }

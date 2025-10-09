@@ -198,7 +198,10 @@ class MeasurementModel(QObject):
         abort = False
         equipment = [self.gen, self.sa, self.osc]
         for instr in equipment:
-            if not instr.is_initialized():
+            if instr is None:
+                logger.warning(f"Instrument {instr.__class__.__name__} not set")
+                abort = True
+            elif not instr.is_initialized():
                 logger.warning(f"Instrument {instr.__class__.__name__} not initialized")
                 abort = True
 
