@@ -187,7 +187,7 @@ class MeasurementModel(QObject):
     def get_data_from_frequency(self, frequency):
         data = []
         for row in self._meas_data:
-            if is_equal(row[0], frequency):
+            if is_equal(row[0], frequency, 1e4):
                 data.append(row)
         return data
 

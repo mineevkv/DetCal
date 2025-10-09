@@ -28,7 +28,14 @@ A Python application for automating detector calibration measurements using vari
 ### Software
 - **Python 3.8 or higher**
 - **VISA driver**: NI-VISA (National Instruments VISA)
-- **Operating System**: Windows 10/11. (Linux, or macOS didn't tested)
+- **Operating System**:
+  - ✅ **Windows 10/11** (fully tested and supported)
+  - ⚠️ **Linux** (not tested)
+  - ⚠️ **macOS** (not tested)
+- **LaTeX Distribution** (required for PDF report generation):
+    - Windows: [MiKTeX](https://miktex.org/)
+    - macOS: [MacTeX](https://www.tug.org/mactex/)
+    - Linux: `sudo apt install texlive-latex-base`
 
 ### Hardware
 - Supported test instruments (see below)

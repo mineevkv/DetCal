@@ -101,7 +101,7 @@ class InfographicController(Controller):
     def sorting_data_from_frequency(self, data_file, selected_frequency):
         data = []
         for row in data_file:
-            if is_equal(row[0], selected_frequency):
+            if is_equal(row[0], selected_frequency, 1e4):
                 data.append(row)
         return data
 
