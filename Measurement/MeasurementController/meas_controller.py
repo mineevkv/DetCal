@@ -3,7 +3,7 @@ from GUI.palette import *
 from Measurement.InfographicController.infographic_controller import (
     InfographicController,
 )
-from Measurement.MeasurementController.meas_buttons import ButtonsMC
+from Measurement.MeasurementController.buttons_handler import ButtonsMC
 
 from .model_signal_handler import ModelSignalHandler
 from .status_bar_controller import StatusBarController
@@ -66,7 +66,6 @@ class MeasurementController(Controller):
 
         The Timers are used to hide the status messages after a certain amount of time.
         """
-        # TODO class for timers
         self.settings_status_timer = QTimer()
         self.settings_status_timer.setInterval(3000)  # 3 second
         self.settings_status_timer.timeout.connect(self.hide_settings_status)
@@ -281,16 +280,16 @@ class MeasurementController(Controller):
         elem["BTN_START"].hide()
         elem["BTN_STOP"].setEnabled(False)
         elem["BTN_STOP"].show()
-        
+
         controllers = (
             self.ig_controller,
             self.gen_controller,
             self.sa_controller,
             self.osc_controller,
         )
+
         for controller in controllers:
             controller.lock_control_elements()
-        # self.ig_controller.lock_control_elem() TODO: add lock to all controllers
 
     def unlock_control_elements(self) -> None:
         """
@@ -310,6 +309,7 @@ class MeasurementController(Controller):
             self.sa_controller,
             self.osc_controller,
         )
+
         for controller in controllers:
             controller.unlock_control_elements()
 

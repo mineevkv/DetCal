@@ -486,10 +486,15 @@ class MeasurementModel(QObject):
         freq_min, freq_max, freq_points = self._settings["RF_FREQUENCIES"]
         level_min, level_max, level_points = self._settings["RF_LEVELS"]
 
+        if level_points == 1:
+            max_out_power = level_min
+        else:
+            max_out_power = level_max
+
         frequencies = np.linspace(freq_min, freq_max, freq_points)
         levels = []
         for frequency in frequencies:
-            levels.append (self.recalc_det_level(frequency, level_max))
+            levels.append (self.recalc_det_level(frequency, max_out_power))
 
         return max(levels)
     
