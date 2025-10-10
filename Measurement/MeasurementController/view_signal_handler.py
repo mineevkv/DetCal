@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QLineEdit, QCheckBox, QRadioButton
 from .abstract_signal_handler import SignalHandler
 
 from ..helper_functions import refresh_obj_view, btn_clicked_connect
-from Measurement.MeasurementController.meas_buttons import ButtonsMC
+from Measurement.MeasurementController.buttons_handler import ButtonsMC
 
 from System.logger import get_logger
 logger = get_logger(__name__)

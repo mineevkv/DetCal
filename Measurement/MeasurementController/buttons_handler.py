@@ -136,6 +136,7 @@ class ButtonsMC():
             WriteSettings.view_to_model(self.mc)
             self.mc.ig_controller.clear_selector()
             self.mc.model.settings_changed.emit(self.mc.model.settings)
+            self.mc.ig_controller.clear_plot()
         except Exception as e:
             self.mc.status_bar.error(f"Error applying settings: {e}")
 

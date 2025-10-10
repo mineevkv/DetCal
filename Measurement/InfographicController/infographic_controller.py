@@ -108,8 +108,8 @@ class InfographicController(Controller):
     def plot_data_from_frequency(self, data):
         self.clear_plot()
         for point in data:
-            self.view.figure1.add_point(point[1], point[3])
-            self.view.figure2.add_point(point[2], point[3])
+            self.view.figure1.add_point(point[1], point[3]/self.units["mV"])
+            self.view.figure2.add_point(point[2], point[3]/self.units["mV"])
 
     def add_selector_point(self, frequency):
         elem = self.view.elem["FREQ_COMBO"]
