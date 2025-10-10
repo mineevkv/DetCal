@@ -141,7 +141,6 @@ class MeasurementController(Controller):
         self.view.elem["PROGRESS_LABEL"].setText(text)
         self.meas_waiting_timer.start()
 
-    
     def validate_settings(self) -> bool:
         """
         Validate the settings.
@@ -229,7 +228,7 @@ class MeasurementController(Controller):
             "BTN_LOAD_S21_GEN_DET",
             "MAX_DET_LEVEL_LABEL",
             "MAX_DET_LEVEL_VALUE_LABEL",
-            "BTN_RECALC_EXTERNAL"
+            "BTN_RECALC_EXTERNAL",
         )
         for key in keys:
             elem[key].setEnabled(state)
@@ -246,7 +245,7 @@ class MeasurementController(Controller):
         if self.model.s21_gen_det is None or self.model.s21_gen_sa is None:
             return False
         return True
-    
+
     def enable_ref_line(self, state: bool) -> None:
         """
         Enable or disable the reference level line edit.
@@ -256,7 +255,7 @@ class MeasurementController(Controller):
         """
         elem = self.view.elem
         elem["REF_LEVEL_ENABLED"].setChecked(state)
-        elem['REF_LEVEL_LINE'].setReadOnly(not state)
+        elem["REF_LEVEL_LINE"].setReadOnly(not state)
 
     def unlock_stop_btn(self) -> None:
         """
@@ -270,7 +269,7 @@ class MeasurementController(Controller):
         elem["BTN_STOP"].setEnabled(is_checked)
         elem["UNLOCK_STOP"].setChecked(is_checked)
 
-    def lock_control_elem(self) -> None:
+    def lock_control_elements(self) -> None:
         """
         Lock the control elements.
 
@@ -282,12 +281,18 @@ class MeasurementController(Controller):
         elem["BTN_START"].hide()
         elem["BTN_STOP"].setEnabled(False)
         elem["BTN_STOP"].show()
-        controllers =  (self.ig_controller, self.gen_controller, self.sa_controller, self.osc_controller)
+        
+        controllers = (
+            self.ig_controller,
+            self.gen_controller,
+            self.sa_controller,
+            self.osc_controller,
+        )
         for controller in controllers:
-            controller.lock_control_elem()    
+            controller.lock_control_elements()
         # self.ig_controller.lock_control_elem() TODO: add lock to all controllers
 
-    def unlock_control_elem(self) -> None:
+    def unlock_control_elements(self) -> None:
         """
         Unlock the control elements.
 
@@ -298,9 +303,15 @@ class MeasurementController(Controller):
         elem["BTN_STOP"].hide()
         elem["BTN_START"].show()
         elem["BTN_SAVE_RESULT"].setEnabled(True)
-        controllers =  (self.ig_controller, self.gen_controller, self.sa_controller, self.osc_controller)
+
+        controllers = (
+            self.ig_controller,
+            self.gen_controller,
+            self.sa_controller,
+            self.osc_controller,
+        )
         for controller in controllers:
-            controller.unlock_control_elem() 
+            controller.unlock_control_elements()
 
     def cleanup(self) -> None:
         """

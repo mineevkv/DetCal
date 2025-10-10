@@ -26,19 +26,20 @@ class InstrumentController(Controller):
     #Controller
     @abstractmethod
     def connect_signals(self):
-        self.connect_buttons_signals()
+        self.view.elem['BTN_IP'].clicked.connect(self.btn_connect_click)
         self.instr.state_changed.connect(self.signal_handler)
         self.instr.progress_changed.connect(self.progress)
 
     @abstractmethod
-    def connect_buttons_signals(self):
-        self.view.elem['BTN_IP'].clicked.connect(self.btn_connect_click)
-
-    def disconnect_buttons_signals(self):
+    def unlock_buttons(self):
         for key, element in self.view.elem.items():
-            print(key, element)
-            if 'BTN_' in key:
-                element.clicked.disconnect()
+            if 'FREEZEBTN_' in key:
+                element.hide()
+
+    def lock_buttons(self):
+        for key, element in self.view.elem.items():
+            if 'FREEZEBTN_' in key:
+                element.show()
 
     @abstractmethod
     def signal_handler(self, message):
@@ -52,12 +53,11 @@ class InstrumentController(Controller):
         if 'THREAD' in message:
             self.instr.connect_thread = None
 
-    def lock_control_elem(self):
-        self.disconnect_buttons_signals()
+    def lock_control_elements(self):
+        self.lock_buttons()
 
-    def unlock_control_elem(self):
-        self.instr.get_settings_from_device()
-        self.connect_buttons_signals()
+    def unlock_control_elements(self):
+        self.unlock_buttons()
             
     def is_connect(self):
         if self.instr is not None and self.instr.is_initialized():

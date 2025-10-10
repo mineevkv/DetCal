@@ -79,6 +79,11 @@ QLabel {
     font-weight: bold;
 }
 
+.freeze_btn {
+    /* border: 1px solid #ff5436; */
+    border: none;
+}
+
 .meas_label_sa,
 .meas_label_osc,
 .s21_label {
