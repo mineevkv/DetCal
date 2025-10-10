@@ -1,6 +1,7 @@
 from PyQt6.QtCore import QObject, QTimer
 from abc import ABC, abstractmethod
 from Measurement.MeasurementModel.file_manager import FileManager
+from PyQt6.QtCore import QEvent
 
 from Measurement.abstract_controller import Controller
 
@@ -25,9 +26,19 @@ class InstrumentController(Controller):
     #Controller
     @abstractmethod
     def connect_signals(self):
-        self.view.elem['BTN_IP'].clicked.connect(self.btn_connect_click)
+        self.connect_buttons_signals()
         self.instr.state_changed.connect(self.signal_handler)
         self.instr.progress_changed.connect(self.progress)
+
+    @abstractmethod
+    def connect_buttons_signals(self):
+        self.view.elem['BTN_IP'].clicked.connect(self.btn_connect_click)
+
+    def disconnect_buttons_signals(self):
+        for key, element in self.view.elem.items():
+            print(key, element)
+            if 'BTN_' in key:
+                element.clicked.disconnect()
 
     @abstractmethod
     def signal_handler(self, message):
@@ -41,6 +52,12 @@ class InstrumentController(Controller):
         if 'THREAD' in message:
             self.instr.connect_thread = None
 
+    def lock_control_elem(self):
+        self.disconnect_buttons_signals()
+
+    def unlock_control_elem(self):
+        self.instr.get_settings_from_device()
+        self.connect_buttons_signals()
             
     def is_connect(self):
         if self.instr is not None and self.instr.is_initialized():
