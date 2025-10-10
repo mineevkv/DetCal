@@ -7,8 +7,8 @@ class GenController(InstrumentController):
     def __init__(self, instr, instr_sheet):
         super().__init__(instr, instr_sheet)
         
-    def connect_signals(self): 
-        super().connect_signals()
+    def connect_buttons_signals(self): 
+        super().connect_buttons_signals()
         self.view.elem['BTN_RF_ON'].clicked.connect(self.btn_rf_on_click)
         self.view.elem['BTN_FREQ'].clicked.connect(self.btn_freq_set_click)
         self.view.elem['BTN_LEVEL'].clicked.connect(self.btn_level_set_click)

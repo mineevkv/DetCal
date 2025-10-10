@@ -282,7 +282,10 @@ class MeasurementController(Controller):
         elem["BTN_START"].hide()
         elem["BTN_STOP"].setEnabled(False)
         elem["BTN_STOP"].show()
-        self.ig_controller.lock_control_elem()
+        controllers =  (self.ig_controller, self.gen_controller, self.sa_controller, self.osc_controller)
+        for controller in controllers:
+            controller.lock_control_elem()    
+        # self.ig_controller.lock_control_elem() TODO: add lock to all controllers
 
     def unlock_control_elem(self) -> None:
         """
@@ -295,7 +298,9 @@ class MeasurementController(Controller):
         elem["BTN_STOP"].hide()
         elem["BTN_START"].show()
         elem["BTN_SAVE_RESULT"].setEnabled(True)
-        self.ig_controller.unlock_control_elem()
+        controllers =  (self.ig_controller, self.gen_controller, self.sa_controller, self.osc_controller)
+        for controller in controllers:
+            controller.unlock_control_elem() 
 
     def cleanup(self) -> None:
         """

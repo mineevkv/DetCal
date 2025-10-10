@@ -18,7 +18,7 @@ class GeneratorSheet(InstrumentSheet):
 
     def __init__(self, main_layout: QGridLayout) -> None:
         super().__init__(main_layout)
-    
+        
 
         freq_row = self.ip_row + 2
         level_row = freq_row + 1
