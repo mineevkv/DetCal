@@ -96,5 +96,7 @@ class InstrumentSheet(Sheet):
     ) -> QPushButton:
         """Add a "big" button to the sheet."""
         btn = self.add_btn(key, col, row, text, width)
-        btn.setFixedHeight(45)
+        height = 45
+        btn.setFixedHeight(height)
+        self.elem[f"FREEZEBTN_{key}"].setFixedHeight(height)
         return btn

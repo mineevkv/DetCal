@@ -150,6 +150,13 @@ class Sheet(ABC):
         btn.setGeometry(
             QtCore.QRect(self.x_col[col], self.y_row[row], width, self.elem_height)
         )
+        freeze_label = self.elem[f"FREEZEBTN_{key}"] = QLabel(f"", parent=self.box)
+        freeze_label.setGeometry(
+            QtCore.QRect(self.x_col[col], self.y_row[row], width, self.elem_height)
+        )
+        freeze_label.setProperty("class", "freeze_btn")
+        freeze_label.hide()
+
         return btn
 
     def add_custom_btn(
@@ -165,6 +172,7 @@ class Sheet(ABC):
         """Add a custom QPushButton with a specific class to the sheet"""
         btn = self.add_btn(key, col, row, text, width)
         btn.setFixedHeight(height)
+        self.elem[f"FREEZEBTN_{key}"].setFixedHeight(height)
         if elem_class is not None:
             btn.setProperty("class", elem_class)
         return btn

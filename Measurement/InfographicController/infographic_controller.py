@@ -151,12 +151,12 @@ class InfographicController(Controller):
     def det_name_handler(self):
         WriteSettings.write_det_name_to_model(self.meas_controller)
 
-    def lock_control_elem(self):
+    def lock_control_elements(self):
         elem = self.view.elem
         elem["FREQ_COMBO"].setEnabled(False)
         elem["BTN_PROTOCOL"].setEnabled(False)
 
-    def unlock_control_elem(self):
+    def unlock_control_elements(self):
         elem = self.view.elem
         elem["FREQ_COMBO"].setEnabled(True)
         elem["BTN_PROTOCOL"].setEnabled(True)

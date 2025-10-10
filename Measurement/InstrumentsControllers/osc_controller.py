@@ -10,8 +10,8 @@ class OscController(InstrumentController):
 
         self.hide_channel_frames()
 
-    def connect_buttons_signals(self): 
-        super().connect_buttons_signals()
+    def connect_signals(self): 
+        super().connect_signals()
 
         # TODO : refactor this part
         self.btn_clicked('VERT_SCALE', self.btn_vert_scale_click)
