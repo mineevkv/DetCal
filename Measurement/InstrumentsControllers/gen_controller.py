@@ -16,12 +16,16 @@ class GenController(InstrumentController):
     def init_signals(self) -> None:
         """Initialize signals for instrument controller."""
         super().init_signals()
-        elem = self.view.elem
-
-        elem["BTN_RF_ON"].clicked.connect(self.btn_rf_on_click)
-        elem["BTN_FREQ"].clicked.connect(self.btn_freq_set_click)
-        elem["BTN_LEVEL"].clicked.connect(self.btn_level_set_click)
-        elem["BTN_MOD_ON"].clicked.connect(self.btn_mod_on_click)
+        
+        button_configs = [
+            ("RF_ON", self.btn_rf_on_click),
+            ("FREQ", self.btn_freq_set_click),
+            ("LEVEL", self.btn_level_set_click),
+            ("MOD_ON", self.btn_mod_on_click),
+        ]
+    
+        for btn_name, handler in button_configs:
+            self.btn_clicked(btn_name, handler)
 
     def btn_freq_set_click(self) -> None:
         """Button frequency set click handler."""

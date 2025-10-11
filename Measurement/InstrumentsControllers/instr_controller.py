@@ -33,6 +33,7 @@ class InstrumentController(Controller):
         self.set_connection_field()
         self.init_progress_timer()
 
+        self.disable_control_elements()
         self.instr.connect()
 
     # Controller
