@@ -73,6 +73,12 @@ QLabel {
     font-weight: regular;
 }
 
+QMessageBox QLabel {
+    font-size: 16px;
+    font-weight: regular;
+    color: #f1c40f;
+}
+
 .meas_label_gen {
     color: #f1c40f;
     font-size: 16px;
@@ -201,6 +207,12 @@ QTextBrowser {
 
 .status_bar {}
 
+QMessageBox {
+    border: 1px solid #45adff;
+    border-radius: 10px;
+    margin: 3px;
+}
+
 QProgressBar {
     border: none;
     text-align: center;
@@ -225,12 +237,22 @@ QProgressBar::chunk {
     margin: 7px 0px;
 }
 
-QPushButton {
+QPushButton,
+QMessageBox QPushButton {
     border: 1px solid #45adff;
     margin: 0px;
     font-size: 12px;
     font-weight: bold;
     border-radius: 5px;
+}
+
+QMessageBox QPushButton{
+    min-width: 80px;
+    min-height: 25px;
+    max-width: 80px;
+    max-height: 25px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 QPushButton:hover {

@@ -1,7 +1,6 @@
 from PyQt6.QtCore import QObject, QTimer
 from abc import ABC, abstractmethod
-from Measurement.MeasurementModel.file_manager import FileManager
-from PyQt6.QtCore import QEvent
+from GUI.Sheets.sibmit_dialog import SubmitDialog
 
 from Measurement.abstract_controller import Controller
 
@@ -17,16 +16,15 @@ class InstrumentController(Controller):
         self.instr = instr
         self.view = instr_sheet
         
-        self.connect_signals()
+        self.init_signals()
         self.set_connection_field()
         self.init_progress_timer()
         
         self.instr.connect()
 
-
     #Controller
     @abstractmethod
-    def connect_signals(self):
+    def init_signals(self):
         self.view.elem['BTN_IP'].clicked.connect(self.btn_connect_click)
         self.instr.state_changed.connect(self.signal_handler)
         self.instr.progress_changed.connect(self.progress)
@@ -88,10 +86,18 @@ class InstrumentController(Controller):
             return
 
         if self.is_connect():
-            current_ip = self.instr.get_ip()
-            if current_ip == new_ip:
-                logger.info(f"Already connected to {new_ip}")
+            logger.debug(f"{self.__class__.__name__}: connect already running")
+            question = "Connection is in progress!\nDo you want to cancel and reconnect?"
+            if not SubmitDialog.show_submit_dialog(question):
                 return
+            else:
+                self.instr.connect_thread.terminate()
+                logger.debug(f"{self.__class__.__name__}: connect thread terminated by user")
+
+            # current_ip = self.instr.get_ip()
+            # if current_ip == new_ip:
+            #     logger.info(f"Already connected to {new_ip}")
+            #     return
                         
         if self.instr is not None:
             self.instr.set_ip(new_ip)
