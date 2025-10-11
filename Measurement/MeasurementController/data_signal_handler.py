@@ -8,13 +8,15 @@ from .abstract_signal_handler import SignalHandler
 
 
 class DataSignalHandler(SignalHandler):
-
-    def __init__(self):
+    """ Handler for data-related signals. """
+    def __init__(self) -> None:
         super().__init__()
 
     @staticmethod
-    def handler(meas_controller, message):
+    def handler(meas_controller: object, message: dict) -> None:
+        """ Handle signals from the instrument and update the GUI accordingly."""
         logger.debug(f"DataSignalHandler")
+
         if "DATA" in message:
             if meas_controller.check_recalc():
                 meas_controller.model.recalc_data()
@@ -35,5 +37,6 @@ class DataSignalHandler(SignalHandler):
             meas_controller.ig_controller.frequency = message["FREQUENCY"]
             meas_controller.ig_controller.clear_plot()
             meas_controller.ig_controller.set_selector()
+
         if "RECALC_DATA" in message:
             pass

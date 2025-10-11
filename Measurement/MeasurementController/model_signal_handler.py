@@ -11,10 +11,12 @@ from .progress_signal_handler import ProgressSignalHandler
 
 
 class ModelSignalHandler(SignalHandler):
-    def __init__(self):
+    """ Handler for model-related signals. """
+    def __init__(self) -> None:
         super().__init__()
 
-    def init(meas_controller):
+    def init(meas_controller: object) -> None:
+        """ Connect model signals to their respective handlers."""
         meas_controller.model.data_changed.connect(
             lambda message: DataSignalHandler.handler(meas_controller, message)
         )
@@ -31,5 +33,5 @@ class ModelSignalHandler(SignalHandler):
             lambda message: SparSignalHandler.handler(meas_controller, message)
         )
 
-    def handler(self, message):
+    def handler(self, message: dict) -> None:
         pass

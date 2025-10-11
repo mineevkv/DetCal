@@ -2,22 +2,20 @@ from abc import ABC, abstractmethod
 
 
 from System.logger import get_logger
+
 logger = get_logger(__name__)
 
+
 class SignalHandler(ABC):
-    def __init__(self):
+    """Abstract class for signal handlers."""
+
+    def __init__(self) -> None:
         pass
 
-    @staticmethod
     @abstractmethod
-    def init (self):
+    def init(self) -> None:
         pass
 
-    @staticmethod
     @abstractmethod
-    def handler(self, message):
+    def handler(self, message: dict) -> None:
         pass
-
-
-        
-
