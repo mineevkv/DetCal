@@ -11,6 +11,7 @@ from System.logger import get_logger
 logger = get_logger(__name__)
 
 class InstrumentController(Controller):
+
     def __init__(self, instr, instr_sheet):
         super().__init__()
         self.instr = instr
@@ -22,7 +23,7 @@ class InstrumentController(Controller):
         
         self.instr.connect()
 
-        
+
     #Controller
     @abstractmethod
     def connect_signals(self):
@@ -143,8 +144,12 @@ class InstrumentController(Controller):
                 self.view.elem[key].setEnabled(False)
  
     def enable_control_elem(self):
-        for key in self.view.elem.keys():
-            self.view.elem[key].setEnabled(True)
+        if self.instr.model in self.instr.MODELS:
+            for key in self.view.elem.keys():
+                self.view.elem[key].setEnabled(True)
+        else:
+            logger.error(f"Instrument model {self.instr.model} not supported by this sheet")
+            self.disable_control_elem()
 
     def btn_clicked(self,btn_name, btn_handler):
         self.view.elem[f'BTN_{btn_name}'].clicked.connect(btn_handler)

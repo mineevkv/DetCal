@@ -13,6 +13,8 @@ logger = get_logger(__name__)
 class Instrument(VisaCom, QObject):
     """Abstract class for SCPI Instrument"""
 
+    MODELS = []  # Abstract list of supported instrument models
+
     state_changed = pyqtSignal(dict)  # Signal to notify settings changes
     progress_changed = pyqtSignal(int)  # Signal to current progress status (0-100)
 

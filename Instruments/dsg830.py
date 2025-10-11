@@ -9,6 +9,7 @@ class DSG830(Instrument):
     """
     Rigol DSG830 microwave generator
     """
+    MODELS = ["DSG830"]
 
     MAX_LEVEL = 20
     MIN_LEVEL = -110
