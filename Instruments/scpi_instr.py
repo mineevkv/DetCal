@@ -96,7 +96,7 @@ class Instrument(VisaCom, QObject):
         """Connect to the instrument."""
         if self.connect_thread is not None and self.connect_thread.isRunning():
             logger.debug(f"{self.__class__.__name__}: connect already running")
-            return
+            return #TODO: delete this condition after adding submit dialog
 
         self.connect_thread = ConnectThread(self)
         logger.debug(f"{self.__class__.__name__}: connect thread created")

@@ -11,8 +11,8 @@ class SAController(InstrumentController):
     def __init__(self, instr, instr_sheet):
         super().__init__(instr, instr_sheet)
 
-    def connect_signals(self): 
-        super().connect_signals()
+    def init_signals(self): 
+        super().init_signals()
         keys = (
             "CENTER_FREQ",
             "SPAN",
