@@ -1,8 +1,13 @@
 import logging
 import colorlog
-import os
 
-def setup_logging():
+def setup_logging() -> logging.StreamHandler:
+    """
+    This function is used to set up a logger with a colored formatter.
+
+    Returns:
+        logging.StreamHandler: A configured StreamHandler with a ColoredFormatter.
+    """
     formatter = colorlog.ColoredFormatter(
         "%(asctime)s %(log_color)s %(message)s",
         datefmt='%H:%M:%S',  # Define the date/time format
@@ -24,7 +29,7 @@ def setup_logging():
     
     return handler
 
-def get_logger(name):
+def get_logger(name: str) -> logging.Logger:
     """Factory function to get a configured logger"""
     handler = setup_logging()
     logger = colorlog.getLogger(name)

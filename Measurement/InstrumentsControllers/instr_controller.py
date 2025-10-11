@@ -38,7 +38,7 @@ class InstrumentController(Controller):
 
     # Controller
     @abstractmethod
-    def init_signals(self):
+    def init_signals(self) -> None:
         """
         Initialize signals for instrument controller.
 

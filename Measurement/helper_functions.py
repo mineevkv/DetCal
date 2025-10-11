@@ -59,6 +59,7 @@ def str_to_bool(value: str) -> bool:
             return False
     return bool(value)
 
+
 def refresh_obj_view(QObject_name: str) -> None:
     """
     Refresh the style of an object with the given name.
@@ -110,9 +111,7 @@ def get_s21(target_frequency: float, s21: tuple[list[float], list[float]]) -> fl
     return np.interp(target_frequency, frequencies, magnitude_dB)
 
 
-def is_equal(
-    value1: float, value2: float, tolerance: float = 1e-4
-) -> bool:
+def is_equal(value1: float, value2: float, tolerance: float = 1e-4) -> bool:
     """
     Check if two values are equal within a given tolerance.
 
@@ -165,7 +164,10 @@ def read_csv_file(folder: str, filename: str = None) -> tuple[list, str] | None:
         logger.warning(f"No file selected")
         return None
 
-def btn_clicked_connect(controller: object, btn_name: str, btn_handler: callable) -> None:
+
+def btn_clicked_connect(
+    controller: object, btn_name: str, btn_handler: callable
+) -> None:
     """
     Connect a button to a handler function.
 

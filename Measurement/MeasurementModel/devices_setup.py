@@ -109,10 +109,13 @@ class DevicesSetup:
     def _validate_settings(settings: dict) -> None:
         """Validate that required settings are present."""
         required_settings = [
-            "REF_LEVEL", "SWEEP_TIME", "SWEEP_POINTS", 
-            "CHANNEL", "HOR_SCALE"
+            "REF_LEVEL",
+            "SWEEP_TIME",
+            "SWEEP_POINTS",
+            "CHANNEL",
+            "HOR_SCALE",
         ]
-        
+
         missing = [setting for setting in required_settings if setting not in settings]
         if missing:
             raise ValueError(f"Missing required settings: {missing}")
