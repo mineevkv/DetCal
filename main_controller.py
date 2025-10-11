@@ -4,10 +4,14 @@ from Measurement.MeasurementController.meas_controller import MeasurementControl
 from GUI.main_window import MainWindow
 
 from System.logger import get_logger
+
 logger = get_logger(__name__)
 
+
 class MainController:
-    def __init__(self):
+    """Main controller to initialize and run the application."""
+
+    def __init__(self) -> None:
         super().__init__()
         self.model = MeasurementModel()
         self.view = MainWindow()
@@ -15,4 +19,3 @@ class MainController:
         self.model.offline_mode(0)
         self.meas_controller = MeasurementController(self.model, self.view)
         self.view.show()
-       
