@@ -14,9 +14,13 @@ class MDO34(Instrument):
     Tektronix MDO34 Digital Oscilloscope
     """
 
+    MODELS = ["MDO34"]
+
     CHANNEL_MAP = {1: "CH1", 2: "CH2", 3: "CH3", 4: "CH4"}
 
     VERTICAL_MAP = [1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2, 1e-1, 2e-1, 5e-1, 1]
+
+
 
     def __init__(self, ip: str) -> None:
         super().__init__(ip)

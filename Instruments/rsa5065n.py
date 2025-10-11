@@ -12,6 +12,7 @@ class RSA5065N(Instrument):
     """
     Rigol RSA5065N spectrum analyzer
     """
+    MODELS = ["RSA5065N"] 
 
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
