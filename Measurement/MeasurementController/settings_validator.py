@@ -7,7 +7,7 @@ class SettingsValidator():
     def __init__(self, view: object) -> None:
         self.view = view
 
-    def check(self) -> bool:
+    def check_values(self) -> bool:
         """
         Check if the settings are valid.
 
@@ -34,6 +34,7 @@ class SettingsValidator():
             return False
         if not self.check_horizontal_scale():
             return False
+        
         return True
 
     def check_frequencies(self) -> bool:
@@ -63,7 +64,7 @@ class SettingsValidator():
             if not self.check_min_max('LEVEL_MIN_LINE', 'LEVEL_MAX_LINE'):
                 return False
         return True
-
+    
     def check_sweep_points(self) -> bool:
         """ Check if the sweep points settings are valid."""
         if not self.validate_positive_int('SWEEP_POINTS_LINE'):
@@ -113,6 +114,13 @@ class SettingsValidator():
             return False
         text = self.view.elem['S21_GEN_DET_FILE_LABEL'].text()
         if text == 'No S21 file':
+            return False
+        return True
+    
+    def check_impedance_coupling(self) -> bool:
+        """ Check if the impedance and coupling settings are valid."""
+        elem = self.view.elem
+        if elem['RB_50OHM'].isChecked() and elem["RB_AC"].isChecked():
             return False
         return True
 
