@@ -163,7 +163,9 @@ class InstrumentController(Controller):
             if not SubmitDialog.show_submit_dialog(question):
                 return
             else:
-                self.instr.connect_thread.terminate()
+                if self.instr.connect_thread is not None:
+                    self.instr.connect_thread.terminate()
+                    self.instr.connect_thread = None
                 logger.debug(
                     f"{self.__class__.__name__}: connect thread terminated by user"
                 )
