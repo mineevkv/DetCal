@@ -170,5 +170,6 @@ class ConnectThread(QThread):
                 }
             )
             self.parent.progress_changed.emit(80)
-            self.parent.get_settings_from_device()
+            if self.parent.model in self.parent.MODELS:
+                self.parent.get_settings_from_device()
             self.parent.progress_changed.emit(100)

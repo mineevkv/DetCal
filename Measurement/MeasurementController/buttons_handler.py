@@ -78,7 +78,7 @@ class ButtonsMC:
             return
         if self.mc.model.start_measurement_process():
             self.mc.view.elem["UNLOCK_STOP"].setChecked(False)
-            self.mc.lock_control_elem()
+            self.mc.lock_control_elements()
             self.mc.progress_label_text("Waiting...")
             self.mc.status_bar.info("Measurement in progress...")
         else:

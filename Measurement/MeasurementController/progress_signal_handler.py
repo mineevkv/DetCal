@@ -13,13 +13,13 @@ class ProgressSignalHandler(SignalHandler):
         elem = meas_controller.view.elem
         
         if 'FINISH' in message:
-            meas_controller.unlock_control_elem()
+            meas_controller.unlock_control_elements()
             meas_controller.unlock_start_btn()
             meas_controller.progress_label_text('Finished')
             elem['PROGRESS'].setValue(0)
             
         if 'STOP' in message:
-            meas_controller.unlock_control_elem()
+            meas_controller.unlock_control_elements()
             meas_controller.unlock_start_btn()
             meas_controller.progress_label_text('Stopped')
 
