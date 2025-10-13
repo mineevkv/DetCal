@@ -275,6 +275,14 @@ class OscController(InstrumentController):
         if "TRIGGER" in message:
             self.trigger_pulled()
 
+    def disable_control_elements(self) -> None:
+        """Disable control elements."""
+        super().disable_control_elements()
+        self.hide_channel_frames()
+
+
+        
+
     @staticmethod
     def ch_impedance(termination) -> str:
         """Return impedance of channel termination."""

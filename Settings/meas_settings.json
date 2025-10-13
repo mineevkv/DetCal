@@ -6,7 +6,7 @@
     ],
     "RF_LEVELS": [
         -5.0,
-        15.0,
+        10.0,
         7
     ],
     "SPAN_WIDE": 1000000.0,
@@ -15,7 +15,7 @@
     "RBW_NARROW": 1000.0,
     "VBW_WIDE": 10000.0,
     "VBW_NARROW": 1000.0,
-    "REF_LEVEL": 15.0,
+    "REF_LEVEL": 10.0,
     "REF_MANUAL": false,
     "SWEEP_POINTS": 1001.0,
     "SWEEP_TIME": "AUTO ON",

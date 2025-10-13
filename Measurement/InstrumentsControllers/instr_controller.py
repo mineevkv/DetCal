@@ -170,11 +170,6 @@ class InstrumentController(Controller):
                     f"{self.__class__.__name__}: connect thread terminated by user"
                 )
 
-            # current_ip = self.instr.get_ip()
-            # if current_ip == new_ip:
-            #     logger.info(f"Already connected to {new_ip}")
-            #     return
-
         if self.instr is not None:
             self.instr.set_ip(new_ip)
             self.instr.connect()
