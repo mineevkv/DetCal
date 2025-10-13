@@ -156,6 +156,7 @@ class FileManager:
 
     def load_s21_gen_sa(self, filename: str = None) -> bool:
         """Load S21 parameters file for generator to spectrum analyzer line."""
+        path = None
         try:
             if filename is None:
                 path = open_file(self.model.s21_folder, "S21 files (*.trs)")
@@ -163,12 +164,15 @@ class FileManager:
                     logger.warning("No S21 file selected")
                     return False
                 filename = os.path.basename(path)
-
+            
             if not filename or not filename.strip():
                 logger.error("Invalid filename provided")
                 return False
+            
+            if path is None:
+                path = os.path.join(self.model.s21_folder, filename)
 
-            s21_data = self.parse_s21_file(filename)
+            s21_data = self.parse_s21_file(path)
             if s21_data is None:
                 return False
 
@@ -182,6 +186,7 @@ class FileManager:
 
     def load_s21_gen_det(self, filename: str = None) -> bool:
         """Load S21 parameters file for the line from generator to detector."""
+        path = None
         try:
             if filename is None:
                 path = open_file(self.model.s21_folder, "S21 files (*.trs)")
@@ -194,7 +199,10 @@ class FileManager:
                 logger.error("Invalid filename provided")
                 return False
 
-            s21_data = self.parse_s21_file(filename)
+            if path is None:
+                path = os.path.join(self.model.s21_folder, filename)
+
+            s21_data = self.parse_s21_file(path)
             if s21_data is None:
                 return False
 
@@ -219,14 +227,14 @@ class FileManager:
         is_gen_det_loaded = self.load_s21_gen_det("s21_gen_det.trs")
         return is_gen_sa_loaded and is_gen_det_loaded
 
-    def parse_s21_file(self, filename: str) -> tuple[list[float], list[float]] | None:
+    def parse_s21_file(self, path: str) -> tuple[list[float], list[float]] | None:
         """
         Parse an S21 file and return the frequency and magnitude data.
 
         This function will parse an S21 file and return the frequency and magnitude data.
 
         Parameters:
-            filename (str): The filename of the S21 file to parse.
+            path (str): The path to the S21 file to parse.
 
         Returns:
             tuple[list[float], list[float]]: A tuple containing the frequency and magnitude data.
@@ -234,7 +242,6 @@ class FileManager:
         Raises:
             FileNotFoundError: If the S21 file is not found.
         """
-        path = os.path.join(self.model.s21_folder, filename)
         if not os.path.exists(path):
             error_msg = f"S21 file not found: {path}"
             logger.error(error_msg)
@@ -259,6 +266,7 @@ class FileManager:
             return (frequencies, magnitudes)
 
         except Exception as e:
+            filename = os.path.basename(path)
             logger.error(f"Failed to parse S21 file {filename}: {e}")
             return None
 
