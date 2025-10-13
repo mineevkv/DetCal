@@ -53,7 +53,7 @@ class DevicesSetup:
         sa.set_swept_sa()
         sa.set_ref_level(settings["REF_LEVEL"])
         sa.set_sweep_time(settings["SWEEP_TIME"])
-        sa.set_sweep_points(settings["SWEEP_POINTS"])
+        sa.set_sweep_points(int(settings["SWEEP_POINTS"]))
         sa.trace_clear_all()
         sa.set_format_trace_bin()
 
@@ -77,6 +77,8 @@ class DevicesSetup:
             osc.set_50Ohm_termination()
         if settings["COUPLING_DC"]:
             osc.set_coupling("DC")
+        else:
+            osc.set_coupling("AC")
         osc.set_vertical_scale(1)  # 1V/div
         osc.set_vertical_position(0)
         osc.channel_on(channel)

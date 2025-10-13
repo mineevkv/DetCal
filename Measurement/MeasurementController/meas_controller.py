@@ -148,7 +148,7 @@ class MeasurementController(Controller):
         It will check if the settings are valid and return True if they are, False otherwise.
         """
         validator = SettingsValidator(self.view)
-        if not validator.check():
+        if not validator.check_values():
             self.status_bar.error("Invalid settings: check values")
             return False
         if not validator.is_correct_freq_points():
@@ -156,6 +156,9 @@ class MeasurementController(Controller):
             return False
         if not validator.is_correct_level_points():
             self.status_bar.error("Invalid settings: check levels and points")
+            return False
+        if not validator.check_impedance_coupling():
+            self.status_bar.error("Invalid settings: AC coupling only for 1 MEG impedance")
             return False
         return True
 

@@ -103,7 +103,7 @@ class MDO34(Instrument):
     @Instrument.device_checking
     def set_coupling(self, coupling: str = "DC") -> None:
         """Set the coupling of the channel: AC/DC"""
-        self.send(f"CH{self._selected_channel}:COUP {coupling}")
+        self.send(f"CH{self._selected_channel}:COUPling {coupling}")
         self.state_changed.emit({"COUPLING": coupling})
 
     @Instrument.device_checking

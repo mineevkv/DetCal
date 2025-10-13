@@ -116,7 +116,7 @@ class RSA5065N(Instrument):
     @Instrument.device_checking
     def set_sweep_time(self, sweep_time: float) -> None:
         """Set the sweep time in seconds"""
-        self.send(f":SENSE:SWEEP:TIME {sweep_time}")
+        self.send(f":SENSe:SWEep:TIME {sweep_time}")
         self.state_changed.emit({"SWEEP_TIME": sweep_time})
 
     @Instrument.device_checking
@@ -127,7 +127,7 @@ class RSA5065N(Instrument):
     @Instrument.device_checking
     def set_sweep_points(self, sweep_points: int) -> None:
         """Set the number of sweep points"""
-        self.send(f":SENSE:SWEEP:POINTS {sweep_points}")
+        self.send(f":SENSe:SWEep:POINts {int(sweep_points)}")
         self.state_changed.emit({"SWEEP_POINTS": sweep_points})
 
     @Instrument.device_checking
