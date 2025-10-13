@@ -72,7 +72,7 @@ class MeasurementProtocol(ProtocolCreator):
     def get_frequency(self) -> float | None:
         """Get the frequency from the measurement data in MHz."""
         try:
-            frequency = float(self.meas_data[1][0]) / 1e6
+            frequency = float(self.meas_data[0][0]) / 1e6
             return round(frequency, 2)
         except Exception as e:
             logger.error(f"Error getting frequency: {e}")

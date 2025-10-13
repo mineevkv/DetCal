@@ -2,6 +2,7 @@ from .abstract_sheet import Sheet
 from PyQt6 import QtCore
 import numpy as np
 import matplotlib
+matplotlib.use('Qt5Agg') # Qt5Agg for PyQt6
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QComboBox, QGridLayout
@@ -85,7 +86,6 @@ class InfographicSheet(Sheet):
         self.figure2 = PlotFigure(plot_layout2)
         self.figure2.ax.set_xlabel("SA input, dBm", fontsize=8)
 
-matplotlib.use('Qt5Agg') # Qt5Agg for PyQt6
 
 class PlotFigure:
     """Class for the plot figure."""

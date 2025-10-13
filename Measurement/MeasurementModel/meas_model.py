@@ -499,7 +499,12 @@ class MeasurementModel(QObject):
         else:
             max_out_power = level_max
 
-        frequencies = np.linspace(freq_min, freq_max, freq_points)
+        
+        if freq_points == 1:
+            frequencies = [freq_min]
+        else:
+            frequencies = np.linspace(freq_min, freq_max, freq_points)
+
         levels = []
         for frequency in frequencies:
             levels.append(self.recalc_det_level(frequency, max_out_power))
