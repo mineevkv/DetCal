@@ -1,5 +1,5 @@
 from .instr_sheet import InstrumentSheet
-from PyQt6.QtWidgets import  QGroupBox
+from PyQt6.QtWidgets import  QGroupBox, QGridLayout
 
 from GUI.palette import *
 from GUI.QtCustomWidgets.custom_widgets import *
@@ -8,10 +8,17 @@ from System.logger import get_logger
 logger = get_logger(__name__)
 
 class GeneratorSheet(InstrumentSheet):
+    """
+    Class for generating a sheet for a generator instrument.
 
-    def __init__(self, main_layout):
+    This class is derived from InstrumentSheet and adds controls for
+    frequency, level, and RF and modulation on/off buttons.
+
+    """
+
+    def __init__(self, main_layout: QGridLayout) -> None:
         super().__init__(main_layout)
-        # self.box.setTitle("Microwave Generator")
+        
 
         freq_row = self.ip_row + 2
         level_row = freq_row + 1

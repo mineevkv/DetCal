@@ -1,13 +1,13 @@
 {
     "RF_FREQUENCIES": [
-        1000000000.0,
+        2450000000.0,
         3000000000.0,
-        3
+        1
     ],
     "RF_LEVELS": [
         -5.0,
         10.0,
-        5
+        7
     ],
     "SPAN_WIDE": 1000000.0,
     "SPAN_NARROW": 100000.0,
@@ -26,5 +26,5 @@
     "COUPLING_DC": true,
     "CHANNEL": 4,
     "RECALC_ATTEN": true,
-    "FILENAME": "RF_detector_4"
+    "FILENAME": "RF_detector_3"
 }

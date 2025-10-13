@@ -3,7 +3,7 @@ from GUI.palette import *
 from Measurement.InfographicController.infographic_controller import (
     InfographicController,
 )
-from Measurement.MeasurementController.meas_buttons import ButtonsMC
+from Measurement.MeasurementController.buttons_handler import ButtonsMC
 
 from .model_signal_handler import ModelSignalHandler
 from .status_bar_controller import StatusBarController
@@ -66,7 +66,6 @@ class MeasurementController(Controller):
 
         The Timers are used to hide the status messages after a certain amount of time.
         """
-        # TODO class for timers
         self.settings_status_timer = QTimer()
         self.settings_status_timer.setInterval(3000)  # 3 second
         self.settings_status_timer.timeout.connect(self.hide_settings_status)
@@ -141,7 +140,6 @@ class MeasurementController(Controller):
         self.view.elem["PROGRESS_LABEL"].setText(text)
         self.meas_waiting_timer.start()
 
-    
     def validate_settings(self) -> bool:
         """
         Validate the settings.
@@ -150,7 +148,7 @@ class MeasurementController(Controller):
         It will check if the settings are valid and return True if they are, False otherwise.
         """
         validator = SettingsValidator(self.view)
-        if not validator.check():
+        if not validator.check_values():
             self.status_bar.error("Invalid settings: check values")
             return False
         if not validator.is_correct_freq_points():
@@ -158,6 +156,9 @@ class MeasurementController(Controller):
             return False
         if not validator.is_correct_level_points():
             self.status_bar.error("Invalid settings: check levels and points")
+            return False
+        if not validator.check_impedance_coupling():
+            self.status_bar.error("Invalid settings: AC coupling only for 1 MEG impedance")
             return False
         return True
 
@@ -229,7 +230,7 @@ class MeasurementController(Controller):
             "BTN_LOAD_S21_GEN_DET",
             "MAX_DET_LEVEL_LABEL",
             "MAX_DET_LEVEL_VALUE_LABEL",
-            "BTN_RECALC_EXTERNAL"
+            "BTN_RECALC_EXTERNAL",
         )
         for key in keys:
             elem[key].setEnabled(state)
@@ -246,7 +247,7 @@ class MeasurementController(Controller):
         if self.model.s21_gen_det is None or self.model.s21_gen_sa is None:
             return False
         return True
-    
+
     def enable_ref_line(self, state: bool) -> None:
         """
         Enable or disable the reference level line edit.
@@ -256,7 +257,7 @@ class MeasurementController(Controller):
         """
         elem = self.view.elem
         elem["REF_LEVEL_ENABLED"].setChecked(state)
-        elem['REF_LEVEL_LINE'].setReadOnly(not state)
+        elem["REF_LEVEL_LINE"].setReadOnly(not state)
 
     def unlock_stop_btn(self) -> None:
         """
@@ -270,7 +271,7 @@ class MeasurementController(Controller):
         elem["BTN_STOP"].setEnabled(is_checked)
         elem["UNLOCK_STOP"].setChecked(is_checked)
 
-    def lock_control_elem(self) -> None:
+    def lock_control_elements(self) -> None:
         """
         Lock the control elements.
 
@@ -282,9 +283,18 @@ class MeasurementController(Controller):
         elem["BTN_START"].hide()
         elem["BTN_STOP"].setEnabled(False)
         elem["BTN_STOP"].show()
-        self.ig_controller.lock_control_elem()
 
-    def unlock_control_elem(self) -> None:
+        controllers = (
+            self.ig_controller,
+            self.gen_controller,
+            self.sa_controller,
+            self.osc_controller,
+        )
+
+        for controller in controllers:
+            controller.lock_control_elements()
+
+    def unlock_control_elements(self) -> None:
         """
         Unlock the control elements.
 
@@ -295,7 +305,16 @@ class MeasurementController(Controller):
         elem["BTN_STOP"].hide()
         elem["BTN_START"].show()
         elem["BTN_SAVE_RESULT"].setEnabled(True)
-        self.ig_controller.unlock_control_elem()
+
+        controllers = (
+            self.ig_controller,
+            self.gen_controller,
+            self.sa_controller,
+            self.osc_controller,
+        )
+
+        for controller in controllers:
+            controller.unlock_control_elements()
 
     def cleanup(self) -> None:
         """

@@ -106,14 +106,6 @@ class MeasurementModel(QObject):
         """Setter for S21 parameters from generator to spectrum analyzer."""
         self._s21_gen_sa = value
 
-    def stop_decorator(func):  # TODO: use this
-        def wrapper(self, *args, **kwargs):
-            if self.is_stop():
-                return
-            return func(self, *args, **kwargs)
-
-        return wrapper
-
     def is_stop(self) -> bool:
         """Check if stop is requested.
 
@@ -179,26 +171,35 @@ class MeasurementModel(QObject):
         Load the main settings and the S21 parameters from the settings
         files and store them in the MeasurementModel.
         """
-        self.file_manager.load_s21_files() # must be first fo calculation detector power level
+        self.file_manager.load_s21_files()  # must be first fo calculation detector power level
         self.file_manager.load_start_settings()
-        
 
+    def get_data_from_frequency(self, frequency: float) -> list:
+        """Get data from frequency
 
-    def get_data_from_frequency(self, frequency):
+        Args:
+            frequency (float): Frequency in Hz
+
+        Returns:
+            list: List of data from given frequency
+        """
         data = []
         for row in self._meas_data:
-            if is_equal(row[0], frequency):
+            if is_equal(row[0], frequency, 1e4):
                 data.append(row)
         return data
 
-    def start_measurement_process(self):
+    def start_measurement_process(self) -> bool:
         """
         Measurement Initializations and preparations
         """
         abort = False
         equipment = [self.gen, self.sa, self.osc]
         for instr in equipment:
-            if not instr.is_initialized():
+            if instr is None:
+                logger.warning(f"Instrument {instr.__class__.__name__} not set")
+                abort = True
+            elif not instr.is_initialized():
                 logger.warning(f"Instrument {instr.__class__.__name__} not initialized")
                 abort = True
 
@@ -310,11 +311,17 @@ class MeasurementModel(QObject):
             self.emit_progress(100)
 
     @dispatch(int)
-    def emit_progress(self, value)  -> None: # TODO: add doc
+    def emit_progress(self, value) -> None:
+        """
+        Emit progress status
+        """
         self.progress_status.emit({"PROGRESS": value})
 
     @dispatch(object, int)
-    def emit_progress(self, iter_obj, max_len) -> None: # TODO: add doc
+    def emit_progress(self, iter_obj, max_len) -> None:
+        """
+        Emit progress status
+        """
         try:
             value = int((next(iter_obj) / max_len) * 100)
             self.progress_status.emit({"PROGRESS": value})
@@ -470,45 +477,60 @@ class MeasurementModel(QObject):
         contains the frequency (Hz), the output power level (dBm), the level (dBm) measured by the Spectrum Analyzer,
         and the voltage measured by the oscilloscope.
         """
-        recalc_data = RecalcResults.recalc_data(self.meas_data, self.s21_gen_sa, self.s21_gen_det)
+        recalc_data = RecalcResults.recalc_data(
+            self.meas_data, self.s21_gen_sa, self.s21_gen_det
+        )
         self.data_changed.emit({"RECALC_DATA": recalc_data})
         self._meas_data = recalc_data
 
-    def recalc_det_level(self, frequency: float, gen_level: float) -> float: #TODO: add documentation
+    def recalc_det_level(self, frequency: float, gen_level: float) -> float:
+        """Recalculate detector level via S21 Gen-Det parameters."""
         s21_gen_det = get_s21(frequency, self._s21_gen_det)
         det_level = gen_level + s21_gen_det
         return det_level
-    
-    def calc_max_det_level(self) -> float: #TODO: add documentation
+
+    def calc_max_det_level(self) -> float:
+        """Calculate maximum detector level over the frequency range and power levels."""
         freq_min, freq_max, freq_points = self._settings["RF_FREQUENCIES"]
         level_min, level_max, level_points = self._settings["RF_LEVELS"]
 
-        frequencies = np.linspace(freq_min, freq_max, freq_points)
+        if level_points == 1:
+            max_out_power = level_min
+        else:
+            max_out_power = level_max
+
+        
+        if freq_points == 1:
+            frequencies = [freq_min]
+        else:
+            frequencies = np.linspace(freq_min, freq_max, freq_points)
+
         levels = []
         for frequency in frequencies:
-            levels.append (self.recalc_det_level(frequency, level_max))
+            levels.append(self.recalc_det_level(frequency, max_out_power))
 
         return max(levels)
-    
+
     def is_spar(self) -> bool:
+        """Check if S21 Gen-Sa and S21 Gen-Det are connected."""
         if self.is_s21_gen_sa() and self.is_s21_gen_det():
             return True
         else:
             return False
-        
+
     def is_s21_gen_sa(self) -> bool:
+        """Check if S21 Gen-Sa is connected."""
         if self._s21_gen_sa is None:
             return False
         else:
             return True
-    
+
     def is_s21_gen_det(self) -> bool:
+        """Check if S21 Gen-Det is connected."""
         if self._s21_gen_det is None:
             return False
         else:
             return True
-            
-
 
     def set_sa_wide_band(self) -> None:
         """
@@ -542,7 +564,7 @@ class MeasurementModel(QObject):
         Returns True if scale was changed, False otherwise.
         """
         current_scale = self.osc.get_vertical_scale()
-        vertical_map = self.osc.vertical_map
+        vertical_map = self.osc.VERTICAL_MAP
         current_idx = vertical_map.index(current_scale)
 
         if value > 3 * current_scale:

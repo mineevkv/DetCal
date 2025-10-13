@@ -1,18 +1,23 @@
 from .abstract_sheet import Sheet
 
-from PyQt6.QtWidgets import  QGroupBox, QCheckBox, QRadioButton, QButtonGroup, QTextBrowser
-from PyQt6 import QtCore
+from PyQt6.QtWidgets import QButtonGroup, QLabel, QLineEdit, QGridLayout
 from PyQt6.QtCore import Qt
 
 from GUI.palette import *
-from GUI.QtCustomWidgets.custom_widgets import *
 
 from System.logger import get_logger
 logger = get_logger(__name__)
 
 class MeasurementSheet(Sheet):
+    """
+    Class for general measurement sheet in the main window.
 
-    def __init__(self, main_layout):
+    This class is used to create the measurement sheet in the main window.
+    It contains controls for instruments parameters, as well as buttons for saving and loading settings.
+
+    """
+
+    def __init__(self, main_layout: QGridLayout) -> None:
         super().__init__(main_layout)
         self.box.setTitle("Measurement parameters")
 
@@ -22,11 +27,11 @@ class MeasurementSheet(Sheet):
         save_col = load_col + 7
         set_col = save_col + 7
 
-        self.add_custom_btn('SAVE_SETTINGS', save_col, self.zero_row, 'Save', 60, self.elem_hight)
-        self.add_custom_btn('LOAD_SETTINGS',  load_col, self.zero_row, 'Load', 60, self.elem_hight)
-        self.add_custom_btn('SET_DEFAULT',  default_col, self.zero_row, 'Default', 60, self.elem_hight, 'btn_default')
+        self.add_custom_btn('SAVE_SETTINGS', save_col, self.zero_row, 'Save', 60, self.elem_height)
+        self.add_custom_btn('LOAD_SETTINGS',  load_col, self.zero_row, 'Load', 60, self.elem_height)
+        self.add_custom_btn('SET_DEFAULT',  default_col, self.zero_row, 'Default', 60, self.elem_height, 'btn_default')
         self.add_label('SETTINGS_STATUS', set_col, self.zero_row, '', 100).setProperty('class', 'settings_status_label')
-        
+
         # Generator and measurement fields
         edit_line_width = 63
 
@@ -42,11 +47,11 @@ class MeasurementSheet(Sheet):
         self.add_custom_btn('STOP',  start_col, freq_row, 'STOP', 120, 45, 'btn_stop').hide()
 
         progress_col = 52
-        self.add_progress_bar('PROGRESS', progress_col, self.zero_row+1, 320, self.elem_hight)
+        self.add_progress_bar('PROGRESS', progress_col, self.zero_row+1, 320, self.elem_height)
         self.add_progress_label('PROGRESS', progress_col+13, self.zero_row+2, "Waiting...", 68).hide()
         self.add_custom_btn('SAVE_RESULT',  72, freq_row, 'SAVE', 120, 45, 'btn_save_result').setEnabled(False)
 
-        # Spectrum analyzer and 
+        # Spectrum analyzer and
         points_row = level_row + 2
         span_row = points_row + 1
         rbw_row = span_row + 1
@@ -61,9 +66,7 @@ class MeasurementSheet(Sheet):
         self.add_sa_elem('VBW', self.zero_col, vbw_row, edit_line_width, 'VBW, kHz:', '0')
         self.add_sa_elem('REF_LEVEL', self.zero_col, ref_level_row, edit_line_width, 'Ref level, dB:', '0')
         self.add_check_box('REF_LEVEL_ENABLED', precise_col, ref_level_row, 'Set Ref level manually')
-        
 
-        
         self.add_check_box('PRECISE_ENABLED', precise_col, points_row, 'Precise measurement')
         self.add_sa_elem('SPAN_PRECISE', precise_col, span_row, edit_line_width, 'SPAN, MHz:', '0')
         self.add_sa_elem('RBW_PRECISE', precise_col, rbw_row, edit_line_width, 'RBW, kHz:', '0')
@@ -76,17 +79,16 @@ class MeasurementSheet(Sheet):
         det_col = s21_col + 20
         recalc_col = s21_col + 16
         self.add_check_box('RECALC_ATT', s21_col, points_row, 'Recalc attenuation')
-        self.add_custom_btn('RECALC_EXTERNAL', recalc_col, points_row, 'Recalc results file', 120, self.elem_hight)
+        self.add_custom_btn('RECALC_EXTERNAL', recalc_col, points_row, 'Recalc results file', 120, self.elem_height)
         self.add_label('S21_GEN_SA', s21_col, span_row, 'S21 Gen-SA file:', 120).setProperty('class', 's21_label')
         self.add_label('S21_GEN_SA_FILE', s21_file_col, span_row, 'No S21 file', 200).setProperty('class', 's21_label_nofile')
-        self.add_custom_btn('LOAD_S21_GEN_SA', s21_btn_col, span_row, 'Load', 60, self.elem_hight)
+        self.add_custom_btn('LOAD_S21_GEN_SA', s21_btn_col, span_row, 'Load', 60, self.elem_height)
         self.add_label('S21_GEN_DET', s21_col, rbw_row, 'S21 Gen-Det file:', 120).setProperty('class', 's21_label')
         self.add_label('S21_GEN_DET_FILE', s21_file_col, rbw_row, 'No S21 file', 200).setProperty('class', 's21_label_nofile')
-        self.add_custom_btn('LOAD_S21_GEN_DET', s21_btn_col, rbw_row, 'Load', 60, self.elem_hight)
+        self.add_custom_btn('LOAD_S21_GEN_DET', s21_btn_col, rbw_row, 'Load', 60, self.elem_height)
         self.add_label('MAX_DET_LEVEL', s21_col, vbw_row, 'Detector Max level, dBm:', 200).setProperty('class', 'meas_label_sa')
         self.add_label('MAX_DET_LEVEL_VALUE', det_col, vbw_row, '-110', 60).setProperty('class', 'det_level_label')
 
-        
         # Oscilloscope fields
 
         hor_scale_row = ref_level_row + 2
@@ -102,7 +104,6 @@ class MeasurementSheet(Sheet):
 
         imp_row = hor_scale_row + 1
 
- 
         self.add_label('IMPEDANCE', self.zero_col, imp_row, 'Impedance:', 100).setProperty('class', 'meas_label_osc')
         self.impedance_group =  QButtonGroup()
         impedance_buttons = [
@@ -111,8 +112,7 @@ class MeasurementSheet(Sheet):
         ]
         for rb in impedance_buttons :
             self.impedance_group.addButton(rb)
-        
-        
+
         coup_row = imp_row + 1
         self.add_label('COUPLING', self.zero_col, coup_row, 'Coupling:', 100).setProperty('class', 'meas_label_osc')
         self.coupling_group =  QButtonGroup(parent=self.box)
@@ -139,10 +139,21 @@ class MeasurementSheet(Sheet):
         self.add_custom_btn('APPLY', 44, imp_row, 'APPLY', 60, 69, 'btn_apply')
 
         # Status bar field
-        self.add_label('STATUS_BAR', self.zero_col, ch_row+3, '', 800)
+        self.add_label('STATUS_BAR', self.zero_col, ch_row+2, '', 800)
 
-
-    def add_gen_elem(self, key, col, row, width, text, text_min, value_min, text_max, value_max):
+    def add_gen_elem(
+        self,
+        key: str,
+        col: int,
+        row: int,
+        width: int,
+        text: str,
+        text_min: str,
+        value_min: str,
+        text_max: str,
+        value_max: str,
+    ) -> None:
+        """Add a generator control element consisting of a label, min and max line edits."""
         align_rvc = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         align_lvc = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter 
 
@@ -157,38 +168,51 @@ class MeasurementSheet(Sheet):
         self.add_label(f"{key}_POINTS", col+38, row, 'POINTS:', 50).setAlignment(align_lvc)
         self.add_line_edit(f"{key}_POINTS", col+44, row, '0', width).setAlignment(align_rvc)
 
-    def add_sa_elem(self, key, col, row, width,  text, value):
+    def add_sa_elem(
+        self, key: str, col: int, row: int, width: int, text: str, value: str
+    ) -> None:
+        """Add a spectrum analyzer control element consisting of a label and line edit."""
         label_width = 100
         self.add_label(key, col, row, text, label_width).setProperty('class', 'meas_label_sa')
         self.add_line_edit(f"{key}", col + label_width//10, row, value, width).setAlignment(Qt.AlignmentFlag.AlignRight)
 
-    def add_osc_elem(self, key, col, row, width, text, value):
+    def add_osc_elem(
+        self, key: str, col: int, row: int, width: int, text: str, value: str
+    ) -> None:
+        """Add an oscilloscope control element consisting of a label and line edit."""
         label_width = 190
         self.add_label(key, col, row, text, label_width).setProperty('class', 'meas_label_osc')
         self.add_line_edit(f"{key}", col + label_width//10, row, value, width).setAlignment(Qt.AlignmentFlag.AlignRight)
-        
 
-    def enable_precise(self, state):
+    def enable_precise(self, state: bool) -> None:
+        """Enable or disable precise measurement fields."""
         for key in ['SPAN_PRECISE_LABEL', 'SPAN_PRECISE_LINE',
                     'RBW_PRECISE_LABEL', 'RBW_PRECISE_LINE',
                     'VBW_PRECISE_LABEL', 'VBW_PRECISE_LINE']:
             self.elem[key].setEnabled(state)
-    
-    def add_progress_label(self, key, col, row, text, width):
+
+    def add_progress_label(
+        self, key: str, col: int, row: int, text: str, width: int
+    ) -> QLabel:
+        """Add a progress label."""
         label = self.add_label(key, col, row, text, width)
         label.setProperty('class', 'meas_progress_label')
         label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter)
         self.shift_position(label, shift_x=-4, shift_y=13)
         return label
-    
-    #Line edit handlers
-    def line_edit_changed(self, line_edit):
+
+    # Line edit handlers
+    def line_edit_changed(self, line_edit: QLineEdit) -> None:
+        """
+        Handle a change event in a line edit.
+
+        Args:
+            line_edit (QLineEdit): The line edit which triggered the change event.
+        """
         line_edit.setStyleSheet(f"color: {SURFGREEN};")
 
-    def set_line_edit_unchanged(self):
+    def set_line_edit_unchanged(self) -> None:
+        """Reset the style of all line edits."""
         for line_edit in self.elem.values():
             if isinstance(line_edit, QLineEdit):
                 line_edit.setStyleSheet(f"")
-    
-
-

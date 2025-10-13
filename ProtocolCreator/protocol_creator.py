@@ -14,6 +14,8 @@ logger = get_logger(__name__)
 
 
 class ProtocolCreator(QThread):
+    """ Base class for creating measurement protocols in a separate thread."""
+
     output_dir = "Output"
     finished_signal = pyqtSignal()
 
@@ -33,8 +35,9 @@ class ProtocolCreator(QThread):
 
 
 class MeasurementProtocol(ProtocolCreator):
+    """ Class for creating measurement protocols in a separate thread."""
 
-    def __init__(self, data_file, settings):
+    def __init__(self, data_file: list, settings: dict) -> None:
         super().__init__()
 
         self.meas_data = data_file
@@ -52,7 +55,8 @@ class MeasurementProtocol(ProtocolCreator):
 
         self.doc = LatexDocument(**kwargs)
 
-    def run(self):
+    def run(self) -> None:
+        """" Run the protocol in a separate thread."""
         try:
             if self.isInterruptionRequested() or self._should_stop:
                 return
@@ -65,22 +69,25 @@ class MeasurementProtocol(ProtocolCreator):
         except Exception as e:
             logger.error(f"Error in protocol thread: {e}")
 
-    def get_frequency(self):
+    def get_frequency(self) -> float | None:
+        """Get the frequency from the measurement data in MHz."""
         try:
-            frequency = float(self.meas_data[1][0]) / 1e6
+            frequency = float(self.meas_data[0][0]) / 1e6
             return round(frequency, 2)
         except Exception as e:
             logger.error(f"Error getting frequency: {e}")
             return None
 
-    def make_filename(self):
+    def make_filename(self) -> str:
+        """Make a filename for the protocol."""
         filename = self.meas_settings["FILENAME"]
         filename = (
             filename + "_" + remove_zeros(self.frequency).replace(".", "p") + "MHz"
         )
         return filename
 
-    def fill_document(self):
+    def fill_document(self) -> None:
+        """Fill the document with content."""
         self.add_sapmle_section()
         self.add_equipments_section()
         self.add_settings_section()
@@ -94,7 +101,8 @@ class MeasurementProtocol(ProtocolCreator):
                 "Protocol cannot be created! Check the data file and settings!"
             )
 
-    def add_sapmle_section(self):
+    def add_sapmle_section(self) -> None:
+        # Add sections with content
         self.doc.add_section("Sample", "")
         filename = self.meas_settings["FILENAME"]
         filename = filename.replace("_", " ")
@@ -102,7 +110,8 @@ class MeasurementProtocol(ProtocolCreator):
         text = r"\texttt{" + filename + r"}" + f" at {remove_zeros(self.frequency)} MHz"
         self.doc.add_bullet_list([text])
 
-    def add_equipments_section(self):
+    def add_equipments_section(self) -> None:
+        # Add sections with content
         self.doc.add_section("Measurement equipment", "")
         self.doc.add_numbered_list(
             [
@@ -125,7 +134,8 @@ class MeasurementProtocol(ProtocolCreator):
         ]
         self.doc.add_table(table_data, caption="Measurement parameters", label="params")
 
-    def parse_settings(self):
+    def parse_settings(self) -> dict:
+        """Parse the measurement settings."""
         settings = self.meas_settings.copy()
         del settings["FILENAME"]
         del settings["REF_MANUAL"]
@@ -169,7 +179,8 @@ class MeasurementProtocol(ProtocolCreator):
 
         return settings
 
-    def add_plot_section(self):
+    def add_plot_section(self) -> bool:
+        # Add sections with content
         self.doc.add_newpage()
         self.doc.add_section("Results", "")
 
@@ -205,7 +216,8 @@ class MeasurementProtocol(ProtocolCreator):
         except Exception as e:
             logger.error(f"Error adding plot section: {e}")
 
-    def create_pdf(self):
+    def create_pdf(self) -> None:
+        """ Create a PDF file from the LaTeX document. """
         try:
             pdf_path = self.doc.compile_pdf(output_dir=self.output_dir)
             logger.info(f"PDF generated at: {pdf_path}")
@@ -213,7 +225,8 @@ class MeasurementProtocol(ProtocolCreator):
             logger.error(f"PDF compilation failed: {e}")
             logger.debug("But the .tex file was created successfully!")
 
-    def create_plot(self, unit="mW"):
+    def create_plot(self, unit: str="mW") -> None:
+        """ Create a plot from the measurement data. """
         try:
             # Create fresh figure
             self.figure, self.ax = plt.subplots(
@@ -243,7 +256,8 @@ class MeasurementProtocol(ProtocolCreator):
         path = os.path.join(self.output_dir, f"measurement_data_{unit}.png")
         self.figure.savefig(path, dpi=600, bbox_inches="tight", pad_inches=0)
 
-    def is_detector(self):
+    def is_detector(self) -> bool:
+        """ Check if the measurement data has detector input level. """
         meas_data_row = self.meas_data[0]
         if (
             self.meas_settings["RECALC_ATTEN"]
@@ -254,7 +268,7 @@ class MeasurementProtocol(ProtocolCreator):
         else:
             return False
 
-    def extract_and_plot_data(self, unit="mW"):
+    def extract_and_plot_data(self, unit: str="mW") -> bool:
         """Extract measurement data and plot it"""
         try:
             if len(self.meas_data) <= 1:
@@ -300,7 +314,7 @@ class MeasurementProtocol(ProtocolCreator):
             logger.error(f"Error in extract_and_plot_data: {e}")
             return False
 
-    def apply_plot_settings(self, unit="mW"):
+    def apply_plot_settings(self, unit: str="mW") -> None:
         """Apply comprehensive plot settings"""
         # Labels and titles
         self.ax.set_xlabel(
@@ -340,7 +354,8 @@ class MeasurementProtocol(ProtocolCreator):
         # self.protocol.add_section("Measurement Data", self.meas_data)
         # self.protocol.add_section("Measurement Settings", self.meas_settings)
 
-    def clean_up(self):
+    def clean_up(self) -> None:
+        """Clean up the output directory."""
         png_files = [
             f
             for f in os.listdir(self.output_dir)

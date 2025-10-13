@@ -4,6 +4,7 @@ from ..helper_functions import read_csv_file, open_file
 import os
 import json
 import numpy as np
+from typing import Tuple, Dict, Any
 
 from System.logger import get_logger
 
@@ -30,8 +31,10 @@ class FileManager:
         logger.debug("MeasModel: load settings from file")
         try:
             path = self.open_settings_file()
-            self.load_settings(path)
-            return True
+            if not path:  # Check if user cancelled or error occurred
+                logger.info("Settings file selection cancelled")
+                return False
+            return self.load_settings(path)
         except Exception as e:
             logger.error(f"Failed to load settings from file: {e}")
             return False
@@ -63,50 +66,58 @@ class FileManager:
             if key not in settings.keys():
                 return False
         return True
-    
-    def load_settings(self, path: str) -> None:
+
+    def load_settings(self, path: str) -> bool:
+        """Load settings from a json file."""
         try:
-            with open(path, "r") as f:
+            with open(path, "r", encoding="utf-8") as f:  # Added encoding
                 settings = json.load(f)
         except Exception as e:
             logger.error(f"Failed to load settings from {path}: {e}")
-            raise  # Re-raise the exception after logging
+            return False
 
         if self.is_settings(settings):
             self.model.settings = settings
             logger.info(f"Settings loaded successfully from {path}")
+            return True
         else:
-            error_msg = f"Invalid settings file: {path}"
-            logger.error(error_msg)
-            raise ValueError(error_msg)
+            logger.error(f"Invalid settings file: {path}")
+            return False
 
-
-    def load_start_settings(self) -> None:
+    def load_start_settings(self) -> bool:
+        """Load settings from the existing settings json file."""
         logger.debug("FileManager: load settings")
-        path = os.path.join(self.model.settings_folder, f"{self.model.settings_filename}.json")
-        if not os.path.exists(path):
-            error_msg = f"User settings file not found: {path}"
-            logger.error(error_msg)
-            raise FileNotFoundError(error_msg)
-        self.load_settings(path)
+        try:
+            path = os.path.join(
+                self.model.settings_folder, f"{self.model.settings_filename}.json"
+            )
+            if not os.path.exists(path):
+                error_msg = f"User settings file not found: {path}"
+                logger.error(error_msg)
+                raise FileNotFoundError(error_msg)
+            return self.load_settings(path)
+        except Exception as e:
+            logger.error(f"Failed to load start settings: {e}")
+            return False
 
-
-
-    def load_default_settings(self) -> None:
+    def load_default_settings(self) -> bool:
+        """Load default settings from the default settings json file."""
         logger.debug("FileManager: load default settings")
-        path = os.path.join(self.model.settings_folder, f"{self.model.settings_filename}_default.json")
+        path = os.path.join(
+            self.model.settings_folder, f"{self.model.settings_filename}_default.json"
+        )
         if not os.path.exists(path):
             error_msg = f"Default settings file not found: {path}"
             logger.error(error_msg)
             raise FileNotFoundError(error_msg)
-        self.load_settings(path)
+        return self.load_settings(path)
 
-    def open_settings_file(self) -> dict:
+    def open_settings_file(self) -> str | None:
         """
         Open a file dialog to load settings from a file.
 
         Returns:
-            dict: A dictionary containing the settings.
+            str: Optional[str]: Path to the selected file, or None if cancelled/error
         """
         try:
             path, _ = QFileDialog.getOpenFileName(
@@ -114,9 +125,10 @@ class FileManager:
                 directory=self.model.settings_folder,
                 filter="JSON files (*.json)",
             )
-            return path
+            return path if path else None
         except Exception as e:
             logger.warning(f"Failed to open file dialog: {e}")
+            return None
 
     def save_settings(self) -> bool:
         """
@@ -134,7 +146,7 @@ class FileManager:
             if not os.path.exists(folder):
                 os.makedirs(folder)
             path = os.path.join(folder, f"{filename}.json")
-            with open(path, "w") as f:
+            with open(path, "w", encoding="utf-8") as f:
                 json.dump(self.model.settings, f, indent=4)
                 logger.info(f"Settings saved successfully to {path}")
             return True
@@ -143,49 +155,63 @@ class FileManager:
             return False
 
     def load_s21_gen_sa(self, filename: str = None) -> bool:
-        """
-        Load S21 parameters file for the line from generator to spectrum analyzer.
-
-        This function will load the S21 parameters from a file and store them in the measurement model.
-
-        Parameters:
-            filename (str): The filename of the S21 file to load. If None, a file dialog will be opened to select the file.
-
-        Returns:
-            bool: True if the S21 parameters were loaded successfully, False otherwise.
-        """
+        """Load S21 parameters file for generator to spectrum analyzer line."""
+        path = None
         try:
             if filename is None:
                 path = open_file(self.model.s21_folder, "S21 files (*.trs)")
+                if not path:
+                    logger.warning("No S21 file selected")
+                    return False
                 filename = os.path.basename(path)
-            self.model.s21_gen_sa = self.parse_s21_file(filename)
+            
+            if not filename or not filename.strip():
+                logger.error("Invalid filename provided")
+                return False
+            
+            if path is None:
+                path = os.path.join(self.model.s21_folder, filename)
+
+            s21_data = self.parse_s21_file(path)
+            if s21_data is None:
+                return False
+
+            self.model.s21_gen_sa = s21_data
             self.model.s21_file_changed.emit({"S21_GEN_SA_FILENAME": filename})
             return True
+
         except Exception as e:
-            logger.warning(f"Failed to load S21 file: {e}")
+            logger.error(f"Failed to load S21 Gen-SA file: {e}")
             return False
 
     def load_s21_gen_det(self, filename: str = None) -> bool:
-        """
-        Load S21 parameters file for the line from generator to detector.
-
-        This function will load the S21 parameters from a file and store them in the measurement model.
-
-        Parameters:
-            filename (str): The filename of the S21 file to load. If None, a file dialog will be opened to select the file.
-
-        Returns:
-            bool: True if the S21 parameters were loaded successfully, False otherwise.
-        """
+        """Load S21 parameters file for the line from generator to detector."""
+        path = None
         try:
             if filename is None:
                 path = open_file(self.model.s21_folder, "S21 files (*.trs)")
+                if not path:
+                    logger.warning("No S21 file selected")
+                    return False
                 filename = os.path.basename(path)
-            self.model.s21_gen_det = self.parse_s21_file(filename)
+
+            if not filename or not filename.strip():
+                logger.error("Invalid filename provided")
+                return False
+
+            if path is None:
+                path = os.path.join(self.model.s21_folder, filename)
+
+            s21_data = self.parse_s21_file(path)
+            if s21_data is None:
+                return False
+
+            self.model.s21_gen_det = s21_data
             self.model.s21_file_changed.emit({"S21_GEN_DET_FILENAME": filename})
             return True
+
         except Exception as e:
-            logger.warning(f"Failed to load S21 file: {e}")
+            logger.error(f"Failed to load S21 Gen-Det file: {e}")
             return False
 
     def load_s21_files(self) -> bool:
@@ -201,14 +227,14 @@ class FileManager:
         is_gen_det_loaded = self.load_s21_gen_det("s21_gen_det.trs")
         return is_gen_sa_loaded and is_gen_det_loaded
 
-    def parse_s21_file(self, filename: str) -> tuple[list[float], list[float]]:
+    def parse_s21_file(self, path: str) -> tuple[list[float], list[float]] | None:
         """
         Parse an S21 file and return the frequency and magnitude data.
 
         This function will parse an S21 file and return the frequency and magnitude data.
 
         Parameters:
-            filename (str): The filename of the S21 file to parse.
+            path (str): The path to the S21 file to parse.
 
         Returns:
             tuple[list[float], list[float]]: A tuple containing the frequency and magnitude data.
@@ -216,17 +242,76 @@ class FileManager:
         Raises:
             FileNotFoundError: If the S21 file is not found.
         """
-        path = os.path.join(self.model.s21_folder, filename)
         if not os.path.exists(path):
             error_msg = f"S21 file not found: {path}"
             logger.error(error_msg)
             raise FileNotFoundError(error_msg)
 
-        parser = RSA506N_S21_Parser(path)
-        data = parser.parse_file()
-        return (data["FREQUENCY"], data["MAGNITUDE_DB"])
+        try:
+            parser = RSA506N_S21_Parser(path)
+            data = parser.parse_file()
 
-    def save_results(self, mode: str = None) -> None:
+            # Validate the parsed data structure
+            if not data or "FREQUENCY" not in data or "MAGNITUDE_DB" not in data:
+                logger.error(f"Invalid S21 file format: {path}")
+                return None
+
+            frequencies = data["FREQUENCY"]
+            magnitudes = data["MAGNITUDE_DB"]
+
+            # Validate data content
+            if not self.validate_s21_data(frequencies, magnitudes, path):
+                return None
+
+            return (frequencies, magnitudes)
+
+        except Exception as e:
+            filename = os.path.basename(path)
+            logger.error(f"Failed to parse S21 file {filename}: {e}")
+            return None
+
+    def validate_s21_data(
+        self, frequencies: Dict[str, Any], magnitudes: Dict[str, Any], path: str
+    ) -> bool:
+        """
+        Validate the structure of S21 data arrays.
+        """
+        # Basic existence checks
+        if frequencies is None or magnitudes is None:
+            logger.error(f"S21 data is None in file: {path}")
+            return False
+
+        # Type checks
+        if not isinstance(frequencies, (list, np.ndarray)) or not isinstance(
+            magnitudes, (list, np.ndarray)
+        ):
+            logger.error(f"S21 data must be list or ndarray in file: {path}")
+            return False
+
+        # Convert and validate
+        try:
+            freq_array = np.asarray(frequencies, dtype=float)
+            mag_array = np.asarray(magnitudes, dtype=float)
+        except (ValueError, TypeError) as e:
+            logger.error(f"S21 data contains non-numeric values in file {path}: {e}")
+            return False
+
+        # Dimension and size checks
+        if freq_array.ndim != 1 or mag_array.ndim != 1:
+            logger.error(f"S21 data must be 1-dimensional in file: {path}")
+            return False
+
+        if freq_array.size == 0 or mag_array.size == 0:
+            logger.error(f"Empty S21 data in file: {path}")
+            return False
+
+        if freq_array.size != mag_array.size:
+            logger.error(f"S21 data length mismatch in file: {path}")
+            return False
+
+        return True
+
+    def save_results(self, mode: str = None) -> bool:
         """
         Saves the measurement results to a CSV file.
 
@@ -242,26 +327,48 @@ class FileManager:
 
         In mode=open', the filename will be selected by the user through a file dialog.
         """
+        path = None
+
         try:
+            if not hasattr(self.model, "meas_data") or self.model.meas_data is None:
+                logger.error("No measurement data to save")
+                return False
+
+            if "FILENAME" not in self.model.settings:
+                logger.error("No filename specified in settings")
+                return False
+
             filename = f"{self.model.settings['FILENAME']}_results.csv"
             if mode == "open":
                 path, _ = QFileDialog.getSaveFileName(
                     caption="Save results",
-                    directory=os.path.join(filename),
+                    directory=filename,
                     filter="CSV files (*.csv)",
                 )
+                if not path:  # User cancelled the dialog
+                    logger.info("Save operation cancelled by user")
+                    return False
             else:
-                path = os.path.join(self.model.output_dir, filename)
+                try:
+                    os.makedirs(self.model.output_dir, exist_ok=True)
+                    path = os.path.join(self.model.output_dir, filename)
+                except OSError as e:
+                    logger.error(f"Failed to create output directory: {e}")
+                    return False
         except Exception as e:
-            logger.warning(f"Failed to open file dialog: {e}")
+            logger.error(f"Failed to open file dialog: {e}")
+            return False
 
-        if not os.path.exists(self.model.output_dir):
-            os.makedirs(self.model.output_dir)
+        # Ensure we have a valid path at this point
+        if not path:
+            logger.error("No valid file path determined for saving")
+            return False
 
-        FileManager.save_results_to_file(self.model.meas_data, path)
+        return FileManager.save_results_to_file(self.model.meas_data, path)
 
     @staticmethod
-    def save_results_to_file(data, path):
+    def save_results_to_file(data: list, path: str) -> bool:
+        """Save measurement results to a CSV file."""
         if path:
             try:
                 file_header = "Gen Frequency (Hz), Gen Level (dBm), SA Level (dBm), Osc Voltage (V), S21 Gen-Sa (dB), S21 Gen-Det (dB), Det Level (dBm)"

@@ -8,11 +8,14 @@ logger = get_logger(__name__)
 
 
 class SparSignalHandler(SignalHandler):
-    def __init__(self):
+    """Handler for S-parameter file-related signals."""
+
+    def __init__(self) -> None:
         super().__init__()
 
     @staticmethod
-    def handler(meas_controller, message):
+    def handler(meas_controller: object, message: dict) -> None:
+        """Handle signals from the S-parameter file changes and update the GUI accordingly."""
         if "S21_GEN_SA_FILENAME" in message:
             elem = meas_controller.view.elem["S21_GEN_SA_FILE_LABEL"]
             elem.setText(message["S21_GEN_SA_FILENAME"])

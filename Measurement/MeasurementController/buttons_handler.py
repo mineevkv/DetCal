@@ -5,8 +5,11 @@ from System.logger import get_logger
 
 logger = get_logger(__name__)
 
-class ButtonsMC():
-    def __init__(self, meas_controller) -> None:
+
+class ButtonsMC:
+    """Handler for MeasurementController buttons."""
+
+    def __init__(self, meas_controller: object) -> None:
         self.mc = meas_controller
 
     def btn_stop_click(self) -> None:
@@ -75,7 +78,7 @@ class ButtonsMC():
             return
         if self.mc.model.start_measurement_process():
             self.mc.view.elem["UNLOCK_STOP"].setChecked(False)
-            self.mc.lock_control_elem()
+            self.mc.lock_control_elements()
             self.mc.progress_label_text("Waiting...")
             self.mc.status_bar.info("Measurement in progress...")
         else:
@@ -90,12 +93,11 @@ class ButtonsMC():
         """
         logger.debug("Save result")
         try:
-            self.mc.model.file_manager.save_results('open')
+            self.mc.model.file_manager.save_results("open")
             self.mc.progress_label_text("Saved")
         except Exception as e:
             self.mc.status_bar.error(f"Save result error: {e}")
 
-    
     def btn_load_s21_gen_sa_click(self) -> None:
         """
         Load an S21 Gen-SA parameters from external file.
@@ -136,11 +138,13 @@ class ButtonsMC():
             WriteSettings.view_to_model(self.mc)
             self.mc.ig_controller.clear_selector()
             self.mc.model.settings_changed.emit(self.mc.model.settings)
+            self.mc.ig_controller.clear_plot()
         except Exception as e:
             self.mc.status_bar.error(f"Error applying settings: {e}")
 
     def btn_recalc_external_click(self) -> None:
+        """ Recalculate the results from an external file."""
         if RecalcResults.from_external_file(self.mc.model):
-           self.mc.status_bar.info("Recalculation completed")
+            self.mc.status_bar.info("Recalculation completed")
         else:
             self.mc.status_bar.error("Recalculation failed")

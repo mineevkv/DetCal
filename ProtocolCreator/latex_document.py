@@ -40,7 +40,7 @@ class LatexDocument:
         # Initialize with basic document structure
         self._initialize_document()
     
-    def _initialize_document(self):
+    def _initialize_document(self) -> None:
         """Initialize the basic LaTeX document structure."""
         self.content = [
             r"\documentclass",
@@ -50,8 +50,6 @@ class LatexDocument:
             "% Packages",
         ]
 
-
-        
         # Add packages
         for package in self.packages:
             if isinstance(package, dict):
@@ -81,7 +79,7 @@ class LatexDocument:
             ""
         ])
 
-    def set_geometry(self, left, right, top, bottom):
+    def set_geometry(self, left: float, right: float, top: float, bottom: float) -> None:
         """
         Set the document geometry.
 
@@ -101,11 +99,11 @@ class LatexDocument:
             ""
         ])
 
-    def add_newpage(self):
+    def add_newpage(self) -> None:
         """Add a new page to the document."""
         self.content.append(r"\newpage")
     
-    def add_section(self, title: str, content: str, level: int = 1):
+    def add_section(self, title: str, content: str, level: int = 1) -> None:
         """
         Add a section to the document.
         
@@ -125,13 +123,11 @@ class LatexDocument:
         
         self.sections.append({"title": title, "level": level, "content": content})
     
-    def add_text(self, text: str):
+    def add_text(self, text: str) -> None:
         """Add plain text to the document."""
         self.content.append(text)
-        # self.content.append("")
-
     
-    def add_equation(self, equation: str, numbered: bool = True):
+    def add_equation(self, equation: str, numbered: bool = True) -> None:
         """
         Add a mathematical equation.
         
@@ -148,7 +144,7 @@ class LatexDocument:
         ])
     
     def add_figure(self, image_path: str, caption: str, label: str, 
-                   width: str = "0.8\\textwidth", placement: str = "htbp"):
+                   width: str = "0.8\\textwidth", placement: str = "htbp") -> None:
         """
         Add a figure to the document.
         
@@ -177,7 +173,7 @@ class LatexDocument:
         })
     
     def add_table(self, data: List[List[str]], caption: str, label: str, 
-                  headers: Optional[List[str]] = None):
+                  headers: Optional[List[str]] = None) -> None:
         """
         Add a table to the document.
         
@@ -220,7 +216,7 @@ class LatexDocument:
             "label": label
         })
     
-    def add_bullet_list(self, items: List[str]):
+    def add_bullet_list(self, items: List[str]) -> None:
         """Add a bulleted list."""
         self.content.append("\\begin{itemize}")
         for item in items:
@@ -228,7 +224,7 @@ class LatexDocument:
         self.content.append("\\end{itemize}")
         self.content.append("")
     
-    def add_numbered_list(self, items: List[str]):
+    def add_numbered_list(self, items: List[str]) -> None:
         """Add a numbered list."""
         self.content.append("\\begin{enumerate}")
         for item in items:
@@ -236,7 +232,7 @@ class LatexDocument:
         self.content.append("\\end{enumerate}")
         self.content.append("")
     
-    def add_abstract(self, abstract_text: str):
+    def add_abstract(self, abstract_text: str) -> None:
         """Add an abstract section."""
         self.content.extend([
             "\\begin{abstract}",

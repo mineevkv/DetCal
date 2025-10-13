@@ -1,5 +1,6 @@
 
 class Keys:
+    """ A class to hold the keys for different instruments."""
     gen = { 
             'RF_FREQUENCIES' : ('FREQ', 'MHz'),
             'RF_LEVELS' : ('LEVEL', 'dBm')
@@ -19,7 +20,3 @@ class Keys:
     osc = {
             'HOR_SCALE' : ('HOR_SCALE', 'ms')
         }
-    
-    def __init__(self):
-        pass
-    

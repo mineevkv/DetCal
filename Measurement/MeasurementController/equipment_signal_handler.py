@@ -4,16 +4,17 @@ from Measurement.InstrumentsControllers.osc_controller import OscController
 
 from .abstract_signal_handler import SignalHandler
 
-
 from System.logger import get_logger
 logger = get_logger(__name__)
 
 class EquipmentSignalHandler(SignalHandler):
-    def __init__(self):
+    """ Handler for equipment-related signals. """
+    def __init__(self) -> None:
         super().__init__()
 
     @staticmethod
-    def handler(meas_controller, message):
+    def handler(meas_controller: object, message: dict) -> None:
+        """ Handle signals from the instrument and update the GUI accordingly."""
         logger.debug('EquipmentSignalHandler')
 
         for instr, controller in (
