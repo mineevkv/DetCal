@@ -22,6 +22,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.vscode/
 
 # PyInstaller
 *.manifest
@@ -89,3 +90,6 @@ dmypy.json
 *.lot
 *.synctex.gz
 *.toc
+
+# VNA files
+*.trs
